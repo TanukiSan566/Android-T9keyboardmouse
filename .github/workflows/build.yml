@@ -1,0 +1,100 @@
+name: Build KeyMouse APK
+
+# 代码一更新(push 到 main/master)就自动构建；也可以在 Actions 页面手动点 "Run workflow"。
+# 打 v* 标签(例如 v68)时，还会把 APK 发布到 Releases。
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    tags: ['v*']
+    paths-ignore:
+      - '**/*.md'
+      - '.github/workflows/close-stale-issues.yml'
+
+permissions:
+  contents: write        # 发布 Release 需要
+
+env:
+  APKTOOL_VERSION: 3.0.3
+  SIGNER_VERSION: 1.3.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Locate project directory
+        id: loc
+        run: |
+          # 工程目录 = 含 build_and_sign.sh 和 keymouse.c 的那个文件夹(放在仓库根目录或子目录都行)
+          SCRIPT=$(find . -name build_and_sign.sh -not -path './.git/*' | head -n 1)
+          [ -n "$SCRIPT" ] || { echo "::error::找不到 build_and_sign.sh，请确认源码已提交"; exit 1; }
+          DIR=$(dirname "$SCRIPT")
+          [ -f "$DIR/keymouse.c" ] || { echo "::error::$DIR 里没有 keymouse.c"; exit 1; }
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+          echo "工程目录: $DIR"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install zig (cross-compiler for the native daemon)
+        run: pip install ziglang
+
+      - name: Cache build tools
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: .ci-tools
+          key: tools-apktool-${{ env.APKTOOL_VERSION }}-signer-${{ env.SIGNER_VERSION }}
+
+      - name: Download apktool and uber-apk-signer
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .ci-tools
+          curl -fsSL -o .ci-tools/apktool.jar \
+            "https://github.com/iBotPeaches/Apktool/releases/download/v${APKTOOL_VERSION}/apktool_${APKTOOL_VERSION}.jar"
+          curl -fsSL -o .ci-tools/uber-apk-signer.jar \
+            "https://github.com/patrickfav/uber-apk-signer/releases/download/v${SIGNER_VERSION}/uber-apk-signer-${SIGNER_VERSION}.jar"
+
+      - name: Build (zig -> apktool -> zipalign -> sign)
+        working-directory: ${{ steps.loc.outputs.dir }}
+        env:
+          APKTOOL_JAR: ${{ github.workspace }}/.ci-tools/apktool.jar
+          SIGNER_JAR: ${{ github.workspace }}/.ci-tools/uber-apk-signer.jar
+        run: |
+          chmod +x build_and_sign.sh
+          ./build_and_sign.sh
+
+      - name: Collect APK
+        id: apk
+        run: |
+          mkdir -p dist
+          NAME="keymouse-build${{ github.run_number }}-$(echo "${{ github.sha }}" | cut -c1-7).apk"
+          cp "${{ steps.loc.outputs.dir }}/keymouse-debug-signed.apk" "dist/$NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          ls -lh dist
+          sha256sum "dist/$NAME"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keymouse-apk
+          path: dist/*.apk
+          if-no-files-found: error
+
+      - name: Publish GitHub Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
