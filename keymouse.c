@@ -856,7 +856,7 @@ static void notify_tip(const char *tip) {
     (void)rc;
 }
 
-#define LEARN_WINDOW_MS 8000   /* 所有"按键学习"(开关键/第二开关键/中间键)统一的等待时间 */
+#define LEARN_WINDOW_MS 8000   /* 所有"按键学习"(开关键/中间键)统一的等待时间 */
 
 /* 带参数的提示: 给 App 的 TipBubble 传一个显示用的文字(kind=keyset 时 arg 是键名) */
 static void notify_tip_arg(const char *tip, const char *arg) {
@@ -1021,16 +1021,26 @@ static bool g_f1_fired = false;    /* 本次按住是否已经触发过切换 */
  * 只认第一条。 */
 #define F1_DEBOUNCE_MS 150
 
-/* 开关键最多两个键: 两个键都按住并保持 toggle_hold_ms 才切换(只设了一个键就是单键)。
- * 第二个键存在 keymouse_toggle_key2，第一个键仍然是原来的 keymouse_toggle_key(单个整数，
- * 老版本界面读它的格式不变)。 */
-static int  g_toggle_code2 = 0;                 /* 0 = 没有第二个键 */
-static bool g_tk_dn[2] = { false, false };      /* 两个开关键当前是否按住 */
-static long g_tk_last_edge[2] = { -1000000, -1000000 };
-static long g_tk_down_edge[2] = { 0, 0 };
-static int  g_learn_slot = 1;                   /* 学习模式是在学第 1 个还是第 2 个键 */
-static bool g_confirm_swallow = false;          /* 中间键作为第二开关键时，这次按下被组合键吞掉 */
+/* 开关键(组合键): 1~TK_MAX 个键，全部同时按住并保持 toggle_hold_ms 才切换(只设一个键就是单键)。
+ * 保存在 keymouse_toggle_keys (空格分隔的键码)；老版本的 keymouse_toggle_key / _key2 只在
+ * 新文件不存在时读一次，用来平滑升级。 */
+#define TK_MAX 4
+static int  g_tk_code[TK_MAX] = { KC_TOGGLE, 0, 0, 0 };
+static int  g_tk_n = 1;
+static bool g_tk_dn[TK_MAX];                    /* 各开关键当前是否按住 */
+static long g_tk_last_edge[TK_MAX] = { -1000000, -1000000, -1000000, -1000000 };
+static long g_tk_down_edge[TK_MAX];
+static int  g_learn_slot = 1;                   /* 学习模式: 1=学开关(组合)键 3=学中间键 */
+static int  g_lc_code[TK_MAX];                  /* 开关键学习: 已收集到的键 */
+static bool g_lc_dn[TK_MAX];
+static int  g_lc_n = 0;
+static bool g_confirm_swallow = false;          /* 中间键属于开关组合键时，这次按下被组合键吞掉 */
 static char g_togkey2_path[300] = "";
+static char g_togkeys_path[300] = "";
+static int tk_slot(int code) {
+    for (int i = 0; i < g_tk_n; i++) if (g_tk_code[i] == code) return i;
+    return -1;
+}
 /* 自定义中间键(按键映射): App 里"设置中间键"后学到的键码，存在 keymouse_confirm_key。
  * 0 = 未设置(只用内置的 0x161 + Enter/KPEnter/OK 别名)。 */
 static int  g_confirm_custom = 0;
@@ -1666,7 +1676,7 @@ static void f1_poll(long tnow, int *timeout_ms) {
     if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = remain;
 }
 
-/* 开关键(最多两个)的按下/抬起跟踪。所有开关键都按住时才开始计时，任何一个抬起就取消。
+/* 开关键(组合键，最多 4 个)的按下/抬起跟踪。所有开关键都按住时才开始计时，任何一个抬起就取消。
  * 第一个键(F1 这类机械键)有触点抖动: 按下沿落在上一次边沿的 F1_DEBOUNCE_MS 内忽略；
  * 抬起沿只要不是按下后 30ms 内的触点抖动就一律处理——之前连抬起也按 150ms 窗口一起丢，
  * 快速点一下 F1(<150ms)时抬起被丢掉，计时器一直留着，0.5 秒后会莫名其妙切换一次。 */
@@ -1685,7 +1695,8 @@ static void toggle_chord_update(int slot, bool down, bool up, long tnow) {
     } else {
         return;
     }
-    bool chord = g_tk_dn[0] && (g_toggle_code2 <= 0 || g_tk_dn[1]);
+    bool chord = true;
+    for (int i = 0; i < g_tk_n; i++) if (!g_tk_dn[i]) chord = false;
     if (chord) {
         if (g_f1_down_ms < 0) {
             g_f1_down_ms = tnow; g_f1_fired = false;
@@ -3110,6 +3121,7 @@ static void dot_paths_init(void) {
     snprintf(g_state_path, sizeof(g_state_path), "%s/keymouse_state", dir);
     snprintf(g_togkey_path, sizeof(g_togkey_path), "%s/keymouse_toggle_key", dir);
     snprintf(g_togkey2_path, sizeof(g_togkey2_path), "%s/keymouse_toggle_key2", dir);
+    snprintf(g_togkeys_path, sizeof(g_togkeys_path), "%s/keymouse_toggle_keys", dir);
     snprintf(g_confkey_path, sizeof(g_confkey_path), "%s/keymouse_confirm_key", dir);
     snprintf(g_flags_path, sizeof(g_flags_path), "%s/keymouse_flags", dir);
     snprintf(g_ptr_orig_path, sizeof(g_ptr_orig_path), "%s/keymouse_ptr_style_orig", dir);
@@ -3513,40 +3525,44 @@ static void ptr_color_apply(bool want) {
     }
 }
 
-static void save_toggle_key(void) {
-    if (!g_togkey_path[0]) return;
-    FILE *f = fopen(g_togkey_path, "w");
+static void save_toggle_keys(void) {
+    if (!g_togkeys_path[0]) return;
+    FILE *f = fopen(g_togkeys_path, "w");
     if (!f) return;
-    fprintf(f, "%d\n", g_toggle_code);
+    for (int i = 0; i < g_tk_n; i++) fprintf(f, i ? " %d" : "%d", g_tk_code[i]);
+    fprintf(f, "\n");
     fclose(f);
-    chmod(g_togkey_path, 0644);
+    chmod(g_togkeys_path, 0644);
 }
 
-static void load_toggle_key(void) {
-    if (!g_togkey_path[0]) return;
-    FILE *f = fopen(g_togkey_path, "r");
-    if (!f) return;
-    int c = 0;
-    if (fscanf(f, "%d", &c) == 1 && c > 0 && c < 0x300) g_toggle_code = c;
-    fclose(f);
-}
-
-static void save_toggle_key2(void) {
-    if (!g_togkey2_path[0]) return;
-    FILE *f = fopen(g_togkey2_path, "w");
-    if (!f) return;
-    fprintf(f, "%d\n", g_toggle_code2 > 0 ? g_toggle_code2 : 0);
-    fclose(f);
-    chmod(g_togkey2_path, 0644);
-}
-
-static void load_toggle_key2(void) {
-    if (!g_togkey2_path[0]) return;
-    FILE *f = fopen(g_togkey2_path, "r");
-    if (!f) return;
-    int c = 0;
-    if (fscanf(f, "%d", &c) == 1 && c > 0 && c < 0x300 && c != g_toggle_code) g_toggle_code2 = c;
-    fclose(f);
+static void load_toggle_keys(void) {
+    int codes[TK_MAX], n = 0;
+    FILE *f = g_togkeys_path[0] ? fopen(g_togkeys_path, "r") : NULL;
+    if (f) {
+        int c;
+        while (n < TK_MAX && fscanf(f, "%d", &c) == 1) {
+            bool dup = false;
+            for (int i = 0; i < n; i++) if (codes[i] == c) dup = true;
+            if (c > 0 && c < 0x300 && !dup) codes[n++] = c;
+        }
+        fclose(f);
+    } else {
+        /* 老版本: keymouse_toggle_key (第一个键) + keymouse_toggle_key2 (第二个键) */
+        const char *olds[2] = { g_togkey_path, g_togkey2_path };
+        for (int k = 0; k < 2; k++) {
+            if (!olds[k][0]) continue;
+            FILE *g = fopen(olds[k], "r");
+            if (!g) continue;
+            int c = 0;
+            if (fscanf(g, "%d", &c) == 1 && c > 0 && c < 0x300 && (n == 0 || c != codes[0])) codes[n++] = c;
+            fclose(g);
+        }
+    }
+    if (n > 0) {
+        g_tk_n = n;
+        for (int i = 0; i < n; i++) g_tk_code[i] = codes[i];
+        g_toggle_code = g_tk_code[0];
+    }
 }
 
 static void save_confirm_key(void) {
@@ -3600,8 +3616,8 @@ static void process_command(void) {
     } else if (strcmp(buf, "off") == 0) {
         g_auto_ime_suspended = false; g_ime_hidden_since_ms = -1; g_auto_home_suspended = false; g_auto_lock_suspended = false;
         if (g_enabled) disable_mouse_mode(true);
-    } else if (strcmp(buf, "learn2") == 0) {
-        g_learn = true; g_learn_slot = 2;
+    } else if (strcmp(buf, "learn") == 0 || strcmp(buf, "learn2") == 0) {
+        g_learn = true; g_learn_slot = 1; g_lc_n = 0;
         g_learn_deadline = now_ms() + LEARN_WINDOW_MS;
     } else if (strcmp(buf, "learn_confirm") == 0) {
         g_learn = true; g_learn_slot = 3;
@@ -3611,14 +3627,9 @@ static void process_command(void) {
         save_confirm_key();
         logmsg("自定义中间键已清除");
     } else if (strcmp(buf, "clear2") == 0) {
-        g_toggle_code2 = 0;
-        g_tk_dn[0] = g_tk_dn[1] = false; g_f1_down_ms = -1; g_f1_fired = false; g_confirm_swallow = false;
-        save_toggle_key2();
-    } else if (strcmp(buf, "learn") == 0) {
-        g_learn = true; g_learn_slot = 1;
-        g_learn_deadline = now_ms() + LEARN_WINDOW_MS;
+        /* 旧命令: 组合键现在一次学完，没有"第二键"了，忽略 */
     } else if (strcmp(buf, "learn_cancel") == 0) {
-        g_learn = false;
+        g_learn = false; g_lc_n = 0;
     } else if (strcmp(buf, "dot_off") == 0 || strcmp(buf, "dot_on") == 0) {
         g_dot_hidden = (strcmp(buf, "dot_off") == 0);
         save_flags();
@@ -3629,11 +3640,11 @@ static void process_command(void) {
         ptr_color_apply(false);
     } else if (strcmp(buf, "reset") == 0) {
         g_toggle_code = KC_TOGGLE;
-        g_toggle_code2 = 0; g_tk_dn[0] = g_tk_dn[1] = false; g_confirm_swallow = false;
-        save_toggle_key2();
-        g_learn = false;
+        g_tk_n = 1; g_tk_code[0] = KC_TOGGLE;
+        memset(g_tk_dn, 0, sizeof(g_tk_dn)); g_confirm_swallow = false;
+        g_learn = false; g_lc_n = 0;
         g_f1_down_ms = -1; g_f1_fired = false;
-        save_toggle_key();
+        save_toggle_keys();
     }
     write_state_file();
 }
@@ -3648,7 +3659,7 @@ static inline bool is_confirm_alias(int c) {
 static bool is_known_key(int c) {
     if (is_confirm_alias(c)) return true;
     return c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT || c == KC_CONFIRM ||
-           c == g_toggle_code || (c >= KEY_1 && c <= KEY_0) || c == KEY_BACK || c == KEY_MENU;
+           tk_slot(c) >= 0 || (c >= KEY_1 && c <= KEY_0) || c == KEY_BACK || c == KEY_MENU;
 }
 
 static void hold_key_event(const struct input_event *ev) {
@@ -3805,7 +3816,8 @@ static void confirm_key(int down, int up) {
  * 已经当成了一次鼠标点击/拖动起点。组合键触发的这一刻把它收尾(松开左键、取消拖动计时)，
  * 并把这次中间键的抬起吞掉，避免多出一次点击。 */
 static void chord_center_cleanup(void) {
-    if (g_toggle_code2 != KC_CONFIRM || !g_tk_dn[1] || g_confirm_swallow) return;
+    int cs = tk_slot(KC_CONFIRM);
+    if (cs < 0 || !g_tk_dn[cs] || g_confirm_swallow) return;
     if (g_ok_down_ms >= 0 || g_drag_latched) {
         g_ok_down_ms = -1; g_ok_fired = false; g_drag_latched = false; g_menu_due_ms = -1;
         if (g_enabled) mouse_click(0);
@@ -3814,7 +3826,64 @@ static void chord_center_cleanup(void) {
 }
 
 
-/* 学习模式(开关键 / 第二开关键 / 中间键)的统一捕获入口。
+/* 开关键学习: 点"设置"后，同时按住想用的键(1~4 个)再全部松开，一次学完。
+ * 中间键可以当组合里的一员，但不能单独当开关键。 */
+static bool tk_key_bad(int c) {
+    return c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT ||
+           c == KEY_BACK || c == KEY_MENU || c == KEY_POWER ||
+           c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT ||
+           c == KEY_ENTER;
+}
+
+static void toggle_learn_finalize(void) {
+    if (g_lc_n <= 0) return;
+    if (g_lc_n == 1 && g_lc_code[0] == KC_CONFIRM) {
+        logmsg("开关键学习: 中间键不能单独作开关键，请同时再按其它键");
+        g_lc_n = 0;
+        return;
+    }
+    g_tk_n = g_lc_n;
+    for (int i = 0; i < g_tk_n; i++) g_tk_code[i] = g_lc_code[i];
+    g_toggle_code = g_tk_code[0];
+    memset(g_tk_dn, 0, sizeof(g_tk_dn));
+    g_f1_down_ms = -1; g_f1_fired = false; g_confirm_swallow = false;
+    save_toggle_keys();
+    g_learn = false; g_learn_slot = 1; g_lc_n = 0;
+    write_state_file();      /* 关键: App 界面靠这个文件判断"还在学习吗"，不刷新就得手动点取消才退出 */
+    char name[128] = "", one[32];
+    for (int i = 0; i < g_tk_n; i++) {
+        key_display_name(g_tk_code[i], one, sizeof(one));
+        size_t l = strlen(name);
+        snprintf(name + l, sizeof(name) - l, i ? "+%s" : "%s", one);
+    }
+    logmsg("开关键学习: 已设为 %s (%d 个键同时按住)", name, g_tk_n);
+    notify_tip_arg("keyset", name);
+}
+
+static bool learn_chord_event(const struct input_event *ev) {
+    int c = ev->code, idx = -1;
+    for (int i = 0; i < g_lc_n; i++) if (g_lc_code[i] == c) idx = i;
+    if (ev->value == 1) {
+        if (idx >= 0) { g_lc_dn[idx] = true; return true; }
+        if (tk_key_bad(c)) {
+            logmsg("开关键学习: 键码 %d 不能用作开关键(它在鼠标模式里有别的功能)，请换一个键", c);
+        } else if (g_lc_n >= TK_MAX) {
+            logmsg("开关键学习: 最多 %d 个键", TK_MAX);
+        } else {
+            g_lc_code[g_lc_n] = c; g_lc_dn[g_lc_n] = true; g_lc_n++;
+        }
+        return true;
+    }
+    if (ev->value == 0 && idx >= 0) {
+        g_lc_dn[idx] = false;
+        bool any = false;
+        for (int i = 0; i < g_lc_n; i++) if (g_lc_dn[i]) any = true;
+        if (!any) toggle_learn_finalize();      /* 全部松开 = 组合确定 */
+    }
+    return true;
+}
+
+/* 学习模式(开关键 / 中间键)的统一捕获入口。
  * 放在 handle_key_event 最前面，在中间键别名映射和防抖引擎之前: 这样不管新按的键是不是防抖表里的键、
  * 是不是 Enter 别名、是不是正被防抖引擎延迟，第一次按下就会被捕获(以前走防抖会被延迟甚至当幽灵短按丢掉)。
  * 返回 true 表示这个事件已被学习逻辑消费。 */
@@ -3828,52 +3897,25 @@ static bool learn_capture(struct input_event *ev, bool from_kbd_fd) {
     if (!g_learn) return false;
     /* 中间键按着的时候才进入学习: 它的松开必须放行给别名映射，否则鼠标左键会卡在按下状态 */
     if (g_alias_down && from_kbd_fd && ev->value == 0 && is_confirm_alias(c)) return false;
+    if (g_learn_slot != 3) return learn_chord_event(ev);
     if (ev->value != 1) return true;                  /* 学习期间其它键的松开/连发一律忽略 */
 
-    if (g_learn_slot == 3) {
-        bool bad = c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT ||
-                   c == g_toggle_code || (g_toggle_code2 > 0 && c == g_toggle_code2) ||
-                   c == KEY_BACK || c == KEY_MENU || c == KEY_POWER ||
-                   c == KEY_1 || c == KEY_3 ||
-                   c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT;
-        if (!from_kbd_fd) {
-            logmsg("中间键学习: 键码 %d 不在主键盘设备上，无法映射，请换一个键", c);
-        } else if (bad) {
-            logmsg("中间键学习: 键码 %d 已被其它功能占用，请换一个键", c);
-        } else {
-            g_confirm_custom = (c == KC_CONFIRM) ? 0 : c;
-            save_confirm_key();
-            g_learn = false; g_learn_slot = 1;
-            g_learn_swallow = c;
-            write_state_file();
-            logmsg("中间键学习: 已把键码 %d 设为中间键(鼠标左键)", c);
-            learn_done_tip(c);
-        }
-        return true;
-    }
-
-    bool center_ok = (g_learn_slot == 2);   /* 中间键只允许当第二个开关键(组合键) */
     bool bad = c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT ||
-               (c == KC_CONFIRM && !center_ok) ||
+               tk_slot(c) >= 0 ||
                c == KEY_BACK || c == KEY_MENU || c == KEY_POWER ||
-               c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT ||
-               c == KEY_ENTER;
-    bool dup = (g_learn_slot == 2) ? (c == g_toggle_code) : (g_toggle_code2 > 0 && c == g_toggle_code2);
-    if (bad) {
-        logmsg("开关键学习: 键码 %d 不能用作开关键(它在鼠标模式里有别的功能)，请换一个键", c);
-    } else if (dup) {
-        logmsg("开关键学习: 键码 %d 已经是另一个开关键了，请换一个键", c);
+               c == KEY_1 || c == KEY_3 ||
+               c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT;
+    if (!from_kbd_fd) {
+        logmsg("中间键学习: 键码 %d 不在主键盘设备上，无法映射，请换一个键", c);
+    } else if (bad) {
+        logmsg("中间键学习: 键码 %d 已被其它功能占用，请换一个键", c);
     } else {
-        int slot = g_learn_slot;
-        if (slot == 2) { g_toggle_code2 = c; save_toggle_key2(); }
-        else { g_toggle_code = c; save_toggle_key(); }
+        g_confirm_custom = (c == KC_CONFIRM) ? 0 : c;
+        save_confirm_key();
         g_learn = false; g_learn_slot = 1;
         g_learn_swallow = c;
-        g_tk_dn[0] = g_tk_dn[1] = false;
-        g_f1_down_ms = -1; g_f1_fired = false; g_confirm_swallow = false;
-        write_state_file();      /* 关键: App 界面靠这个文件判断"还在学习吗"，不刷新就得手动点取消才退出 */
-        logmsg("开关键学习: 第%d个开关键已设为键码 %d (现在是%s)", slot, c,
-               g_toggle_code2 > 0 ? "两键同时按住" : "单键");
+        write_state_file();
+        logmsg("中间键学习: 已把键码 %d 设为中间键(鼠标左键)", c);
         learn_done_tip(c);
     }
     return true;
@@ -3896,14 +3938,15 @@ static void handle_key_event_clean(struct input_event *ev, bool from_kbd_fd) {
     if (down && g_pinch.active) pinch_finish("被按键打断");
 
     {
-        int slot = (ev->code == g_toggle_code) ? 0 :
-                   ((g_toggle_code2 > 0 && ev->code == g_toggle_code2) ? 1 : -1);
+        int slot = tk_slot(ev->code);
         if (slot >= 0) {
+            bool others = true;      /* 组合里其它键是否都已按着(更新前) */
+            for (int i = 0; i < g_tk_n; i++) if (i != slot && !g_tk_dn[i]) others = false;
             toggle_chord_update(slot, down, up, now_ms());
-            if (slot == 1 && ev->code == KC_CONFIRM) {
-                /* 中间键同时是鼠标左键: 开关键(第一个键)已经按着时再按中间键，这一下属于
+            if (ev->code == KC_CONFIRM && g_tk_n > 1) {
+                /* 中间键同时是鼠标左键: 组合里其它键已经按着时再按中间键，这一下属于
                  * 组合键，不当成鼠标点击；单独按中间键仍然是正常点击。 */
-                if (down && g_tk_dn[0]) { g_confirm_swallow = true; return; }
+                if (down && others) { g_confirm_swallow = true; return; }
                 if (up && g_confirm_swallow) { g_confirm_swallow = false; return; }
             } else {
                 return;
@@ -3972,7 +4015,7 @@ static bool deb_apply_to(int code, bool from_kbd) {
     if (code == KC_UP || code == KC_DOWN || code == KC_LEFT || code == KC_RIGHT) return false;
     /* 开关键(F1/组合键)跟着两个防抖开关走，不用单独设置 */
     if ((g_cfg.deb_global || g_cfg.deb_mouse) &&
-        (code == g_toggle_code || (g_toggle_code2 > 0 && code == g_toggle_code2))) return true;
+        tk_slot(code) >= 0) return true;
     if (!from_kbd) return false;
     if (code < 0 || code >= DEB_MAXKEY || !g_deb_key[code]) return false;     /* 不在防抖按键表里 */
     if (g_enabled) return g_cfg.deb_mouse;                                     /* 鼠标模式开着: 看\"鼠标模式也防抖\" */
@@ -4416,8 +4459,7 @@ int main(int argc, char **argv) {
     pos_open();
     dot_paths_init();
     fg_paths_init();
-    load_toggle_key();
-    load_toggle_key2();
+    load_toggle_keys();
     load_confirm_key();
     if (g_confirm_custom > 0) logmsg("自定义中间键键码=%d (按键映射)", g_confirm_custom);
     load_flags();
@@ -4542,7 +4584,7 @@ int main(int argc, char **argv) {
         epoll_ctl(epfd, EPOLL_CTL_ADD, g_cmd_inotify, &evi);
     }
     write_state_file();
-    logmsg("开关键键码=%d 第二键=%d (默认 59=F1；可在 App 里修改，最多两键同时按住)", g_toggle_code, g_toggle_code2);
+    logmsg("开关键: %d 个键, 首键键码=%d (默认 59=F1；可在 App 里设置，最多 %d 个键同时按住)", g_tk_n, g_toggle_code, TK_MAX);
     deb_keys_default();
     logmsg("拨号应用里允许鼠标=%s", g_cfg.dialer_allow ? "是" : "否(进拨号应用自动关鼠标)");
     logmsg("桌面隐藏=%s 输入法隐藏=%s home_poll_ms=%d", g_cfg.auto_home_suspend ? "开" : "关",
@@ -4655,7 +4697,10 @@ int main(int argc, char **argv) {
 
         if (g_learn) {
             long left = g_learn_deadline - tnow;
-            if (left <= 0) { g_learn = false; write_state_file(); logmsg("开关键学习: 8 秒内没有按键，已取消"); }
+            if (left <= 0) {
+                if (g_learn && g_learn_slot != 3 && g_lc_n > 0) toggle_learn_finalize();   /* 时间到: 有键就按已收集的定下来 */
+                if (g_learn) { g_learn = false; g_lc_n = 0; write_state_file(); logmsg("开关键学习: 8 秒内没有有效按键，已取消"); }
+            }
             else if (timeout < 0 || left < timeout) timeout = (int)left;
         }
 

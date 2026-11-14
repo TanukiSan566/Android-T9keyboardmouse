@@ -29,7 +29,7 @@
 
 # direct methods
 .method constructor <init>(Ljava/io/File;Landroid/app/Activity;Landroid/widget/TextView;[Ljava/lang/Runnable;)V
-    .locals 0
+    .registers 5
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -54,52 +54,9 @@
 
 # virtual methods
 .method public run()V
-    .locals 8
+    .registers 9
 
     .prologue
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v0
-
-    sget-wide v2, Lcom/keymouse/tool/ConfirmKey;->until:J
-
-    cmp-long v4, v0, v2
-
-    if-gez v4, :guard_go
-
-    new-instance v4, Ljava/io/File;
-
-    iget-object v5, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$dir:Ljava/io/File;
-
-    const-string v6, "keymouse_confirm_key"
-
-    invoke-direct {v4, v5, v6}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
-
-    invoke-virtual {v4}, Ljava/io/File;->lastModified()J
-
-    move-result-wide v4
-
-    sget-wide v6, Lcom/keymouse/tool/ConfirmKey;->since:J
-
-    cmp-long v4, v4, v6
-
-    if-gez v4, :guard_go
-
-    iget-object v0, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$info:Landroid/widget/TextView;
-
-    iget-object v1, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$tick:[Ljava/lang/Runnable;
-
-    const/4 v2, 0x0
-
-    aget-object v1, v1, v2
-
-    const-wide/16 v2, 0x320
-
-    invoke-virtual {v0, v1, v2, v3}, Landroid/widget/TextView;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    return-void
-
-    :guard_go
     .line 48
     new-instance v0, Ljava/io/File;
 
@@ -109,12 +66,13 @@
 
     invoke-direct {v0, v1, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
+    # invokes: Lcom/keymouse/tool/ConfirmKey;->readInt(Ljava/io/File;)I
     invoke-static {v0}, Lcom/keymouse/tool/ConfirmKey;->access$000(Ljava/io/File;)I
 
     move-result v0
 
     .line 49
-    if-lez v0, :cond_1
+    if-lez v0, :cond_5b
 
     new-instance v1, Ljava/lang/StringBuilder;
 
@@ -135,7 +93,7 @@
     move-result-object v0
 
     .line 50
-    :goto_0
+    :goto_22
     iget-object v1, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$info:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -152,6 +110,7 @@
 
     const-string v7, "\u5185\u7f6e: Select(353) / Enter(28) / KPEnter(96) / OK(352)\n\u81ea\u5b9a\u4e49: "
 
+    # invokes: Lcom/keymouse/tool/ConfirmKey;->L(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     invoke-static {v3, v4, v5, v6, v7}, Lcom/keymouse/tool/ConfirmKey;->access$100(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -177,7 +136,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_0
+    if-eqz v0, :cond_5a
 
     iget-object v0, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$info:Landroid/widget/TextView;
 
@@ -192,11 +151,11 @@
     invoke-virtual {v0, v1, v2, v3}, Landroid/widget/TextView;->postDelayed(Ljava/lang/Runnable;J)Z
 
     .line 56
-    :cond_0
+    :cond_5a
     return-void
 
     .line 49
-    :cond_1
+    :cond_5b
     iget-object v0, p0, Lcom/keymouse/tool/ConfirmKey$1;->val$a:Landroid/app/Activity;
 
     const-string v1, "none"
@@ -207,9 +166,10 @@
 
     const-string v4, "\u65e0"
 
+    # invokes: Lcom/keymouse/tool/ConfirmKey;->L(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     invoke-static {v0, v1, v2, v3, v4}, Lcom/keymouse/tool/ConfirmKey;->access$100(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v0
 
-    goto :goto_0
+    goto :goto_22
 .end method

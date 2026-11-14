@@ -1830,11 +1830,8 @@
 
     iput-object v2, p0, Lcom/keymouse/tool/MainActivity;->mSwitchEnable:Landroid/widget/Switch;
 
-    # 总开关下面: 鼠标软开关 + 开关键设置 (没有 F1 键的手机用)
-    invoke-static {p0, v0}, Lcom/keymouse/tool/SoftSwitch;->addTo(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
-
-    # 第二开关键(组合键) + 锁屏界面是否启用鼠标
-    invoke-static {p0, v0}, Lcom/keymouse/tool/ExtraSwitches;->addTo(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
+    # 总开关下面: 鼠标软开关 + 开关键(1~4键组合，一个按钮学完) + 红点 + 锁屏界面是否启用鼠标
+    invoke-static {p0, v0}, Lcom/keymouse/tool/ToggleKeys;->addTo(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
 
     # 中间键按键映射 (不同手机中间键键码不同)
     invoke-static {p0, v0}, Lcom/keymouse/tool/ConfirmKey;->addTo(Landroid/app/Activity;Landroid/widget/LinearLayout;)V

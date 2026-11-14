@@ -27,7 +27,7 @@
 
 # direct methods
 .method constructor <init>(Ljava/io/File;Landroid/widget/TextView;Landroid/app/Activity;)V
-    .locals 0
+    .registers 4
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -50,7 +50,7 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 6
+    .registers 8
 
     .prologue
     .line 66
@@ -58,7 +58,7 @@
 
     const-string v1, "learn_confirm"
 
-    invoke-static {v0, v1}, Lcom/keymouse/tool/ExtraSwitches;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
+    invoke-static {v0, v1}, Lcom/keymouse/tool/ToggleKeys;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
 
     .line 67
     iget-object v0, p0, Lcom/keymouse/tool/ConfirmKey$2;->val$info:Landroid/widget/TextView;
@@ -73,27 +73,12 @@
 
     const-string v5, "\u8bf7\u5728 8 \u79d2\u5185\u6309\u4e0b\u4f60\u624b\u673a\u7684\u4e2d\u95f4\u952e..."
 
+    # invokes: Lcom/keymouse/tool/ConfirmKey;->L(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     invoke-static {v1, v2, v3, v4, v5}, Lcom/keymouse/tool/ConfirmKey;->access$100(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
-
-    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
-
-    move-result-wide v0
-
-    const-wide/16 v2, 0x1f40
-
-    add-long/2addr v2, v0
-
-    sput-wide v2, Lcom/keymouse/tool/ConfirmKey;->until:J
-
-    const-wide/16 v2, 0x3e8
-
-    sub-long/2addr v0, v2
-
-    sput-wide v0, Lcom/keymouse/tool/ConfirmKey;->since:J
 
     .line 71
     return-void

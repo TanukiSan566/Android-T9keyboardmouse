@@ -3,13 +3,9 @@
 .source "ConfirmKey.java"
 
 
-.field static until:J
-
-.field static since:J
-
 # direct methods
 .method private constructor <init>()V
-    .locals 0
+    .registers 1
 
     .prologue
     .line 13
@@ -19,7 +15,7 @@
 .end method
 
 .method private static L(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    .locals 3
+    .registers 8
 
     .prologue
     const/4 v2, 0x0
@@ -40,37 +36,37 @@
     .line 17
     const/4 v1, 0x1
 
-    if-ne v0, v1, :cond_0
+    if-ne v0, v1, :cond_11
 
-    :goto_0
+    :goto_10
     return-object p2
 
-    :cond_0
+    :cond_11
     const/4 v1, 0x2
 
-    if-ne v0, v1, :cond_1
+    if-ne v0, v1, :cond_16
 
     move-object p2, p3
 
-    goto :goto_0
+    goto :goto_10
 
-    :cond_1
+    :cond_16
     const/4 v1, 0x3
 
-    if-ne v0, v1, :cond_2
+    if-ne v0, v1, :cond_1b
 
     move-object p2, p4
 
-    goto :goto_0
+    goto :goto_10
 
-    :cond_2
+    :cond_1b
     move-object p2, p1
 
-    goto :goto_0
+    goto :goto_10
 .end method
 
 .method static synthetic access$000(Ljava/io/File;)I
-    .locals 1
+    .registers 2
 
     .prologue
     .line 12
@@ -82,7 +78,7 @@
 .end method
 
 .method static synthetic access$100(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-    .locals 1
+    .registers 6
 
     .prologue
     .line 12
@@ -94,7 +90,7 @@
 .end method
 
 .method public static addTo(Landroid/app/Activity;Landroid/widget/LinearLayout;)V
-    .locals 8
+    .registers 10
 
     .prologue
     const/4 v7, 0x4
@@ -278,7 +274,7 @@
 .end method
 
 .method private static readInt(Ljava/io/File;)I
-    .locals 3
+    .registers 4
 
     .prologue
     .line 22
@@ -309,21 +305,21 @@
     move-result-object v0
 
     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+    :try_end_1d
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_1d} :catch_1f
 
     move-result v0
 
     .line 27
-    :goto_0
+    :goto_1e
     return v0
 
     .line 26
-    :catch_0
+    :catch_1f
     move-exception v0
 
     .line 27
     const/4 v0, 0x0
 
-    goto :goto_0
+    goto :goto_1e
 .end method

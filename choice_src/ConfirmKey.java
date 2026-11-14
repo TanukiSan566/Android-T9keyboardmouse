@@ -63,7 +63,7 @@ public final class ConfirmKey {
         set.setText(L(a, "Set center key", "Задать", "中央キーを設定", "设置中间键"));
         set.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ExtraSwitches.sendCmd(dir, "learn_confirm");
+                ToggleKeys.sendCmd(dir, "learn_confirm");
                 info.setText(L(a, "Press your phone's center key within 8 s...",
                         "Нажмите центральную клавишу (8 с)...",
                         "8秒以内に中央キーを押してください...",
@@ -74,7 +74,7 @@ public final class ConfirmKey {
         clr.setText(L(a, "Clear", "Сброс", "消去", "清除"));
         clr.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ExtraSwitches.sendCmd(dir, "clear_confirm");
+                ToggleKeys.sendCmd(dir, "clear_confirm");
                 try {
                     FileOutputStream o = new FileOutputStream(new File(dir, "keymouse_confirm_key"));
                     o.write("0\n".getBytes());

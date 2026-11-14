@@ -23,7 +23,7 @@
 
 # direct methods
 .method constructor <init>(Ljava/io/File;)V
-    .locals 0
+    .registers 2
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -42,7 +42,7 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 4
+    .registers 6
 
     .prologue
     .line 77
@@ -50,10 +50,10 @@
 
     const-string v1, "clear_confirm"
 
-    invoke-static {v0, v1}, Lcom/keymouse/tool/ExtraSwitches;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
+    invoke-static {v0, v1}, Lcom/keymouse/tool/ToggleKeys;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
 
     .line 79
-    :try_start_0
+    :try_start_7
     new-instance v0, Ljava/io/FileOutputStream;
 
     new-instance v1, Ljava/io/File;
@@ -77,16 +77,16 @@
 
     .line 81
     invoke-virtual {v0}, Ljava/io/FileOutputStream;->close()V
-    :try_end_0
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+    :try_end_21
+    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_21} :catch_22
 
     .line 84
-    :goto_0
+    :goto_21
     return-void
 
     .line 82
-    :catch_0
+    :catch_22
     move-exception v0
 
-    goto :goto_0
+    goto :goto_21
 .end method
