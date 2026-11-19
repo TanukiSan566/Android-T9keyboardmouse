@@ -2067,6 +2067,10 @@ static int parse_ime_shown_from_window_dump(const char *text) {
     return -1;
 }
 
+/* 输入法检测在后台子进程里跑(见 ime_probe_start)。子进程里不写日志:
+ * 它拿到的是父进程 static 变量的副本，"只在变化时才打印"的判断会失效，每次都刷一条。 */
+static bool g_ime_child = false;
+
 static int detect_ime_shown(void) {
     /* 实测反馈("keymouse.log"证实): 之前 8KB 的缓冲区根本不够——这台设备
      * 装了好几个输入法，仅列出第一个(Google 语音输入)的 ServiceInfo 就
@@ -2081,7 +2085,7 @@ static int detect_ime_shown(void) {
         int r = parse_ime_shown_from_text(buf);
         if (r >= 0) {
             if (r != s_last_logged) {
-                logmsg("输入法检测: 命中 mInputShown/mImeWindowVis=%d (来源: dumpsys input_method)", r);
+                if (!g_ime_child) logmsg("输入法检测: 命中 mInputShown/mImeWindowVis=%d (来源: dumpsys input_method)", r);
                 s_last_logged = r;
             }
             return r;
@@ -2097,7 +2101,7 @@ static int detect_ime_shown(void) {
             int r = parse_ime_shown_from_window_dump(buf);
             if (r >= 0) {
                 if (r != s_last_logged) {
-                    logmsg("输入法检测: 命中 InputMethod 窗口可见性=%d (来源: %s)", r, dump_cmds[i]);
+                    if (!g_ime_child) logmsg("输入法检测: 命中 InputMethod 窗口可见性=%d (来源: %s)", r, dump_cmds[i]);
                     s_last_logged = r;
                 }
                 return r;
@@ -2115,7 +2119,7 @@ static int detect_ime_shown(void) {
      * 打印末尾片段而不是开头——开头几乎总是装了哪些输入法这种静态列表，
      * 之前就是因为只截了开头一段，永远看不到真正有用的状态字段。 */
     long tnow = now_ms();
-    if (tnow - s_last_diag_ms >= 20000) {
+    if (!g_ime_child && tnow - s_last_diag_ms >= 20000) {
         s_last_diag_ms = tnow;
         if (run_cmd_capture("dumpsys input_method 2>/dev/null", buf, sizeof(buf)) > 0) {
             char snippet[1600];
@@ -2184,13 +2188,79 @@ static bool g_ime_shown_last = false;
  * 移开输入框"这个场景造成的恢复延迟基本感觉不到，但足以覆盖观察到的
  * 打字间隙闪烁。如果这台设备上仍然不够，可以不改代码，直接在
  * Daemon 启动参数里加 --ime-hide-confirm-ms=更大的值。 */
+/* ---- 输入法检测放到后台子进程 ----
+ * 以前每 ime_poll_ms(500ms)在主循环里同步跑一次 `dumpsys input_method`(输出上百 KB，
+ * 单次几十~几百毫秒)，这段时间主循环被卡死，鼠标开着时被抓取的按键(音量键等)的转发被拖延。
+ * 表现: 音量下+电源键的截屏组合键因为音量下"晚到"超出系统约 150ms 的判定窗口，截屏很难触发、
+ * 还会误触发音量。关掉鼠标时键盘没被抓取、不经过本进程，所以不受影响。
+ * 现在子进程跑 dumpsys，把结果(一个 int)写进管道，主循环只做非阻塞的收取。 */
+static pid_t g_ime_pid = -1;
+static int   g_ime_pipe = -1;
+static long  g_ime_probe_started = 0;
+
+static void ime_probe_start(void) {
+    int fd[2];
+    if (pipe(fd) != 0) return;
+    pid_t pid = fork();
+    if (pid < 0) { close(fd[0]); close(fd[1]); return; }
+    if (pid == 0) {
+        g_ime_child = true;
+        for (int f = 3; f < 1024; f++) if (f != fd[1]) close(f);   /* 不继承 uinput/键盘抓取等 fd */
+        signal(SIGTERM, SIG_DFL);
+        signal(SIGINT, SIG_DFL);
+        int r = detect_ime_shown();
+        ssize_t w = write(fd[1], &r, sizeof(r));
+        (void)w;
+        _exit(0);
+    }
+    close(fd[1]);
+    fcntl(fd[0], F_SETFL, O_NONBLOCK);
+    g_ime_pid = pid;
+    g_ime_pipe = fd[0];
+    g_ime_probe_started = now_ms();
+}
+
+/* 返回: -2 还没出结果(或没有在跑); -1 探测失败; 0/1 检测结果 */
+static int ime_probe_collect(void) {
+    if (g_ime_pid <= 0) return -2;
+    int st;
+    pid_t r = waitpid(g_ime_pid, &st, WNOHANG);
+    if (r == 0) {
+        if (now_ms() - g_ime_probe_started > 10000) {     /* 卡住了: 杀掉重来 */
+            kill(g_ime_pid, SIGKILL);
+            waitpid(g_ime_pid, &st, 0);
+            close(g_ime_pipe);
+            g_ime_pid = -1; g_ime_pipe = -1;
+        }
+        return -2;
+    }
+    int val = -1;
+    if (r != g_ime_pid || read(g_ime_pipe, &val, sizeof(val)) != (ssize_t)sizeof(val)) val = -1;
+    close(g_ime_pipe);
+    g_ime_pid = -1; g_ime_pipe = -1;
+    return val;
+}
+
 static void refresh_ime_state(long tnow) {
     if (!g_cfg.auto_ime_suspend) return;
-    if (tnow < g_ime_next_poll) return;
-    g_ime_next_poll = tnow + g_cfg.ime_poll_ms;
-
-    int shown = detect_ime_shown();
+    int shown;
+    if (g_ime_pid > 0) {
+        shown = ime_probe_collect();
+        if (shown == -2) return;                 /* 子进程还在跑，下一轮再收 */
+    } else {
+        if (tnow < g_ime_next_poll) return;
+        g_ime_next_poll = tnow + g_cfg.ime_poll_ms;
+        ime_probe_start();
+        return;
+    }
     if (shown < 0) return;
+    {
+        static int s_logged = -1;
+        if (shown != s_logged) {
+            logmsg("输入法检测: mInputShown/mImeWindowVis=%d", shown);
+            s_logged = shown;
+        }
+    }
 
     if (shown) {
         g_ime_hidden_since_ms = -1; /* 中途又显示了，之前的"未显示"计时作废 */
@@ -4721,10 +4791,11 @@ int main(int argc, char **argv) {
          * 才需要关心，其余时候(用户手动整个关掉鼠标模式)没有可暂停/恢复
          * 的对象，不必为此持续唤醒进程、白白消耗一次 dumpsys 调用的开销。 */
         if (g_cfg.auto_ime_suspend && (g_enabled || g_auto_ime_suspended) && !gesture_busy) {
-            if (g_ime_next_poll <= tnow) {
+            if (g_ime_pid > 0 || g_ime_next_poll <= tnow) {
                 refresh_ime_state(tnow);
             }
             int t = (int)(g_ime_next_poll - tnow);
+            if (g_ime_pid > 0) t = 80;                 /* 子进程在跑: 短间隔收结果 */
             if (t < 0) t = 0;
             if (timeout < 0 || t < timeout) timeout = t;
         }
