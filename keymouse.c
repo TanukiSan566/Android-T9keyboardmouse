@@ -2370,7 +2370,9 @@ static int fg_probe_result(void) {
     /* 用户在列表里勾选的应用: 包名在列表里就算(只排除 android 这个系统自身，避免选择器之类误伤) */
     snprintf(g_fg_pkg, sizeof(g_fg_pkg), "%s", pkg);
     g_fg_deb = (g_deb_apps[0] && pkg_in_list(g_deb_apps, pkg)) ? 1 : 0;
-    g_fg_custom = (g_hide_apps[0] && strcmp(pkg, "android") != 0 && pkg_in_list(g_hide_apps, pkg)) ? 1 : 0;
+    /* KeyMouse 自己的界面永远不隐藏鼠标(否则从桌面回到 App 里，软开关还是关着，还得重新激活) */
+    g_fg_custom = (g_hide_apps[0] && strcmp(pkg, "android") != 0 && strcmp(pkg, "com.keymouse.tool") != 0 &&
+                   pkg_in_list(g_hide_apps, pkg)) ? 1 : 0;
 
     static char last[300] = "";
     char cur[300];
@@ -3990,6 +3992,10 @@ static void handle_key_event_clean(struct input_event *ev, bool from_kbd_fd) {
      * 收不到"的 kbd_fd 事件才有意义；func_fd 上除 F1 外的任何其它按键，
      * 系统早就自己收到了，我们不需要、也不能再重发一次。 */
     if (ev->type == EV_KEY) hold_key_event(ev);
+    /* 诊断: 音量+/音量-/电源 三个键来自哪个设备、什么时刻(用来排查"鼠标开着时音量下+电源截屏很难触发") */
+    if (ev->type == EV_KEY && ev->value != 2 && (ev->code == 114 || ev->code == 115 || ev->code == 116))
+        logmsg("[键诊断] 键码=%d %s 来自=%s 鼠标=%s t=%ldms", ev->code, ev->value ? "按下" : "松开",
+               from_kbd_fd ? "主键盘(已抓取)" : "功能键设备(未抓取)", g_enabled ? "开" : "关", now_ms());
     if (!from_kbd_fd) return;
 
     if (!g_enabled) return; /* 未开启鼠标模式时，其余按键不处理（正常不会收到，因为未 grab） */

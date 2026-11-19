@@ -179,6 +179,43 @@
 
     aput-boolean v2, v3, v2
 
+    # 软开关文字跟随开关状态: 已开启 / 已关闭
+    iget-object v3, p0, Lcom/keymouse/tool/ToggleKeys$7;->val$mouseSw:Landroid/widget/Switch;
+
+    invoke-virtual {v3}, Landroid/widget/Switch;->isChecked()Z
+
+    move-result v4
+
+    iget-object v5, p0, Lcom/keymouse/tool/ToggleKeys$7;->val$a:Landroid/app/Activity;
+
+    if-eqz v4, :cond_mtxt_off
+
+    const-string v6, "Mouse on"
+
+    const-string v7, "\u041c\u044b\u0448\u044c \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u0430"
+
+    const-string v8, "\u30de\u30a6\u30b9 \u30aa\u30f3"
+
+    const-string v9, "\u9f20\u6807\u5df2\u5f00\u542f"
+
+    goto :cond_mtxt_set
+
+    :cond_mtxt_off
+    const-string v6, "Mouse off"
+
+    const-string v7, "\u041c\u044b\u0448\u044c \u0432\u044b\u043a\u043b\u044e\u0447\u0435\u043d\u0430"
+
+    const-string v8, "\u30de\u30a6\u30b9 \u30aa\u30d5"
+
+    const-string v9, "\u9f20\u6807\u5df2\u5173\u95ed"
+
+    :cond_mtxt_set
+    invoke-static {v5, v6, v7, v8, v9}, Lcom/keymouse/tool/ToggleKeys;->access$200(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v3, v5}, Landroid/widget/Switch;->setText(Ljava/lang/CharSequence;)V
+
     .line 346
     iget-object v4, p0, Lcom/keymouse/tool/ToggleKeys$7;->val$setBtn:Landroid/widget/Button;
 
