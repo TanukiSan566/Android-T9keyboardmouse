@@ -2448,6 +2448,7 @@ static void refresh_home_state(long tnow) {
             if (hide && g_enabled && !g_home_manual_override) {
                 g_auto_home_suspended = true;
                 disable_mouse_mode(false);   /* 静默，不弹窗；松开键盘抓取后数字键原样交给前台应用 */
+                if (in_custom) notify_tip("hidden");   /* 屏幕底部小提示: 此应用鼠标已被隐藏 */
                 logmsg(in_custom ? "检测到列表里勾选的应用，自动关闭鼠标"
                        : in_dial ? "检测到拨号应用，自动关闭鼠标(数字键交给拨号应用)"
                                  : "检测到桌面，自动隐藏(暂停)鼠标");

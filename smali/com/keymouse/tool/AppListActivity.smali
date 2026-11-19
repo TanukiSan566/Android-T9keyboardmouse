@@ -355,6 +355,10 @@
 
     move-result-object v2
 
+    # v7 = 轮次: 0=置顶的 @ 特殊行(原来就在最前) 1=已勾选的应用(置顶) 2=其余应用(原顺序)
+    const/4 v7, 0x0
+
+    :pass_loop
     const/4 v3, 0x0
 
     :goto_loop
@@ -364,7 +368,7 @@
 
     move-result v5
 
-    if-ge v3, v5, :cond_done
+    if-ge v3, v5, :cond_pass_end
 
     invoke-virtual {v4, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
@@ -376,7 +380,7 @@
 
     move-result v5
 
-    if-eqz v5, :cond_add
+    if-eqz v5, :cond_filter_ok
 
     invoke-virtual {v4}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
@@ -387,6 +391,41 @@
     move-result v6
 
     if-eqz v6, :cond_next
+
+    :cond_filter_ok
+    iget-object v6, p0, Lcom/keymouse/tool/AppListActivity;->mKeys:Ljava/util/ArrayList;
+
+    invoke-virtual {v6, v3}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
+
+    move-result-object v6
+
+    check-cast v6, Ljava/lang/String;
+
+    const-string v5, "@"
+
+    invoke-virtual {v6, v5}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_not_special
+
+    # 特殊行: 只在第 0 轮加
+    if-nez v7, :cond_next
+
+    goto :cond_add
+
+    :cond_not_special
+    # 普通应用: 第 0 轮不加
+    if-eqz v7, :cond_next
+
+    invoke-direct {p0, v6}, Lcom/keymouse/tool/AppListActivity;->eff(Ljava/lang/String;)Z
+
+    move-result v5
+
+    # 第 1 轮要 eff=1，第 2 轮要 eff=0  =>  eff == 2 - 轮次
+    rsub-int/lit8 v6, v7, 0x2
+
+    if-ne v5, v6, :cond_next
 
     :cond_add
     invoke-virtual {v1, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
@@ -404,7 +443,13 @@
 
     goto :goto_loop
 
-    :cond_done
+    :cond_pass_end
+    add-int/lit8 v7, v7, 0x1
+
+    const/4 v5, 0x3
+
+    if-lt v7, v5, :pass_loop
+
     iget-object v0, p0, Lcom/keymouse/tool/AppListActivity;->mAdapter:Landroid/widget/BaseAdapter;
 
     invoke-virtual {v0}, Landroid/widget/BaseAdapter;->notifyDataSetChanged()V

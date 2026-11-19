@@ -715,6 +715,37 @@
     goto/16 :goto_0
 
     :cond_d3
+    const-string v5, "hidden"
+
+    invoke-virtual {p1, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_d4
+
+    new-array v5, v6, [Ljava/lang/String;
+
+    const-string v6, "Mouse hidden for this app"
+
+    aput-object v6, v5, v4
+
+    const-string v4, "\u041c\u044b\u0448\u044c \u0441\u043a\u0440\u044b\u0442\u0430 \u0432 \u044d\u0442\u043e\u043c \u043f\u0440\u0438\u043b\u043e\u0436\u0435\u043d\u0438\u0438"
+
+    aput-object v4, v5, v1
+
+    const-string v1, "\u3053\u306e\u30a2\u30d7\u30ea\u3067\u306f\u30de\u30a6\u30b9\u3092\u975e\u8868\u793a\u306b\u3057\u307e\u3057\u305f"
+
+    aput-object v1, v5, v2
+
+    const-string v1, "\u6b64\u5e94\u7528\u9f20\u6807\u5df2\u88ab\u9690\u85cf"
+
+    aput-object v1, v5, v3
+
+    aget-object v0, v5, v0
+
+    goto/16 :goto_0
+
+    :cond_d4
     const/4 v0, 0x0
 
     goto/16 :goto_0
