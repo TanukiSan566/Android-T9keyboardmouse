@@ -962,6 +962,20 @@ static bool g_home_manual_override = false; /* 用户在桌面上手动按 F1 �
  * 仍走各自的系统自动识别(不在这个列表里)。 */
 static char g_hide_apps[4096] = "";
 static int  g_fg_custom = -1;               /* 前台是否在隐藏列表里: -1 未知 0 否 1 是 */
+/* "手动优先"只对手动开鼠标时所在的那个应用有效: 切到别的应用就作废。
+ * 以前只有"前台不在隐藏列表"才会清除；桌面/eka2l1/keymouse 全都在列表里时标记永远不清，
+ * 表现就是"进了 eka2l1 鼠标不会被关/隐藏"。
+ * g_ovr_pkg 为空表示还没绑定应用：等第一次"在手动开鼠标之后才开始的"探测结果来绑定
+ * (避免用手动开鼠标之前就启动的旧探测结果误绑)。 */
+static char g_fg_pkg[200] = "";             /* 最近一次探测到的前台包名 */
+static long g_fg_probe_started_ms = 0;      /* 当前/最近一次探测启动时刻 */
+static long g_ovr_set_ms = 0;               /* 手动优先标记设置时刻 */
+static char g_ovr_pkg[200] = "";            /* 手动优先绑定的应用包名("" = 尚未绑定) */
+static void set_manual_override(void) {
+    g_home_manual_override = true;
+    g_ovr_set_ms = now_ms();
+    g_ovr_pkg[0] = '\0';
+}
 /* 防抖: 只在这些应用里生效(deb_all=false 时)，来自实时参数文件的 debApps= 行(空格分隔包名) */
 static char g_deb_apps[4096] = "";
 static int  g_fg_deb = -1;                  /* 前台是否在防抖应用列表里: -1 未知 0 否 1 是 */
@@ -1668,7 +1682,7 @@ static void f1_poll(long tnow, int *timeout_ms) {
             enable_mouse_mode(true);
             /* 用户手动打开鼠标(可能就是在桌面上): 明确要用，别马上又被"桌面隐藏"关掉。
              * 直到探测到前台已经不是桌面，这个"手动优先"标记才会清掉。 */
-            g_home_manual_override = true;
+            set_manual_override();
         }
         return;
     }
@@ -2228,6 +2242,7 @@ static void fg_paths_init(void) {
 }
 
 static void fg_probe_start(void) {
+    g_fg_probe_started_ms = now_ms();
     if (!g_fg_path[0]) return;
     pid_t pid = fork();
     if (pid < 0) return;
@@ -2353,6 +2368,7 @@ static int fg_probe_result(void) {
     if (!dialer && strstr(pkg, "incallui") != NULL) dialer = 1;
     g_fg_dialer = dialer;
     /* 用户在列表里勾选的应用: 包名在列表里就算(只排除 android 这个系统自身，避免选择器之类误伤) */
+    snprintf(g_fg_pkg, sizeof(g_fg_pkg), "%s", pkg);
     g_fg_deb = (g_deb_apps[0] && pkg_in_list(g_deb_apps, pkg)) ? 1 : 0;
     g_fg_custom = (g_hide_apps[0] && strcmp(pkg, "android") != 0 && pkg_in_list(g_hide_apps, pkg)) ? 1 : 0;
 
@@ -2418,6 +2434,17 @@ static void refresh_home_state(long tnow) {
             if (home != g_fg_home) logmsg("前台检测: %s", home ? "桌面" : "应用");
             g_fg_home = home;
             if (!hide) g_home_manual_override = false;
+            if (g_home_manual_override) {
+                if (!g_ovr_pkg[0]) {
+                    /* 只拿"手动开鼠标之后才启动"的探测结果来绑定当前应用 */
+                    if (g_fg_probe_started_ms >= g_ovr_set_ms)
+                        snprintf(g_ovr_pkg, sizeof(g_ovr_pkg), "%s", g_fg_pkg);
+                } else if (strcmp(g_ovr_pkg, g_fg_pkg) != 0) {
+                    g_home_manual_override = false;
+                    g_ovr_pkg[0] = '\0';
+                    logmsg("前台切到 %s，手动优先失效", g_fg_pkg);
+                }
+            }
             if (hide && g_enabled && !g_home_manual_override) {
                 g_auto_home_suspended = true;
                 disable_mouse_mode(false);   /* 静默，不弹窗；松开键盘抓取后数字键原样交给前台应用 */
@@ -3612,7 +3639,7 @@ static void process_command(void) {
     g_learn_swallow = -1;
     if (strcmp(buf, "on") == 0) {
         g_auto_ime_suspended = false; g_ime_hidden_since_ms = -1; g_auto_home_suspended = false; g_auto_lock_suspended = false;
-        if (!g_enabled) { enable_mouse_mode(true); g_home_manual_override = true; }
+        if (!g_enabled) { enable_mouse_mode(true); set_manual_override(); }
     } else if (strcmp(buf, "off") == 0) {
         g_auto_ime_suspended = false; g_ime_hidden_since_ms = -1; g_auto_home_suspended = false; g_auto_lock_suspended = false;
         if (g_enabled) disable_mouse_mode(true);
