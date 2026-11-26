@@ -297,6 +297,91 @@ static void logd_write(const char *msg) {
     if (send(fd, buf, o, MSG_DONTWAIT) < 0) { /* ignore */ }
 }
 
+/* 日志同步到内部存储: /sdcard/keymousedebug/<日期>-keymouse.txt
+ * 把 keymouse.log 里新增的内容(守护进程自己的行 + 红点助手/手电筒助手的 [dot]/[torch] 行)
+ * 原样追加过去，用户不用再靠剪贴板，直接在文件管理器里拿文件。
+ * 每个文件到 10MB 就清空重写；每天换一个新文件，换天时顺手删掉 7 天前的旧文件。
+ * 最多每 0.5 秒同步一次(logmsg 里顺带调用)，开销只是一次 stat + 读几百字节。 */
+#define DBG_DIR "/sdcard/keymousedebug"
+#define DBG_MAX (10L * 1024L * 1024L)
+static long g_mir_off = -1;
+static long g_mir_last_ms = 0;
+static char g_mir_day[16] = "";
+
+static void log_mirror_poll(void) {
+    if (!g_cfg.logfile[0] || g_mir_off < 0) return;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    long nm = (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
+    if (nm - g_mir_last_ms < 500) return;
+    g_mir_last_ms = nm;
+    struct stat st;
+    if (stat(g_cfg.logfile, &st) != 0) return;
+    if (st.st_size < g_mir_off) g_mir_off = 0;               /* 原日志被清空/截断了，从头来 */
+    if (st.st_size == g_mir_off) return;
+    time_t t = time(NULL);
+    struct tm tmv;
+    localtime_r(&t, &tmv);
+    char day[16];
+    snprintf(day, sizeof(day), "%04d%02d%02d", tmv.tm_year + 1900, tmv.tm_mon + 1, tmv.tm_mday);
+    mode_t om = umask(0);
+    mkdir(DBG_DIR, 0777);
+    chmod(DBG_DIR, 0777);
+    if (strcmp(day, g_mir_day) != 0) {
+        snprintf(g_mir_day, sizeof(g_mir_day), "%s", day);
+        DIR *d = opendir(DBG_DIR);                           /* 换天: 清掉 7 天前的旧文件 */
+        if (d) {
+            struct dirent *de;
+            while ((de = readdir(d)) != NULL) {
+                size_t l = strlen(de->d_name);
+                if (l < 4 || strcmp(de->d_name + l - 4, ".txt") != 0) continue;
+                char fp[300];
+                snprintf(fp, sizeof(fp), DBG_DIR "/%s", de->d_name);
+                struct stat fs;
+                if (stat(fp, &fs) == 0 && t - fs.st_mtime > 7 * 86400) unlink(fp);
+            }
+            closedir(d);
+        }
+    }
+    char out[300];
+    snprintf(out, sizeof(out), DBG_DIR "/%s-keymouse.txt", day);
+    int ofd = open(out, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (ofd >= 0) {
+        struct stat os;
+        if (fstat(ofd, &os) == 0 && os.st_size >= DBG_MAX) {   /* 满 10MB: 清空重来 */
+            close(ofd);
+            ofd = open(out, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, 0666);
+            if (ofd >= 0) {
+                const char *note = "[日志超过 10MB，已自动清空]\n";
+                ssize_t w0 = write(ofd, note, strlen(note));
+                (void)w0;
+            }
+        }
+    }
+    if (ofd >= 0) {
+        fchmod(ofd, 0666);
+        int ifd = open(g_cfg.logfile, O_RDONLY);
+        if (ifd >= 0) {
+            char buf[8192];
+            long left = st.st_size - g_mir_off;
+            if (left > 262144) { g_mir_off = st.st_size - 262144; left = 262144; }  /* 一次最多补 256KB */
+            if (lseek(ifd, g_mir_off, SEEK_SET) == g_mir_off) {
+                while (left > 0) {
+                    ssize_t n = read(ifd, buf, left > (long)sizeof(buf) ? sizeof(buf) : (size_t)left);
+                    if (n <= 0) break;
+                    ssize_t w = write(ofd, buf, (size_t)n);
+                    (void)w;
+                    g_mir_off += n;
+                    left -= n;
+                }
+            }
+            close(ifd);
+        }
+        close(ofd);
+    }
+    umask(om);
+}
+
 static void logmsg(const char *fmt, ...) {
     char line[1000];
     va_list ap;
@@ -310,6 +395,7 @@ static void logmsg(const char *fmt, ...) {
     localtime_r(&t, &tmv);
     fprintf(g_log, "[%02d:%02d:%02d] %s\n", tmv.tm_hour, tmv.tm_min, tmv.tm_sec, line);
     fflush(g_log);
+    log_mirror_poll();
 }
 
 /* ------------------------------------------------------------------ */
@@ -4767,6 +4853,7 @@ int main(int argc, char **argv) {
     if (g_cfg.logfile[0]) {
         g_log = fopen(g_cfg.logfile, "a");
         if (g_log) {
+            { struct stat ms0; g_mir_off = stat(g_cfg.logfile, &ms0) == 0 ? (long)ms0.st_size : 0; }   /* 只同步本次启动之后的日志 */
             /* 守护进程以 root 身份运行(su 启动)，daemonize() 里设置的
              * umask(027) 会让这里新建的日志文件变成 root:root 0640 之类
              * 的权限——App 自身进程不是 root，也不在这个文件的属组里，
