@@ -197,6 +197,7 @@ public class KmDot {
                         lastTruthEventAt = truthAt;
                         truthEventsSinceLog++;
                         renderDot(truthAt);   // 事件一到就立刻挪红点，不等 30ms 的轮询
+                        kickRehide();         // 窗口会在处理这个事件时把箭头图标改回去，马上补一刀
                     }
                 }
             } catch (Throwable t) {
@@ -441,6 +442,22 @@ public class KmDot {
         }
     }
 
+    /* 窗口(ViewRootImpl)处理鼠标事件时会把指针图标改回箭头/小手，发生在事件分发之后几毫秒，
+     * 等 30ms 的轮询就会闪一下。所以每个指针事件之后在 +4ms / +14ms / +30ms 各补设一次空图标。 */
+    private static final Runnable REHIDE = new Runnable() {
+        public void run() {
+            if (ptrHidden && hideSupported) callPtrType(0);
+        }
+    };
+
+    private static void kickRehide() {
+        if (!ptrHidden || !hideSupported || handler == null) return;
+        handler.removeCallbacks(REHIDE);
+        handler.postDelayed(REHIDE, 4);
+        handler.postDelayed(REHIDE, 14);
+        handler.postDelayed(REHIDE, 30);
+    }
+
     private static void callPtrType(int type) {
         try {
             setPtrType.invoke(inputSvc, type);
@@ -474,7 +491,7 @@ public class KmDot {
         boolean want = modeOn && cursorCfgOn && beatAge >= 0 && beatAge <= 800L;
         if (want) {
             // 指针刚动过就勤快点重设(窗口随时可能把图标改回去)，闲着就慢一点
-            long gap = (now - lastTruthEventAt < 2000L) ? 60L : 500L;
+            long gap = (now - lastTruthEventAt < 2000L) ? 20L : 300L;
             if (!ptrHidden || now - lastHideCall >= gap) {
                 lastHideCall = now;
                 callPtrType(0);

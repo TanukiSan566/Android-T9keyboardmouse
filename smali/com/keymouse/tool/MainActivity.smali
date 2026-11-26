@@ -1460,17 +1460,9 @@
 .end method
 
 .method private strCopyLogBtn()Ljava/lang/String;
-    .locals 4
+    .locals 1
 
-    const-string v0, "Copy Diagnostic Log"
-
-    const-string v1, "\u0421\u043a\u043e\u043f\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u0436\u0443\u0440\u043d\u0430\u043b \u0434\u0438\u0430\u0433\u043d\u043e\u0441\u0442\u0438\u043a\u0438"
-
-    const-string v2, "\u8a3a\u65ad\u30ed\u30b0\u3092\u30b3\u30d4\u30fc"
-
-    const-string v3, "\u590d\u5236\u8bca\u65ad\u65e5\u5fd7"
-
-    invoke-direct {p0, v0, v1, v2, v3}, Lcom/keymouse/tool/MainActivity;->tr4(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {p0}, Lcom/keymouse/tool/DebugLog;->label(Landroid/content/Context;)Ljava/lang/String;
 
     move-result-object v0
 
@@ -2158,54 +2150,27 @@
 
     if-ne p1, v0, :cond_end
 
-    invoke-direct {p0}, Lcom/keymouse/tool/MainActivity;->readLogFile()Ljava/lang/String;
+    invoke-static {p0}, Lcom/keymouse/tool/DebugLog;->toggle(Landroid/content/Context;)V
 
-    move-result-object v0
+    iget-object v0, p0, Lcom/keymouse/tool/MainActivity;->mBtnLog:Landroid/widget/Button;
 
-    if-nez v0, :cond_have_log
+    invoke-static {p0}, Lcom/keymouse/tool/DebugLog;->label(Landroid/content/Context;)Ljava/lang/String;
 
-    invoke-direct {p0}, Lcom/keymouse/tool/MainActivity;->strLogEmpty()Ljava/lang/String;
+    move-result-object v1
 
-    move-result-object v0
+    invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    const/4 v1, 0x1
+    invoke-static {p0}, Lcom/keymouse/tool/DebugLog;->hint(Landroid/content/Context;)Ljava/lang/String;
 
-    invoke-static {p0, v0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    move-result-object v1
+
+    const/4 v2, 0x1
+
+    invoke-static {p0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
-
-    return-void
-
-    :cond_have_log
-    const-string v1, "clipboard"
-
-    invoke-virtual {p0, v1}, Landroid/app/Activity;->getSystemService(Ljava/lang/String;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Landroid/content/ClipboardManager;
-
-    const-string v2, "keymouse log"
-
-    invoke-static {v2, v0}, Landroid/content/ClipData;->newPlainText(Ljava/lang/CharSequence;Ljava/lang/CharSequence;)Landroid/content/ClipData;
-
-    move-result-object v2
-
-    invoke-virtual {v1, v2}, Landroid/content/ClipboardManager;->setPrimaryClip(Landroid/content/ClipData;)V
-
-    invoke-direct {p0}, Lcom/keymouse/tool/MainActivity;->strLogCopied()Ljava/lang/String;
-
-    move-result-object v2
-
-    const/4 v3, 0x1
-
-    invoke-static {p0, v2, v3}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Landroid/widget/Toast;->show()V
 
     :cond_end
     return-void

@@ -318,6 +318,20 @@ static void log_mirror_poll(void) {
     struct stat st;
     if (stat(g_cfg.logfile, &st) != 0) return;
     if (st.st_size < g_mir_off) g_mir_off = 0;               /* 原日志被清空/截断了，从头来 */
+    /* App 主界面的"Bug 日志记录"开关: files/keymouse_debug 内容 1=开。关着不写；
+     * 关着时偏移也跟着走，之后打开只记"打开之后"的日志。 */
+    {
+        char fp[300] = "";
+        snprintf(fp, sizeof(fp), "%s", g_cfg.logfile);
+        char *sl = strrchr(fp, '/');
+        bool on = false;
+        if (sl) {
+            snprintf(sl + 1, sizeof(fp) - (size_t)(sl + 1 - fp), "keymouse_debug");
+            FILE *ff = fopen(fp, "r");
+            if (ff) { int ch = fgetc(ff); on = (ch == '1'); fclose(ff); }
+        }
+        if (!on) { g_mir_off = (long)st.st_size; return; }
+    }
     if (st.st_size == g_mir_off) return;
     time_t t = time(NULL);
     struct tm tmv;

@@ -144,6 +144,13 @@ public final class PosDot {
         if (sDot == null) return;
         long nowMs = System.currentTimeMillis();
         refreshCursorFlags(nowMs);
+        // 心跳: "自绘光标已启用、本类还活着"，root 助手据此在鼠标模式开着的整个期间都把系统箭头藏着
+        // (不只是光标可见时)，否则空闲淡出后第一次移动，系统箭头会先闪一下才被藏起来。
+        // 本类停了/App 被冻结/被杀，0.8 秒后心跳过期，系统箭头自动还回来。
+        if (sCursorOn && sCursorHide && nowMs - sBeatAt > 250) {
+            sBeatAt = nowMs;
+            touchBeat();
+        }
         boolean show = false;
         boolean dotOn = true;
         int px = 0, py = 0, pw = 0, ph = 0, press = 0;
@@ -220,11 +227,6 @@ public final class PosDot {
                     sWm.updateViewLayout(sDot, sLp);
                     sLastX = x;
                     sLastY = y;
-                }
-                // 心跳: 告诉 root 助手"光标正画着，可以藏系统箭头"
-                if (wantCursor && alpha > 0.05f && nowMs - sBeatAt > 300) {
-                    sBeatAt = nowMs;
-                    touchBeat();
                 }
             } else {
                 sDot.reset();
