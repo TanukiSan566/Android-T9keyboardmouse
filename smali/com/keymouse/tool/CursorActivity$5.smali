@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 207
+    .line 206
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,14 +40,14 @@
     .locals 5
 
     .prologue
-    .line 209
+    .line 208
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     const/4 v1, 0x1
 
     invoke-static {v0, v1}, Lcom/keymouse/tool/CursorCfg;->applyDefaultCfg(Landroid/content/Context;Z)V
 
-    .line 210
+    .line 209
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
@@ -58,7 +58,7 @@
 
     invoke-static {v0, v1}, Lcom/keymouse/tool/CursorActivity;->access$302(Lcom/keymouse/tool/CursorActivity;Ljava/util/Map;)Ljava/util/Map;
 
-    .line 211
+    .line 210
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
@@ -81,11 +81,11 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 212
+    .line 211
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$5;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$500(Lcom/keymouse/tool/CursorActivity;)V
 
-    .line 213
+    .line 212
     return-void
 .end method

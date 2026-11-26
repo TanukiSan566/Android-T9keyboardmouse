@@ -3,12 +3,12 @@
 .source "CursorActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->doImport(Landroid/widget/Button;)V
+    value = Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
-.field final synthetic val$btn:Landroid/widget/Button;
-
-.field final synthetic val$old:Ljava/lang/CharSequence;
+.field final synthetic val$slot:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;Ljava/lang/CharSequence;)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 572
+    .line 635
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$15;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$15;->val$btn:Landroid/widget/Button;
-
-    iput-object p3, p0, Lcom/keymouse/tool/CursorActivity$15;->val$old:Ljava/lang/CharSequence;
+    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$15;->val$slot:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,30 +45,56 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 3
+.method public onClick(Landroid/view/View;)V
+    .locals 4
 
     .prologue
-    .line 574
+    .line 637
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$15;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->importLib(Landroid/content/Context;)Z
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    move-result v0
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
 
-    .line 575
-    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$15;->this$0:Lcom/keymouse/tool/CursorActivity;
+    const-string v2, "hs_"
 
-    invoke-static {v1}, Lcom/keymouse/tool/CursorActivity;->access$900(Lcom/keymouse/tool/CursorActivity;)Landroid/os/Handler;
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v1
 
-    new-instance v2, Lcom/keymouse/tool/CursorActivity$15$1;
+    iget-object v2, p0, Lcom/keymouse/tool/CursorActivity$15;->val$slot:Ljava/lang/String;
 
-    invoke-direct {v2, p0, v0}, Lcom/keymouse/tool/CursorActivity$15$1;-><init>(Lcom/keymouse/tool/CursorActivity$15;Z)V
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
+    move-result-object v1
 
-    .line 585
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    iget-object v2, p0, Lcom/keymouse/tool/CursorActivity$15;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    iget-object v3, p0, Lcom/keymouse/tool/CursorActivity$15;->val$slot:Ljava/lang/String;
+
+    invoke-static {v2, v3}, Lcom/keymouse/tool/CursorActivity;->access$1600(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)I
+
+    move-result v2
+
+    add-int/lit8 v2, v2, 0x1
+
+    rem-int/lit8 v2, v2, 0x3
+
+    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
+
+    move-result-object v2
+
+    invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 638
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$15;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$1400(Lcom/keymouse/tool/CursorActivity;)V
+
+    .line 639
     return-void
 .end method

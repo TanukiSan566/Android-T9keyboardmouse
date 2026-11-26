@@ -3,12 +3,12 @@
 .source "CursorActivity.java"
 
 # interfaces
-.implements Landroid/content/DialogInterface$OnClickListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->pickFile(Ljava/lang/String;)V
+    value = Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,13 +20,11 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
-.field final synthetic val$arr:[Ljava/lang/String;
-
 .field final synthetic val$slot:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;[Ljava/lang/String;)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -35,12 +33,10 @@
     .end annotation
 
     .prologue
-    .line 558
+    .line 624
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$14;->val$slot:Ljava/lang/String;
-
-    iput-object p3, p0, Lcom/keymouse/tool/CursorActivity$14;->val$arr:[Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -49,44 +45,36 @@
 
 
 # virtual methods
-.method public onClick(Landroid/content/DialogInterface;I)V
+.method public onClick(Landroid/view/View;)V
     .locals 3
 
     .prologue
-    .line 560
+    const/4 v2, 0x0
+
+    .line 626
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$14;->val$slot:Ljava/lang/String;
 
-    iget-object v2, p0, Lcom/keymouse/tool/CursorActivity$14;->val$arr:[Ljava/lang/String;
-
-    aget-object v2, v2, p2
-
     invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 561
+    .line 627
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     const-string v1, "theme"
 
-    const/4 v2, 0x0
-
     invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 562
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    const-string v1, "on"
-
-    const-string v2, "1"
-
-    invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 563
+    .line 628
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$1400(Lcom/keymouse/tool/CursorActivity;)V
 
-    .line 564
+    .line 629
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$14;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$1500(Lcom/keymouse/tool/CursorActivity;)V
+
+    .line 630
     return-void
 .end method

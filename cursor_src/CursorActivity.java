@@ -41,7 +41,6 @@ public class CursorActivity extends Activity {
     private Switch mSmartSw;
     private Switch mOnSw;
     private LinearLayout mBuiltin;
-    private final ArrayList<Object[]> mThemeRows = new ArrayList<Object[]>();   // {id, 行, 按钮}
     private boolean mBuilding = true;
 
     private String S(String zh, String ja, String en) {
@@ -331,106 +330,212 @@ public class CursorActivity extends Activity {
         return S("macOS 风格 (Capitaine)", "macOS風 (Capitaine)", "macOS style (Capitaine)");
     }
 
+    // 主题预览缓存: id -> 4 张图(箭头/手指/文字/抓取)
+    private final java.util.HashMap<String, Bitmap[]> mThumbCache = new java.util.HashMap<String, Bitmap[]>();
+    private ArrayList<String[]> mThemeList = new ArrayList<String[]>();
+    private TextView mSelName;
+    private ImageView[] mSelThumbs;
+
+    private Bitmap[] thumbsOf(String id) {
+        Bitmap[] r = mThumbCache.get(id);
+        if (r != null) {
+            return r;
+        }
+        r = new Bitmap[4];
+        if (CursorCfg.installTheme(this, id)) {
+            for (int i = 0; i < 4; i++) {
+                String slot = CursorCfg.SLOTS[i];
+                CurLoader.Set cs = CurLoader.load(new File(CursorCfg.themeDir(this, id), slot + ".cur"), CursorCfg.defHotspot(slot));
+                if (cs != null) {
+                    r[i] = cs.frames[cs.frameAt(0)];
+                }
+            }
+        }
+        mThumbCache.put(id, r);
+        return r;
+    }
+
+    private LinearLayout thumbRow(Bitmap[] bm, int size) {
+        LinearLayout h = new LinearLayout(this);
+        h.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < 4; i++) {
+            ImageView iv = new ImageView(this);
+            iv.setBackgroundColor(0xFFB8C0CC);
+            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            iv.setPadding(dp(2), dp(2), dp(2), dp(2));
+            if (bm != null && bm[i] != null) {
+                iv.setImageBitmap(bm[i]);
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(size), dp(size));
+            lp.rightMargin = dp(4);
+            h.addView(iv, lp);
+        }
+        return h;
+    }
+
+    /** 页面上只放一个"下拉框": 显示当前主题(名字 + 4 个预览 + ▼)，点开才是完整列表。 */
     private void rebuildBuiltin() {
         mBuiltin.removeAllViews();
-        mThemeRows.clear();
-        final ArrayList<String[]> list = CursorCfg.builtinThemes(this);
-        if (list.isEmpty()) {
+        mThemeList = CursorCfg.builtinThemes(this);
+        if (mThemeList.isEmpty()) {
             mBuiltin.addView(hint(S("(没有找到内置主题)", "(内蔵テーマが見つかりません)", "(no built-in themes found)")));
             return;
         }
-        String lastGroup = null;
-        final ArrayList<ImageView[]> thumbs = new ArrayList<ImageView[]>();
-        for (final String[] t : list) {
-            String g = groupOf(t[0]);
-            if (!g.equals(lastGroup)) {
-                lastGroup = g;
-                TextView gh = new TextView(this);
-                gh.setTextSize(13f);
-                gh.setAlpha(0.8f);
-                gh.setPadding(0, dp(14), 0, dp(2));
-                gh.setText(g);
-                mBuiltin.addView(gh);
-            }
-            LinearLayout row = new LinearLayout(this);
-            row.setOrientation(LinearLayout.VERTICAL);
-            row.setPadding(dp(6), dp(6), dp(6), dp(6));
-            LinearLayout top = new LinearLayout(this);
-            top.setOrientation(LinearLayout.HORIZONTAL);
-            top.setGravity(Gravity.CENTER_VERTICAL);
-            ImageView[] ivs = new ImageView[4];
-            for (int i = 0; i < 4; i++) {
-                ImageView iv = new ImageView(this);
-                iv.setBackgroundColor(0xFFB8C0CC);
-                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                iv.setPadding(dp(2), dp(2), dp(2), dp(2));
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(34), dp(34));
-                lp.rightMargin = dp(4);
-                top.addView(iv, lp);
-                ivs[i] = iv;
-            }
-            thumbs.add(ivs);
-            // 320 像素宽的小屏: 名字单独占一行，下面一行放 4 个预览 + 按钮，名字再长也不会被挤成竖条
-            TextView nm = new TextView(this);
-            nm.setTextSize(14f);
-            nm.setPadding(dp(2), 0, dp(2), dp(4));
-            nm.setText(CursorCfg.themeName(this, t));
-            row.addView(nm);
-            top.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
-            Button use = new Button(this);
-            use.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    applyBuiltin(t);
-                }
-            });
-            top.addView(use);
-            row.addView(top);
-            mBuiltin.addView(row);
-            mThemeRows.add(new Object[] { t[0], row, use });
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setPadding(dp(10), dp(8), dp(10), dp(8));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(dp(6));
+        bg.setColor(0x14808080);
+        bg.setStroke(dp(1), 0xFF8A8F99);
+        box.setBackground(bg);
+        LinearLayout top = new LinearLayout(this);
+        top.setOrientation(LinearLayout.HORIZONTAL);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        mSelName = new TextView(this);
+        mSelName.setTextSize(15f);
+        top.addView(mSelName, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        TextView arrow = new TextView(this);
+        arrow.setText("\u25BE");
+        arrow.setTextSize(18f);
+        top.addView(arrow);
+        box.addView(top);
+        LinearLayout tr = new LinearLayout(this);
+        tr.setOrientation(LinearLayout.HORIZONTAL);
+        tr.setPadding(0, dp(6), 0, 0);
+        mSelThumbs = new ImageView[4];
+        for (int i = 0; i < 4; i++) {
+            ImageView iv = new ImageView(this);
+            iv.setBackgroundColor(0xFFB8C0CC);
+            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            iv.setPadding(dp(2), dp(2), dp(2), dp(2));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(34), dp(34));
+            lp.rightMargin = dp(4);
+            tr.addView(iv, lp);
+            mSelThumbs[i] = iv;
         }
+        box.addView(tr);
+        box.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showThemeDialog();
+            }
+        });
+        mBuiltin.addView(box);
         refreshThemeRows();
-        // 复制全部内置主题 + 解码预览图放在后台，不卡界面
-        final ArrayList<String[]> fl = list;
+        // 后台把所有内置主题复制好(只在第一次真正复制)
         new Thread(new Runnable() {
             public void run() {
                 CursorCfg.installAllThemes(CursorActivity.this);
-                for (int k = 0; k < fl.size(); k++) {
-                    final ImageView[] ivs = thumbs.get(k);
-                    for (int i = 0; i < 4; i++) {
-                        String slot = CursorCfg.SLOTS[i];
-                        File f = new File(CursorCfg.themeDir(CursorActivity.this, fl.get(k)[0]), slot + ".cur");
-                        CurLoader.Set cs = CurLoader.load(f, CursorCfg.defHotspot(slot));
-                        if (cs == null) {
-                            continue;
-                        }
-                        final Bitmap bm = cs.frames[cs.frameAt(0)];
-                        final ImageView iv = ivs[i];
-                        mH.post(new Runnable() {
-                            public void run() {
-                                iv.setImageBitmap(bm);
-                            }
-                        });
-                    }
-                }
             }
         }).start();
     }
 
-    /** 当前正在用的内置主题高亮，按钮显示\"使用中\"。 */
-    private void refreshThemeRows() {
-        String cur = CursorCfg.currentThemeId(mCfg);
-        for (Object[] r : mThemeRows) {
-            boolean on = r[0].equals(cur);
-            LinearLayout row = (LinearLayout) r[1];
-            Button b = (Button) r[2];
-            GradientDrawable bg = new GradientDrawable();
-            bg.setCornerRadius(dp(8));
-            bg.setColor(on ? 0x331B8A3A : 0x00000000);
-            if (on) {
-                bg.setStroke(dp(1), 0xFF1B8A3A);
+    /** 点下拉框弹出的列表: 分组标题 + 每行(名字 / 4 个预览)，当前使用的那套有绿框。 */
+    private void showThemeDialog() {
+        final ArrayList<Object> items = new ArrayList<Object>();
+        String lastGroup = null;
+        for (String[] t : mThemeList) {
+            String g = groupOf(t[0]);
+            if (!g.equals(lastGroup)) {
+                lastGroup = g;
+                items.add(g);
             }
-            row.setBackground(bg);
-            b.setText(on ? S("使用中", "使用中", "In use") : S("使用", "使う", "Use"));
+            items.add(t);
+        }
+        final String cur = CursorCfg.currentThemeId(mCfg);
+        android.widget.BaseAdapter ad = new android.widget.BaseAdapter() {
+            public int getCount() {
+                return items.size();
+            }
+
+            public Object getItem(int i) {
+                return items.get(i);
+            }
+
+            public long getItemId(int i) {
+                return i;
+            }
+
+            public boolean isEnabled(int i) {
+                return items.get(i) instanceof String[];
+            }
+
+            public View getView(int i, View cv, android.view.ViewGroup parent) {
+                Object o = items.get(i);
+                if (o instanceof String) {
+                    TextView gh = new TextView(CursorActivity.this);
+                    gh.setTextSize(12f);
+                    gh.setAlpha(0.75f);
+                    gh.setBackgroundColor(0x22808080);
+                    gh.setPadding(dp(10), dp(6), dp(10), dp(6));
+                    gh.setText((String) o);
+                    return gh;
+                }
+                String[] t = (String[]) o;
+                LinearLayout row = new LinearLayout(CursorActivity.this);
+                row.setOrientation(LinearLayout.VERTICAL);
+                row.setPadding(dp(10), dp(8), dp(10), dp(8));
+                TextView nm = new TextView(CursorActivity.this);
+                nm.setTextSize(14f);
+                nm.setPadding(0, 0, 0, dp(4));
+                nm.setText(CursorCfg.themeName(CursorActivity.this, t));
+                row.addView(nm);
+                row.addView(thumbRow(thumbsOf(t[0]), 30));
+                if (t[0].equals(cur)) {
+                    GradientDrawable g = new GradientDrawable();
+                    g.setColor(0x331B8A3A);
+                    g.setStroke(dp(1), 0xFF1B8A3A);
+                    row.setBackground(g);
+                }
+                return row;
+            }
+        };
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle(S("选择内置主题", "内蔵テーマを選択", "Choose a built-in theme"));
+        b.setAdapter(ad, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface d, int which) {
+                Object o = items.get(which);
+                if (o instanceof String[]) {
+                    applyBuiltin((String[]) o);
+                }
+            }
+        });
+        b.setNegativeButton(S("取消", "キャンセル", "Cancel"), null);
+        b.show();
+    }
+
+    /** 下拉框显示当前套用的主题；用户单独改过某个状态就显示"自定义"。 */
+    private void refreshThemeRows() {
+        if (mSelName == null) {
+            return;
+        }
+        String cur = CursorCfg.currentThemeId(mCfg);
+        String[] hit = null;
+        for (String[] t : mThemeList) {
+            if (t[0].equals(cur)) {
+                hit = t;
+            }
+        }
+        mSelName.setText(hit != null ? CursorCfg.themeName(this, hit)
+                : S("自定义(没有套用内置主题)", "カスタム(内蔵テーマ未適用)", "Custom (no built-in theme)"));
+        Bitmap[] bm = null;
+        if (hit != null) {
+            bm = thumbsOf(hit[0]);
+        } else {
+            // 自定义: 直接显示当前四个状态的图
+            bm = new Bitmap[4];
+            for (int i = 0; i < 4; i++) {
+                String rel = mCfg.get(CursorCfg.SLOTS[i]);
+                if (rel != null && rel.length() > 0) {
+                    CurLoader.Set cs = CurLoader.load(new File(CursorCfg.lib(this), rel), CursorCfg.defHotspot(CursorCfg.SLOTS[i]));
+                    if (cs != null) {
+                        bm[i] = cs.frames[cs.frameAt(0)];
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            mSelThumbs[i].setImageBitmap(bm[i]);
         }
     }
 

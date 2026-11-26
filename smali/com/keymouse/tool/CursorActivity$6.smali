@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 227
+    .line 226
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,13 +40,13 @@
     .locals 1
 
     .prologue
-    .line 229
+    .line 228
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     check-cast p1, Landroid/widget/Button;
 
     invoke-static {v0, p1}, Lcom/keymouse/tool/CursorActivity;->access$600(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;)V
 
-    .line 230
+    .line 229
     return-void
 .end method
