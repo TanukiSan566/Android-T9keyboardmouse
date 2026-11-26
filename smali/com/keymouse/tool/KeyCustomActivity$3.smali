@@ -24,14 +24,12 @@
 
 .field final synthetic val$lbl:Landroid/widget/TextView;
 
-.field final synthetic val$msKey:Ljava/lang/String;
-
 .field final synthetic val$secWord:Ljava/lang/String;
 
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;Landroid/widget/TextView;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-    .registers 6
+.method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;Landroid/widget/TextView;Ljava/lang/String;Ljava/lang/String;)V
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -39,7 +37,7 @@
     .end annotation
 
     .prologue
-    .line 131
+    .line 200
     iput-object p1, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
     iput-object p2, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$lbl:Landroid/widget/TextView;
@@ -47,8 +45,6 @@
     iput-object p3, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$holdWord:Ljava/lang/String;
 
     iput-object p4, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$secWord:Ljava/lang/String;
-
-    iput-object p5, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$msKey:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -58,15 +54,15 @@
 
 # virtual methods
 .method public onProgressChanged(Landroid/widget/SeekBar;IZ)V
-    .registers 8
+    .locals 4
 
     .prologue
-    .line 133
+    .line 202
     add-int/lit8 v0, p2, 0x5
 
     mul-int/lit8 v0, v0, 0x64
 
-    .line 134
+    .line 203
     iget-object v1, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$lbl:Landroid/widget/TextView;
 
     new-instance v2, Ljava/lang/StringBuilder;
@@ -85,8 +81,7 @@
 
     move-result-object v2
 
-    # invokes: Lcom/keymouse/tool/KeyCustomActivity;->fmt(I)Ljava/lang/String;
-    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$100(I)Ljava/lang/String;
+    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$200(I)Ljava/lang/String;
 
     move-result-object v3
 
@@ -106,38 +101,37 @@
 
     invoke-virtual {v1, v2}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 135
-    if-eqz p3, :cond_39
+    .line 204
+    if-eqz p3, :cond_0
 
-    .line 136
+    .line 205
     iget-object v1, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
-    iget-object v2, p0, Lcom/keymouse/tool/KeyCustomActivity$3;->val$msKey:Ljava/lang/String;
+    const-string v2, "holdMs"
 
     invoke-static {v0}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
 
     move-result-object v0
 
-    # invokes: Lcom/keymouse/tool/KeyCustomActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
     invoke-static {v1, v2, v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$000(Lcom/keymouse/tool/KeyCustomActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 138
-    :cond_39
+    .line 207
+    :cond_0
     return-void
 .end method
 
 .method public onStartTrackingTouch(Landroid/widget/SeekBar;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 141
+    .line 210
     return-void
 .end method
 
 .method public onStopTrackingTouch(Landroid/widget/SeekBar;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 144
+    .line 213
     return-void
 .end method

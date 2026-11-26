@@ -449,6 +449,8 @@ static bool g_ptr_changed = false;
 static char g_flags_path[300] = "", g_ptr_orig_path[300] = "";
 static long g_dot_last_notify = 0;            /* 上次发 dot_on 广播的时间 */
 static void pos_publish(bool visible);        /* 定义在后面"光标位置->App红点"一节 */
+static void km_reset_keys(void);              /* 按键组合映射的按下表/计时清零 */
+static int  g_press_state = 0;                /* 红点缩放效果: 0=没按 1=中间键按着(没动) 2=按着并且移动过(拖动) */
 static void notify_dot(bool on);
 static void app_keepalive_kick(void);            /* 保证 App 保活服务在跑 */
 static void write_state_file(void);
@@ -607,6 +609,7 @@ static void touch_up_now(void);
 static void gesture_cancel_all(void);   /* 定义在后面"触摸手势"一节 */
 
 static void mouse_move(int dx, int dy) {
+    if (g_press_state == 1 && (dx || dy)) g_press_state = 2;      /* 按着中间键又移动了 = 拖动 */
     if (g_touch_down && g_touch_fd >= 0) {
         /* 手指按着: 光标移动改成手指移动(拖选文字/拖选区把手/拖图标)，系统指针先不动，
          * 抬起时再一次性补上位移，避免鼠标和触摸两路事件同时进系统互相打架。 */
@@ -637,8 +640,9 @@ static void mouse_move(int dx, int dy) {
 }
 
 static void mouse_click(int down) {
+    g_press_state = down ? 1 : 0;
     if (down && g_cfg.touch_mode && g_touch_fd >= 0) { touch_down_now(); return; }
-    if (!down && g_touch_down) { touch_up_now(); return; }
+    if (!down && g_touch_down) { touch_up_now(); pos_publish(true); return; }
     pos_publish(true);
     emit(g_mouse_fd, EV_KEY, BTN_LEFT, down ? 1 : 0);
     emit(g_mouse_fd, EV_SYN, SYN_REPORT, 0);
@@ -788,10 +792,13 @@ static void pos_open(void) {
 
 static void pos_publish(bool visible) {
     if (g_pos_fd < 0) return;
-    char buf[48];
-    if (g_dot_hidden) visible = false;
-    int n = snprintf(buf, sizeof(buf), "%d %05d %05d %05d %05d\n",
-                     visible ? 1 : 0, g_cur_x, g_cur_y, g_panel_w, g_panel_h);
+    char buf[64];
+    /* 第 6 个字段 = 中间键按压状态(0 没按 / 1 按着 / 2 按着并拖动)，App 据此给光标/红点做缩小/放大动画。
+     * 第 7 个字段 = 是否画红点(1 画 / 0 不画)。以前"不显示红点"是直接把第 1 个字段写 0，
+     * 现在自绘光标也靠这个文件显示，所以"鼠标模式开着"和"红点开关"分成两个字段。 */
+    int n = snprintf(buf, sizeof(buf), "%d %05d %05d %05d %05d %d %d\n",
+                     visible ? 1 : 0, g_cur_x, g_cur_y, g_panel_w, g_panel_h,
+                     visible ? g_press_state : 0, g_dot_hidden ? 0 : 1);
     if (n > 0) { ssize_t r = pwrite(g_pos_fd, buf, (size_t)n, 0); (void)r; }
 }
 
@@ -1157,6 +1164,7 @@ static void enable_mouse_mode(bool notify) {
      * 鼠标模式一恢复就关掉——之前这里会调用 set_show_ime_with_hard_keyboard
      * (false)，现在按需求去掉，只在 disable_mouse_mode() 里打开，从不
      * 主动关闭。 */
+    km_reset_keys();
     dot_helper_ensure();               /* root 红点/真实指针助手(被杀了会自动拉起) */
     ptr_sync(true);
     pos_publish(true);                 /* 红点: 开启鼠标模式就显示 */
@@ -1193,6 +1201,8 @@ static void disable_mouse_mode(bool notify) {
      * show_ime_with_hard_keyboard 打开，让检测到实体键盘就拒绝进软键盘
      * /T9 模式的输入法能正常工作。 */
     if (g_cfg.force_soft_kbd_when_off) set_show_ime_with_hard_keyboard(true);
+    g_press_state = 0;
+    km_reset_keys();                   /* 抓取状态切换: 按键按下表清零，免得漏掉的松开沿让组合键卡住 */
     pos_publish(false);                /* 红点: 关闭/暂停鼠标模式就收起 */
     /* 同上: notify_app() 不再顺带停红点，这里要显式单独调用 notify_dot()。 */
     ptr_color_apply(false);
@@ -2929,15 +2939,34 @@ static void rotate_vec_swipe(int dx, int dy, int *out_dx, int *out_dy) {
  * 触发一次。单击仍然完全走系统默认处理——我们只是旁观按键事件，不拦截。
  * 因为守护进程是 root 一直在读 sprd-keypad，所以不管屏幕亮着还是息屏，
  * 只要这颗键的事件能上报，都能触发。 */
-/* v68 按键自定义: 三个"槽位"(菜单键/返回键/星号键)，每个槽位可单独选动作、长按时间；
+/* v69 按键自定义(实体键映射): 不再有固定的 菜单/返回/星号 三个槽位，改成一张"映射表"——
+ * 每一条 = 1~4 个实体键(同时按住) + 一个动作；这组键全部按住并保持"长按时间"就触发一次，
+ * 触发后要先松开其中任意一个键才能再次触发。单击/短按完全交给系统，我们只旁观按键事件。
+ * 动作: 最近任务 / 结束前台应用 / 截屏(root) / 手电筒 / 回到桌面。
+ * 若同时按住的键正好是另一条更长组合的一部分(例如 "1" 和 "1+2" 都有映射)，只算更长的那一条。
  * 另有总开关、锁屏时是否启用、息屏(休眠)时是否启用、排除应用列表。
- * 配置: files/keymouse_keymap.cfg (App 的"按键自定义"页写入，文件一变就热重读)。
- * 文件还不存在(从旧版升级、没进过新页面)时，沿用旧的 keymouse_hold.cfg 里的
- * menuHold/backHold/starHold 和固定动作，行为和 v67 完全一样。 */
-enum { KS_MENU = 0, KS_BACK = 1, KS_STAR = 2, KS_COUNT = 3 };
-enum { KA_OFF = 0, KA_RECENTS = 1, KA_KILL = 2, KA_TORCH = 3, KA_HOME = 4 };
-static long g_ha_down_ms[KS_COUNT] = { -1, -1, -1 };
-static bool g_ha_fired[KS_COUNT];
+ * 配置: files/keymouse_keymap.cfg (App 的"按键自定义"页写入，文件一变就热重读):
+ *   kmOn=1  holdMs=1500  maps=139:1;158:2;S:3;2,3:5  lockOk=1 sleepOk=1 excl=包名 包名
+ *   maps 里每项 = "键码[,键码...]:动作号"，键码 S 表示"任意一个星号键"，动作号见下面 KA_*。
+ * 旧版(v68)配置里的 menuAct/backAct/starAct + menuMs/backMs/starMs 仍然认: 文件里没有 maps= 时
+ * 按它们生成三条映射，行为不变。配置文件根本不存在时(从更老的版本升级)，沿用旧的 keymouse_hold.cfg
+ * 里的 menuHold/backHold/starHold 和固定动作(菜单=最近任务 返回=结束前台 *=手电筒)。 */
+enum { KA_OFF = 0, KA_RECENTS = 1, KA_KILL = 2, KA_TORCH = 3, KA_HOME = 4, KA_SHOT = 5 };
+#define KM_MAX  16
+#define KM_STAR (-1)                      /* 映射里的"星号键"通配: 55 / 227 / 0x20a / --star-code */
+typedef struct {
+    int  n;                               /* 组合里键的个数 1~TK_MAX */
+    int  code[TK_MAX];
+    int  act;
+    int  ms;                              /* 长按时间(ms) */
+    int  slot;                            /* 仅"配置文件不存在"的老默认映射用: 0菜单 1返回 2星号，时间取 g_cfg.*_hold_ms */
+    long down_ms;                         /* 组合刚好凑齐的时刻，-1=没凑齐 */
+    bool fired;
+} km_map_t;
+static km_map_t g_km_map[KM_MAX];
+static int  g_km_n = 0;
+static bool g_kdn[0x300];                 /* 各实体键当前是否按着(由 hold_key_event 维护) */
+static void wake_hold(long ms);          /* 定义在后面 */
 static bool g_torch_on = false;
 static char g_torch_node[200] = "";
 static char g_torch_max[32] = "1";
@@ -2946,37 +2975,127 @@ static bool g_km_loaded = false;                 /* keymouse_keymap.cfg 读到�
 static bool g_km_master = true;                  /* 按键映射总开关 */
 static bool g_km_lock_ok = true;                 /* 亮屏锁屏界面时是否启用 */
 static bool g_km_sleep_ok = true;                /* 息屏(休眠)时是否启用 */
-static int  g_km_act[KS_COUNT] = { KA_RECENTS, KA_KILL, KA_TORCH };
-static int  g_km_ms[KS_COUNT]  = { 1500, 1500, 2000 };
+static int  g_km_hold = 1500;                    /* 全局长按时间 */
 static char g_km_excl[4096] = "";                /* 排除应用(空格分隔包名): 前台是它们时不触发 */
+static char g_learned_path[300] = "";            /* 学到的新组合写在这里: "序号 键码 键码..." */
 
-static int ha_action(int s) {
-    if (!g_km_loaded) return s == KS_MENU ? KA_RECENTS : s == KS_BACK ? KA_KILL : KA_TORCH;
-    return g_km_act[s];
+static void km_set_default_maps(void) {
+    g_km_n = 3;
+    memset(g_km_map, 0, sizeof(g_km_map));
+    int codes[3] = { KEY_MENU, KEY_BACK, KM_STAR };
+    int acts[3]  = { KA_RECENTS, KA_KILL, KA_TORCH };
+    for (int i = 0; i < 3; i++) {
+        g_km_map[i].n = 1; g_km_map[i].code[0] = codes[i]; g_km_map[i].act = acts[i];
+        g_km_map[i].slot = i; g_km_map[i].down_ms = -1;
+    }
 }
 
-/* 0 = 这个槽位当前不工作 */
-static int ha_hold_ms(int s) {
-    if (!g_km_loaded)
-        return s == KS_MENU ? g_cfg.menu_hold_ms : s == KS_BACK ? g_cfg.back_hold_ms : g_cfg.star_hold_ms;
-    if (!g_km_master || g_km_act[s] == KA_OFF) return 0;
-    return g_km_ms[s];
+static int km_map_ms(const km_map_t *m) {
+    if (!g_km_loaded && m->slot >= 0)
+        return m->slot == 0 ? g_cfg.menu_hold_ms : m->slot == 1 ? g_cfg.back_hold_ms : g_cfg.star_hold_ms;
+    return m->ms;
 }
 
-/* 返回该键码对应的槽位，没有则 -1。KEY_MENU=139 KEY_BACK=158。
- * 星号键在不同机型上键码不一样：KEY_KPASTERISK=55、功能机常见的 227(STAR)、
- * KEY_NUMERIC_STAR=0x20a(522)，三个都认；还可以用 --star-code 额外指定。 */
-static int ha_for_code(int code) {
-    if (code == KEY_MENU) return KS_MENU;
-    if (code == KEY_BACK) return KS_BACK;
-    if (code == 55 || code == 227 || code == 0x20a || (g_cfg.star_code > 0 && code == g_cfg.star_code))
-        return KS_STAR;
-    return -1;
+static bool km_map_enabled(const km_map_t *m) {
+    if (g_km_loaded && !g_km_master) return false;
+    return m->act != KA_OFF && km_map_ms(m) > 0;
+}
+
+static bool km_code_down(int c) {
+    if (c == KM_STAR)
+        return g_kdn[55] || g_kdn[227] || g_kdn[0x20a] || (g_cfg.star_code > 0 && g_cfg.star_code < 0x300 && g_kdn[g_cfg.star_code]);
+    return c > 0 && c < 0x300 && g_kdn[c];
+}
+
+static bool km_map_full(const km_map_t *m) {
+    if (m->n <= 0) return false;
+    for (int i = 0; i < m->n; i++) if (!km_code_down(m->code[i])) return false;
+    return true;
+}
+
+/* b 的键是不是 a 的键的真子集 */
+static bool km_is_subset(const km_map_t *b, const km_map_t *a) {
+    if (b->n >= a->n) return false;
+    for (int i = 0; i < b->n; i++) {
+        bool in = false;
+        for (int j = 0; j < a->n; j++) if (a->code[j] == b->code[i]) in = true;
+        if (!in) return false;
+    }
+    return true;
+}
+
+static void km_reset_keys(void) {
+    memset(g_kdn, 0, sizeof(g_kdn));
+    for (int i = 0; i < g_km_n; i++) { g_km_map[i].down_ms = -1; g_km_map[i].fired = false; }
+}
+
+/* 任何一个键按下/松开后调用: 重新判断每条映射的组合是否凑齐，凑齐就开始计时，不齐就作废。 */
+static void km_chord_update(void) {
+    long now = now_ms();
+    for (int i = 0; i < g_km_n; i++) {
+        km_map_t *m = &g_km_map[i];
+        bool full = km_map_enabled(m) && km_map_full(m);
+        if (full) {
+            for (int j = 0; j < g_km_n; j++) {
+                if (j == i || !km_map_enabled(&g_km_map[j])) continue;
+                if (km_is_subset(m, &g_km_map[j]) && km_map_full(&g_km_map[j])) { full = false; break; }
+            }
+        }
+        if (full) {
+            if (m->down_ms < 0) {
+                m->down_ms = now; m->fired = false;
+                wake_hold(km_map_ms(m) + 1500);
+            }
+        } else {
+            m->down_ms = -1; m->fired = false;
+        }
+    }
+}
+
+static void km_map_name(const km_map_t *m, char *out, size_t n) {
+    out[0] = '\0';
+    for (int i = 0; i < m->n; i++) {
+        char one[32];
+        if (m->code[i] == KM_STAR) snprintf(one, sizeof(one), "*");
+        else if (m->code[i] == KEY_MENU) snprintf(one, sizeof(one), "Menu");
+        else if (m->code[i] == KEY_BACK) snprintf(one, sizeof(one), "Back");
+        else key_display_name(m->code[i], one, sizeof(one));
+        size_t l = strlen(out);
+        snprintf(out + l, n - l, i ? "+%s" : "%s", one);
+    }
 }
 
 static time_t g_km_mtime = 0;
 static long   g_km_mtime_ns = -1;
 static long   g_km_next_check = 0;
+
+/* maps= 的值 -> g_km_map。格式见上面注释；坏的项直接跳过。 */
+static void km_parse_maps(const char *s) {
+    g_km_n = 0;
+    memset(g_km_map, 0, sizeof(g_km_map));
+    const char *p = s;
+    while (*p && g_km_n < KM_MAX) {
+        km_map_t m;
+        memset(&m, 0, sizeof(m));
+        m.slot = -1; m.down_ms = -1;
+        int n = 0;
+        while (*p && *p != ':' && *p != ';') {
+            int c = 0;
+            if (*p == 'S') { c = KM_STAR; p++; }
+            else if (*p >= '0' && *p <= '9') { while (*p >= '0' && *p <= '9') { c = c * 10 + (*p - '0'); p++; } }
+            else { p++; continue; }
+            if (*p == ',') p++;
+            bool dup = false;
+            for (int i = 0; i < n; i++) if (m.code[i] == c) dup = true;
+            if (!dup && n < TK_MAX && (c == KM_STAR || (c > 0 && c < 0x300))) m.code[n++] = c;
+        }
+        int act = 0;
+        if (*p == ':') { p++; while (*p >= '0' && *p <= '9') { act = act * 10 + (*p - '0'); p++; } }
+        while (*p && *p != ';') p++;
+        if (*p == ';') p++;
+        if (n > 0 && act >= KA_RECENTS && act <= KA_SHOT) { m.n = n; m.act = act; g_km_map[g_km_n++] = m; }
+    }
+}
 
 static void refresh_keymap_cfg(long tnow) {
     if (!g_cfg.live_cfg[0]) return;
@@ -2995,16 +3114,30 @@ static void refresh_keymap_cfg(long tnow) {
     FILE *f = fopen(path, "r");
     if (!f) return;
     static char line[4400];
+    static char maps[1024];
     char excl[4096] = "";
+    bool have_maps = false;
+    int lact[3] = { KA_RECENTS, KA_KILL, KA_TORCH };       /* v68 旧格式 */
+    int lms[3]  = { 1500, 1500, 2000 };
+    int hold = 1500;
+    maps[0] = '\0';
     while (fgets(line, sizeof(line), f)) {
         int v;
         if (sscanf(line, "kmOn=%d", &v) == 1) g_km_master = (v != 0);
-        else if (sscanf(line, "menuAct=%d", &v) == 1 && v >= 0 && v <= KA_HOME) g_km_act[KS_MENU] = v;
-        else if (sscanf(line, "backAct=%d", &v) == 1 && v >= 0 && v <= KA_HOME) g_km_act[KS_BACK] = v;
-        else if (sscanf(line, "starAct=%d", &v) == 1 && v >= 0 && v <= KA_HOME) g_km_act[KS_STAR] = v;
-        else if (sscanf(line, "menuMs=%d", &v) == 1 && v >= 300) g_km_ms[KS_MENU] = v;
-        else if (sscanf(line, "backMs=%d", &v) == 1 && v >= 300) g_km_ms[KS_BACK] = v;
-        else if (sscanf(line, "starMs=%d", &v) == 1 && v >= 300) g_km_ms[KS_STAR] = v;
+        else if (sscanf(line, "holdMs=%d", &v) == 1 && v >= 300) hold = v;
+        else if (strncmp(line, "maps=", 5) == 0) {
+            have_maps = true;
+            char *mv = line + 5;
+            size_t mn = strlen(mv);
+            while (mn && (mv[mn-1] == '\n' || mv[mn-1] == '\r' || mv[mn-1] == ' ')) mv[--mn] = '\0';
+            snprintf(maps, sizeof(maps), "%s", mv);
+        }
+        else if (sscanf(line, "menuAct=%d", &v) == 1 && v >= 0 && v <= KA_SHOT) lact[0] = v;
+        else if (sscanf(line, "backAct=%d", &v) == 1 && v >= 0 && v <= KA_SHOT) lact[1] = v;
+        else if (sscanf(line, "starAct=%d", &v) == 1 && v >= 0 && v <= KA_SHOT) lact[2] = v;
+        else if (sscanf(line, "menuMs=%d", &v) == 1 && v >= 300) lms[0] = v;
+        else if (sscanf(line, "backMs=%d", &v) == 1 && v >= 300) lms[1] = v;
+        else if (sscanf(line, "starMs=%d", &v) == 1 && v >= 300) lms[2] = v;
         else if (sscanf(line, "lockOk=%d", &v) == 1) g_km_lock_ok = (v != 0);
         else if (sscanf(line, "sleepOk=%d", &v) == 1) g_km_sleep_ok = (v != 0);
         else if (strncmp(line, "excl=", 5) == 0) {
@@ -3016,11 +3149,31 @@ static void refresh_keymap_cfg(long tnow) {
     }
     fclose(f);
     snprintf(g_km_excl, sizeof(g_km_excl), "%s", excl);
+    g_km_hold = hold;
+    if (have_maps) {
+        km_parse_maps(maps);
+        for (int i = 0; i < g_km_n; i++) g_km_map[i].ms = hold;
+    } else {
+        /* 旧格式: 三个固定键 -> 三条映射(各自的长按时间) */
+        int codes[3] = { KEY_MENU, KEY_BACK, KM_STAR };
+        g_km_n = 0;
+        memset(g_km_map, 0, sizeof(g_km_map));
+        for (int i = 0; i < 3; i++) {
+            if (lact[i] == KA_OFF) continue;
+            km_map_t *m = &g_km_map[g_km_n++];
+            m->n = 1; m->code[0] = codes[i]; m->act = lact[i]; m->ms = lms[i]; m->slot = -1; m->down_ms = -1;
+        }
+    }
     g_km_loaded = true;
-    for (int s = 0; s < KS_COUNT; s++) g_ha_down_ms[s] = -1;   /* 配置变了，进行中的计时作废 */
-    logmsg("按键自定义已更新: 总开关=%d 菜单=%d/%dms 返回=%d/%dms 星号=%d/%dms 锁屏启用=%d 息屏启用=%d 排除应用=[%s]",
-           g_km_master ? 1 : 0, g_km_act[0], g_km_ms[0], g_km_act[1], g_km_ms[1], g_km_act[2], g_km_ms[2],
-           g_km_lock_ok ? 1 : 0, g_km_sleep_ok ? 1 : 0, g_km_excl[0] ? g_km_excl : "(空)");
+    km_reset_keys();                  /* 配置变了，进行中的计时作废 */
+    logmsg("按键自定义已更新: 总开关=%d 长按=%dms 映射 %d 条 锁屏启用=%d 息屏启用=%d 排除应用=[%s]",
+           g_km_master ? 1 : 0, hold, g_km_n, g_km_lock_ok ? 1 : 0, g_km_sleep_ok ? 1 : 0,
+           g_km_excl[0] ? g_km_excl : "(空)");
+    for (int i = 0; i < g_km_n; i++) {
+        char nm[96];
+        km_map_name(&g_km_map[i], nm, sizeof(nm));
+        logmsg("  映射 #%d: %s -> 动作%d (%dms)", i + 1, nm, g_km_map[i].act, g_km_map[i].ms);
+    }
 }
 
 /* 屏幕是否亮着: 1=亮 0=息屏/休眠(Asleep/Dozing) -1=没取到 */
@@ -3218,6 +3371,7 @@ static void dot_paths_init(void) {
     snprintf(g_tip_req_path, sizeof(g_tip_req_path), "%s/keymouse_tip_req", dir);
     snprintf(g_app_alive_path, sizeof(g_app_alive_path), "%s/keymouse_app_alive", dir);
     snprintf(g_cmd_path, sizeof(g_cmd_path), "%s/keymouse_cmd", dir);
+    snprintf(g_learned_path, sizeof(g_learned_path), "%s/keymouse_learned", dir);
     snprintf(g_state_path, sizeof(g_state_path), "%s/keymouse_state", dir);
     snprintf(g_togkey_path, sizeof(g_togkey_path), "%s/keymouse_toggle_key", dir);
     snprintf(g_togkey2_path, sizeof(g_togkey2_path), "%s/keymouse_toggle_key2", dir);
@@ -3536,24 +3690,48 @@ static void kill_fg_run(void) {
     g_kill_pid = pid;
 }
 
-static void run_hold_action(int slot) {
-    int a = ha_action(slot);
-    const char *kn = slot == KS_MENU ? "菜单" : slot == KS_BACK ? "返回" : "星号";
+/* 截屏(root): 用 screencap 直接把整屏存成 PNG，不依赖 ROM 自带的截屏组合键/动画/手势。
+ * 放到后台 shell 里跑(截一张要几百毫秒，绝不能卡住按键主循环)；存完再发提示气泡——
+ * 提示是悬浮窗，如果先弹就会被截进图里。文件放在系统相册认的 Pictures/Screenshots，
+ * 并通知媒体库扫描，相册里马上能看到。 */
+static void do_screenshot(void) {
+    const char *cmd =
+        "( D=/sdcard/Pictures/Screenshots; mkdir -p \"$D\" 2>/dev/null; "
+        "F=\"$D/Screenshot_$(date +%Y%m%d-%H%M%S)_km.png\"; "
+        "if screencap -p \"$F\" 2>/dev/null && [ -s \"$F\" ]; then "
+        "chmod 666 \"$F\" 2>/dev/null; "
+        "am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d \"file://$F\" >/dev/null 2>&1; "
+        "am broadcast --receiver-foreground -a com.keymouse.tool.TOGGLE "
+        "-n com.keymouse.tool/.ToggleReceiver --es tip shot >/dev/null 2>&1; "
+        "else rm -f \"$F\" 2>/dev/null; "
+        "am broadcast --receiver-foreground -a com.keymouse.tool.TOGGLE "
+        "-n com.keymouse.tool/.ToggleReceiver --es tip shot_fail >/dev/null 2>&1; fi ) >/dev/null 2>&1 &";
+    int rc = system(cmd);
+    (void)rc;
+}
+
+static void run_hold_action(const km_map_t *m) {
+    int a = m->act;
+    char kn[96];
+    km_map_name(m, kn, sizeof(kn));
     if (a == KA_RECENTS) {
-        logmsg("长按%s键: 打开最近任务", kn);
+        logmsg("长按 %s: 打开最近任务", kn);
         int rc = system("input keyevent KEYCODE_APP_SWITCH >/dev/null 2>&1 &");
         (void)rc;
         notify_tip("menu");
     } else if (a == KA_KILL) {
-        logmsg("长按%s键: 结束前台应用 (第 %d 次触发)", kn, g_kill_seq + 1);
+        logmsg("长按 %s: 结束前台应用 (第 %d 次触发)", kn, g_kill_seq + 1);
         kill_fg_run();
     } else if (a == KA_TORCH) {
-        logmsg("长按%s键: 开关手电筒", kn);
+        logmsg("长按 %s: 开关手电筒", kn);
         do_torch_toggle();
     } else if (a == KA_HOME) {
-        logmsg("长按%s键: 回到桌面", kn);
+        logmsg("长按 %s: 回到桌面", kn);
         int rc = system("input keyevent KEYCODE_HOME >/dev/null 2>&1 &");
         (void)rc;
+    } else if (a == KA_SHOT) {
+        logmsg("长按 %s: 截屏(root screencap)", kn);
+        do_screenshot();
     }
 }
 
@@ -3719,6 +3897,11 @@ static void process_command(void) {
     } else if (strcmp(buf, "learn") == 0 || strcmp(buf, "learn2") == 0) {
         g_learn = true; g_learn_slot = 1; g_lc_n = 0;
         g_learn_deadline = now_ms() + LEARN_WINDOW_MS;
+    } else if (strcmp(buf, "learn_map") == 0) {
+        /* 按键映射: 同时按住 1~4 个键再全部松开，学到的组合写进 keymouse_learned */
+        g_learn = true; g_learn_slot = 4; g_lc_n = 0;
+        km_reset_keys();
+        g_learn_deadline = now_ms() + LEARN_WINDOW_MS;
     } else if (strcmp(buf, "learn_confirm") == 0) {
         g_learn = true; g_learn_slot = 3;
         g_learn_deadline = now_ms() + LEARN_WINDOW_MS;
@@ -3767,17 +3950,11 @@ static void hold_key_event(const struct input_event *ev) {
      * 这样如果 * 键的键码不在我们认的范围里，看一眼日志就知道该填多少。 */
     if (ev->value == 1 && !is_known_key(ev->code))
         logmsg("按键码 %d (0x%x) 按下", ev->code, ev->code);
-    int a = ha_for_code(ev->code);
-    if (a < 0 || ha_hold_ms(a) <= 0) return;
-    if (ev->value == 1) {
-        if (g_ha_down_ms[a] < 0) {
-            g_ha_down_ms[a] = now_ms();
-            g_ha_fired[a] = false;
-            wake_hold(ha_hold_ms(a) + 1500);
-        }
-    } else if (ev->value == 0) {
-        g_ha_down_ms[a] = -1; g_ha_fired[a] = false;
-    }
+    if (ev->code <= 0 || ev->code >= 0x300) return;
+    if (ev->value == 1) g_kdn[ev->code] = true;
+    else if (ev->value == 0) g_kdn[ev->code] = false;
+    else return;                                  /* 2 = 连发，忽略 */
+    km_chord_update();
 }
 
 static void hold_poll(long tnow, int *timeout_ms) {
@@ -3795,15 +3972,17 @@ static void hold_poll(long tnow, int *timeout_ms) {
             if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = remain;
         }
     }
-    for (int a = 0; a < KS_COUNT; a++) {
-        if (g_ha_down_ms[a] < 0 || g_ha_fired[a]) continue;
-        long held = tnow - g_ha_down_ms[a];
-        if (held >= ha_hold_ms(a)) {
-            g_ha_fired[a] = true;
-            if (km_allowed_now()) run_hold_action(a);
+    for (int i = 0; i < g_km_n; i++) {
+        km_map_t *m = &g_km_map[i];
+        if (m->down_ms < 0 || m->fired) continue;
+        int ms = km_map_ms(m);
+        long held = tnow - m->down_ms;
+        if (held >= ms) {
+            m->fired = true;
+            if (km_allowed_now()) run_hold_action(m);
             continue;
         }
-        int remain = (int)(ha_hold_ms(a) - held);
+        int remain = (int)(ms - held);
         if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = remain;
     }
 }
@@ -3935,6 +4114,12 @@ static bool tk_key_bad(int c) {
            c == KEY_ENTER;
 }
 
+/* 按键映射学习(slot 4)能用的键: 除了开关键组合、电源键、中间键(鼠标模式里它是左键)之外都行，
+ * 包括 菜单/返回/方向键/数字键——数字键 2/4/6/8 在鼠标模式里另有翻页功能，用在组合里会一起触发。 */
+static bool map_key_bad(int c) {
+    return tk_slot(c) >= 0 || c == KEY_POWER || c == KC_CONFIRM || is_confirm_alias(c);
+}
+
 static void toggle_learn_finalize(void) {
     if (g_lc_n <= 0) return;
     if (g_lc_n == 1 && g_lc_code[0] == KC_CONFIRM) {
@@ -3960,13 +4145,47 @@ static void toggle_learn_finalize(void) {
     notify_tip_arg("keyset", name);
 }
 
+/* 按键映射学习完成: 把组合写进 keymouse_learned("序号 键码 键码..."，序号=当前毫秒时间)，
+ * App 的"按键自定义"页轮询到序号变了就把它加进映射表。组合本身由 App 写进 keymouse_keymap.cfg，
+ * 守护进程只负责"听出"按了哪些键，配置只有 App 一个写入方，不会互相覆盖。 */
+static void map_learn_finalize(void) {
+    if (g_lc_n <= 0) return;
+    int n = g_lc_n, codes[TK_MAX];
+    for (int i = 0; i < n; i++) codes[i] = g_lc_code[i];
+    if (g_learned_path[0]) {
+        FILE *f = fopen(g_learned_path, "w");
+        if (f) {
+            fprintf(f, "%ld", now_ms());
+            for (int i = 0; i < n; i++) fprintf(f, " %d", codes[i]);
+            fprintf(f, "\n");
+            fclose(f);
+            chmod(g_learned_path, 0644);
+        }
+    }
+    g_learn = false; g_learn_slot = 1; g_lc_n = 0;
+    km_reset_keys();
+    write_state_file();
+    char name[128] = "", one[32];
+    for (int i = 0; i < n; i++) {
+        key_display_name(codes[i], one, sizeof(one));
+        size_t l = strlen(name);
+        snprintf(name + l, sizeof(name) - l, i ? "+%s" : "%s", one);
+    }
+    logmsg("按键映射学习: 已学到 %s (%d 个键同时按住)", name, n);
+}
+
+static void learn_finalize_chord(void) {
+    if (g_learn_slot == 4) map_learn_finalize(); else toggle_learn_finalize();
+}
+
 static bool learn_chord_event(const struct input_event *ev) {
     int c = ev->code, idx = -1;
     for (int i = 0; i < g_lc_n; i++) if (g_lc_code[i] == c) idx = i;
     if (ev->value == 1) {
         if (idx >= 0) { g_lc_dn[idx] = true; return true; }
-        if (tk_key_bad(c)) {
-            logmsg("开关键学习: 键码 %d 不能用作开关键(它在鼠标模式里有别的功能)，请换一个键", c);
+        if (g_learn_slot == 4 ? map_key_bad(c) : tk_key_bad(c)) {
+            logmsg("%s: 键码 %d 不能用在这里(它在鼠标模式里有别的功能，或已是开关键)，请换一个键",
+                   g_learn_slot == 4 ? "按键映射学习" : "开关键学习", c);
         } else if (g_lc_n >= TK_MAX) {
             logmsg("开关键学习: 最多 %d 个键", TK_MAX);
         } else {
@@ -3978,7 +4197,7 @@ static bool learn_chord_event(const struct input_event *ev) {
         g_lc_dn[idx] = false;
         bool any = false;
         for (int i = 0; i < g_lc_n; i++) if (g_lc_dn[i]) any = true;
-        if (!any) toggle_learn_finalize();      /* 全部松开 = 组合确定 */
+        if (!any) learn_finalize_chord();       /* 全部松开 = 组合确定 */
     }
     return true;
 }
@@ -4565,6 +4784,7 @@ int main(int argc, char **argv) {
     fg_paths_init();
     load_toggle_keys();
     load_confirm_key();
+    km_set_default_maps();            /* 配置文件还没有时的默认映射(菜单/返回/星号)，读到 keymouse_keymap.cfg 后被替换 */
     if (g_confirm_custom > 0) logmsg("自定义中间键键码=%d (按键映射)", g_confirm_custom);
     load_flags();
     ptr_color_apply(false);   /* 上次异常退出遗留的指针颜色，启动时还原 */
@@ -4803,7 +5023,7 @@ int main(int argc, char **argv) {
         if (g_learn) {
             long left = g_learn_deadline - tnow;
             if (left <= 0) {
-                if (g_learn && g_learn_slot != 3 && g_lc_n > 0) toggle_learn_finalize();   /* 时间到: 有键就按已收集的定下来 */
+                if (g_learn && g_learn_slot != 3 && g_lc_n > 0) learn_finalize_chord();   /* 时间到: 有键就按已收集的定下来 */
                 if (g_learn) { g_learn = false; g_lc_n = 0; write_state_file(); logmsg("开关键学习: 8 秒内没有有效按键，已取消"); }
             }
             else if (timeout < 0 || left < timeout) timeout = (int)left;

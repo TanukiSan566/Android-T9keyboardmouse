@@ -3,12 +3,12 @@
 .source "KeyCustomActivity.java"
 
 # interfaces
-.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/KeyCustomActivity;->sceneRow(Ljava/lang/String;Ljava/lang/String;)Landroid/view/View;
+    value = Lcom/keymouse/tool/KeyCustomActivity;->rebuildList()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,12 +20,12 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
-.field final synthetic val$key:Ljava/lang/String;
+.field final synthetic val$e:[I
 
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;Ljava/lang/String;)V
-    .registers 3
+.method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;[I)V
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -33,10 +33,10 @@
     .end annotation
 
     .prologue
-    .line 205
+    .line 286
     iput-object p1, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
-    iput-object p2, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->val$key:Ljava/lang/String;
+    iput-object p2, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->val$e:[I
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,29 +45,36 @@
 
 
 # virtual methods
-.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
-    .registers 6
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 207
-    iget-object v1, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
+    .line 288
+    iget-object v0, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
-    iget-object v2, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->val$key:Ljava/lang/String;
+    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$300(Lcom/keymouse/tool/KeyCustomActivity;)Ljava/util/ArrayList;
 
-    if-eqz p2, :cond_c
+    move-result-object v0
 
-    const-string v0, "1"
+    iget-object v1, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->val$e:[I
 
-    :goto_8
-    # invokes: Lcom/keymouse/tool/KeyCustomActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
-    invoke-static {v1, v2, v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$000(Lcom/keymouse/tool/KeyCustomActivity;Ljava/lang/String;Ljava/lang/String;)V
+    invoke-virtual {v0, v1}, Ljava/util/ArrayList;->remove(Ljava/lang/Object;)Z
 
-    .line 208
+    .line 289
+    iget-object v0, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$400(Lcom/keymouse/tool/KeyCustomActivity;)V
+
+    .line 290
+    iget-object v0, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$500(Lcom/keymouse/tool/KeyCustomActivity;)V
+
+    .line 291
+    iget-object v0, p0, Lcom/keymouse/tool/KeyCustomActivity$5;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$600(Lcom/keymouse/tool/KeyCustomActivity;)V
+
+    .line 292
     return-void
-
-    .line 207
-    :cond_c
-    const-string v0, "0"
-
-    goto :goto_8
 .end method

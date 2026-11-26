@@ -23,7 +23,7 @@
 
 # direct methods
 .method constructor <init>(Ljava/io/File;)V
-    .registers 2
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,7 +31,7 @@
     .end annotation
 
     .prologue
-    .line 262
+    .line 281
     iput-object p1, p0, Lcom/keymouse/tool/ToggleKeys$2;->val$dir:Ljava/io/File;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -42,15 +42,14 @@
 
 # virtual methods
 .method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
-    .registers 4
+    .locals 1
 
     .prologue
-    .line 264
+    .line 283
     iget-object v0, p0, Lcom/keymouse/tool/ToggleKeys$2;->val$dir:Ljava/io/File;
 
-    # invokes: Lcom/keymouse/tool/ToggleKeys;->writeLockAllow(Ljava/io/File;Z)V
     invoke-static {v0, p2}, Lcom/keymouse/tool/ToggleKeys;->access$000(Ljava/io/File;Z)V
 
-    .line 265
+    .line 284
     return-void
 .end method

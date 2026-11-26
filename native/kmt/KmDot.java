@@ -59,6 +59,7 @@ import java.lang.reflect.Method;
 public class KmDot {
     private static String dir;
     private static File posFile, ptrFile, ptrTmp, aliveFile, tipReqFile, langPrefFile;
+    private static File cursorCfgFile, cursorOkFile, cursorBeatFile;
 
     private static Handler handler;
     private static Context ctx;          // 反射拿到的系统 Context，弹窗/红点公用
@@ -384,6 +385,107 @@ public class KmDot {
         }
     }
 
+    /* ================== 隐藏系统箭头(配合 App 里的自绘光标) ==================
+     * 自绘光标由 App 的悬浮窗画(这个 root 进程建不出窗口)，所以系统自己的箭头要藏起来，
+     * 否则屏幕上会有两个箭头。做法: 调 IInputManager.setPointerIconType(0) = PointerIcon.TYPE_NULL
+     * (空图标=不画指针)；窗口在鼠标进出/换图标(比如移到链接上变小手)时会把图标改回去，
+     * 所以藏起来之后每隔几十毫秒重新设一次。
+     * 安全阀: 只有 App 的 keymouse_cursor_beat 心跳新鲜(0.8 秒内，说明自绘光标正画着)才藏；
+     * 心跳断了(App 被冻结/被杀/开关关了)马上把系统箭头还回来，屏幕上永远至少有一个箭头。
+     * 探测结果写在 keymouse_cursor_ok: 1=这台设备能藏，0=不能(App 就不画自绘光标，不会出现双箭头)。 */
+    private static Object inputSvc;
+    private static Method setPtrType;
+    private static boolean hideProbed = false;
+    private static boolean hideSupported = false;
+    private static boolean ptrHidden = false;
+    private static long lastHideCall = 0;
+    private static long lastCfgRead = 0;
+    private static boolean cursorCfgOn = true;
+
+    private static void writeCursorOk(boolean ok) {
+        try {
+            FileOutputStream o = new FileOutputStream(cursorOkFile);
+            o.write(ok ? "1\n".getBytes() : "0\n".getBytes());
+            o.close();
+            cursorOkFile.setReadable(true, false);
+        } catch (Throwable t) {
+            // 忽略
+        }
+    }
+
+    private static void setupPointerHide() {
+        hideProbed = true;
+        try {
+            Class<?> sm = Class.forName("android.os.ServiceManager");
+            IBinder b = (IBinder) sm.getMethod("getService", String.class).invoke(null, "input");
+            if (b == null) { log("藏箭头: 找不到 input 服务"); writeCursorOk(false); return; }
+            inputSvc = Class.forName("android.hardware.input.IInputManager$Stub")
+                    .getMethod("asInterface", IBinder.class).invoke(null, b);
+            for (Method x : Class.forName("android.hardware.input.IInputManager").getMethods()) {
+                if (x.getName().equals("setPointerIconType")) { setPtrType = x; break; }
+            }
+            if (setPtrType == null) {
+                log("藏箭头: IInputManager 里没有 setPointerIconType(新版 Android)，自绘光标不启用，只缩放红点");
+                writeCursorOk(false);
+                return;
+            }
+            // 探测: 设成默认箭头(1000)，不会改变任何显示，只确认调用本身不报错
+            setPtrType.invoke(inputSvc, 1000);
+            hideSupported = true;
+            writeCursorOk(true);
+            log("藏箭头: setPointerIconType 可用，自绘光标启用");
+        } catch (Throwable t) {
+            hideSupported = false;
+            writeCursorOk(false);
+            logEx("藏箭头探测失败，自绘光标不启用", t);
+        }
+    }
+
+    private static void callPtrType(int type) {
+        try {
+            setPtrType.invoke(inputSvc, type);
+        } catch (Throwable t) {
+            hideSupported = false;
+            ptrHidden = false;
+            writeCursorOk(false);
+            logEx("藏箭头调用失败，之后不再尝试", t);
+        }
+    }
+
+    private static void updatePointerHide(long now) {
+        if (!hideSupported) return;
+        if (now - lastCfgRead > 400) {
+            lastCfgRead = now;
+            try {
+                long m = cursorCfgFile.lastModified();
+                if (m <= 0) {
+                    cursorCfgOn = true;
+                } else {
+                    FileInputStream in = new FileInputStream(cursorCfgFile);
+                    int n = in.read(BUF);
+                    in.close();
+                    cursorCfgOn = !(n > 0 && BUF[0] == '0');
+                }
+            } catch (Throwable t) {
+                cursorCfgOn = true;
+            }
+        }
+        long beatAge = now - cursorBeatFile.lastModified();
+        boolean want = modeOn && cursorCfgOn && beatAge >= 0 && beatAge <= 800L;
+        if (want) {
+            // 指针刚动过就勤快点重设(窗口随时可能把图标改回去)，闲着就慢一点
+            long gap = (now - lastTruthEventAt < 2000L) ? 60L : 500L;
+            if (!ptrHidden || now - lastHideCall >= gap) {
+                lastHideCall = now;
+                callPtrType(0);
+                if (hideSupported) ptrHidden = true;
+            }
+        } else if (ptrHidden) {
+            ptrHidden = false;
+            callPtrType(1000);
+        }
+    }
+
     private static final Runnable TICK = new Runnable() {
         public void run() {
             try {
@@ -436,6 +538,7 @@ public class KmDot {
         curRot = rot; curDw = dw; curDh = dh;
         writePtr(rot, dw, dh, now);
         renderDot(now);
+        updatePointerHide(now);
     }
 
     // ---- 红点显示状态 (和系统鼠标指针保持一致) ----
@@ -744,6 +847,9 @@ public class KmDot {
         ptrTmp = new File(dir, "keymouse_ptr.tmp");
         aliveFile = new File(dir, "keymouse_dot_alive");
         tipReqFile = new File(dir, "keymouse_tip_req");
+        cursorCfgFile = new File(dir, "keymouse_cursor");
+        cursorOkFile = new File(dir, "keymouse_cursor_ok");
+        cursorBeatFile = new File(dir, "keymouse_cursor_beat");
         // dir 是 .../files，shared_prefs 是它的同级目录
         File parent = new File(dir).getParentFile();
         langPrefFile = new File(parent != null ? parent : new File(dir), "shared_prefs/keymouse.xml");
@@ -754,6 +860,13 @@ public class KmDot {
         handler = new Handler(Looper.getMainLooper());
         setupDisplay();
         boolean mon = setupMonitor();
+        setupPointerHide();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                // 被正常终止时把系统箭头还回来
+                if (ptrHidden && hideSupported) callPtrType(1000);
+            }
+        });
         overlayOk = setupOverlay();
         if (!mon && !overlayOk) {
             // 悬浮窗这里会自动重试(ensureOverlay)，只有连真实指针监视器都建不成

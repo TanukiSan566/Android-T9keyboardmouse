@@ -100,6 +100,23 @@ public final class ToggleKeys {
         }
     }
 
+    /** 自绘光标开关: files/keymouse_cursor，1/0；没有文件=开。App 悬浮窗和 root 助手都读它。 */
+    private static boolean readCursorOn(File dir) {
+        String s = readLine(new File(dir, "keymouse_cursor"));
+        return s == null || !s.trim().startsWith("0");
+    }
+
+    private static void writeCursorOn(File dir, boolean on) {
+        try {
+            File f = new File(dir, "keymouse_cursor");
+            FileOutputStream o = new FileOutputStream(f);
+            o.write((on ? "1\n" : "0\n").getBytes());
+            o.close();
+            f.setReadable(true, false);
+        } catch (Throwable t) {
+        }
+    }
+
     /** 当前开关键组合。新文件 keymouse_toggle_keys 还没有(刚升级)时，读老的两个文件。 */
     private static int[] readKeys(File dir) {
         int[] out = new int[4];
@@ -256,6 +273,24 @@ public final class ToggleKeys {
         dotSw.setText(L(a, "Show red dot marker", "Показывать красную точку", "赤い点を表示", "显示红点标记"));
         root.addView(dotSw);
 
+        // 自绘光标(黄红渐变尖角箭头)，随中间键按压缩小/弹回；关掉就用系统自带箭头
+        final Switch curSw = new Switch(a);
+        curSw.setText(L(a, "Custom cursor (shrinks when pressed)", "Свой курсор (уменьшается при нажатии)",
+                "オリジナルカーソル(押すと縮む)", "自绘光标（按下会缩小）"));
+        curSw.setChecked(readCursorOn(dir));
+        curSw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton b, boolean on) {
+                writeCursorOn(dir, on);
+            }
+        });
+        root.addView(curSw);
+        TextView curHint = small(a, 0);
+        curHint.setText(L(a, "On: the system arrow is hidden and a sharp yellow-red arrow is drawn instead; it shrinks with the red dot when the center key is pressed. Off: system arrow.",
+                "Вкл: системная стрелка скрыта, вместо неё рисуется жёлто-красная; уменьшается вместе с красной точкой при нажатии. Выкл: системная стрелка.",
+                "オン: システムの矢印を隠し、黄〜赤の尖った矢印を表示。中央キーを押すと赤い点と一緒に縮みます。オフ: システムの矢印。",
+                "开启: 隐藏系统箭头，改画黄→红渐变的尖角箭头；按住中间键时和红点一起缩小、松开弹回。关闭: 用系统自带箭头。"));
+        root.addView(curHint);
+
         // 锁屏界面是否启用鼠标
         Switch lockSw = new Switch(a);
         lockSw.setChecked(readLockAllow(dir));
@@ -343,6 +378,10 @@ public final class ToggleKeys {
                     dotSw.setChecked(st == null || st[2] == 0);
                 }
                 guard[0] = false;
+                // 软开关文字跟随开关状态: 已开启 / 已关闭
+                mouseSw.setText(mouseSw.isChecked()
+                        ? L(a, "Mouse on", "Мышь включена", "マウス オン", "鼠标已开启")
+                        : L(a, "Mouse off", "Мышь выключена", "マウス オフ", "鼠标已关闭"));
                 setBtn.setText(learning
                         ? L(a, "Cancel", "Отмена", "キャンセル", "取消")
                         : L(a, "Set toggle key(s)", "Задать клавиши", "切替キーを設定", "设置开关键"));

@@ -746,6 +746,68 @@
     goto/16 :goto_0
 
     :cond_d4
+    const-string v5, "shot"
+
+    invoke-virtual {p1, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_d5
+
+    new-array v5, v6, [Ljava/lang/String;
+
+    const-string v6, "Screenshot saved"
+
+    aput-object v6, v5, v4
+
+    const-string v4, "\u0421\u043a\u0440\u0438\u043d\u0448\u043e\u0442 \u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d"
+
+    aput-object v4, v5, v1
+
+    const-string v1, "\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u4fdd\u5b58\u3057\u307e\u3057\u305f"
+
+    aput-object v1, v5, v2
+
+    const-string v1, "\u622a\u5c4f\u5df2\u4fdd\u5b58"
+
+    aput-object v1, v5, v3
+
+    aget-object v0, v5, v0
+
+    goto/16 :goto_0
+
+    :cond_d5
+    const-string v5, "shot_fail"
+
+    invoke-virtual {p1, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v5
+
+    if-eqz v5, :cond_d6
+
+    new-array v5, v6, [Ljava/lang/String;
+
+    const-string v6, "Screenshot failed"
+
+    aput-object v6, v5, v4
+
+    const-string v4, "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0441\u043a\u0440\u0438\u043d\u0448\u043e\u0442"
+
+    aput-object v4, v5, v1
+
+    const-string v1, "\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u306b\u5931\u6557\u3057\u307e\u3057\u305f"
+
+    aput-object v1, v5, v2
+
+    const-string v1, "\u622a\u5c4f\u5931\u8d25"
+
+    aput-object v1, v5, v3
+
+    aget-object v0, v5, v0
+
+    goto/16 :goto_0
+
+    :cond_d6
     const/4 v0, 0x0
 
     goto/16 :goto_0

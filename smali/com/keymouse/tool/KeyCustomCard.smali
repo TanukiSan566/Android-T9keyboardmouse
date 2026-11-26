@@ -5,7 +5,7 @@
 
 # direct methods
 .method private constructor <init>()V
-    .registers 1
+    .locals 0
 
     .prologue
     .line 15
@@ -16,7 +16,7 @@
 .end method
 
 .method public static build(Landroid/app/Activity;)Landroid/view/View;
-    .registers 13
+    .locals 12
 
     .prologue
     const/high16 v11, 0x41600000    # 14.0f
@@ -181,13 +181,13 @@
     move-result v3
 
     .line 51
-    if-eqz v3, :cond_a1
+    if-eqz v3, :cond_0
 
     .line 52
     invoke-virtual {v2, v3}, Landroid/widget/ImageView;->setImageResource(I)V
 
     .line 54
-    :cond_a1
+    :cond_0
     new-instance v3, Landroid/widget/LinearLayout$LayoutParams;
 
     const/high16 v4, 0x42300000    # 44.0f
@@ -259,13 +259,13 @@
     invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
     .line 66
-    const-string v4, "Menu / Back / * long-press actions, hold time, lock screen, excluded apps"
+    const-string v4, "Map 1-4 physical keys to recent apps / close app / screenshot, hold time, excluded apps"
 
-    const-string v5, "\u041c\u0435\u043d\u044e / \u041d\u0430\u0437\u0430\u0434 / * \u043f\u043e \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044e, \u0432\u0440\u0435\u043c\u044f, \u044d\u043a\u0440\u0430\u043d \u0431\u043b\u043e\u043a\u0438\u0440\u043e\u0432\u043a\u0438, \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f"
+    const-string v5, "1-4 \u043a\u043b\u0430\u0432\u0438\u0448\u0438 \u2192 \u043d\u0435\u0434\u0430\u0432\u043d\u0438\u0435 / \u0437\u0430\u043a\u0440\u044b\u0442\u044c / \u0441\u043a\u0440\u0438\u043d\u0448\u043e\u0442, \u0432\u0440\u0435\u043c\u044f \u0443\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f, \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438\u044f"
 
-    const-string v6, "\u30e1\u30cb\u30e5\u30fc/\u623b\u308b/* \u9577\u62bc\u3057\u52d5\u4f5c\u30fb\u6642\u9593\u30fb\u30ed\u30c3\u30af\u753b\u9762\u30fb\u9664\u5916\u30a2\u30d7\u30ea"
+    const-string v6, "1\u301c4\u500b\u306e\u30ad\u30fc\u306b \u6700\u8fd1\u306e\u30a2\u30d7\u30ea/\u7d42\u4e86/\u30b9\u30af\u30ea\u30fc\u30f3\u30b7\u30e7\u30c3\u30c8\u3092\u5272\u308a\u5f53\u3066\u30fb\u6642\u9593\u30fb\u9664\u5916\u30a2\u30d7\u30ea"
 
-    const-string v7, "\u83dc\u5355/\u8fd4\u56de/*\u952e \u957f\u6309\u6620\u5c04 \u00b7 \u957f\u6309\u65f6\u95f4 \u00b7 \u9501\u5c4f/\u606f\u5c4f \u00b7 \u6392\u9664\u5e94\u7528"
+    const-string v7, "1~4 \u4e2a\u5b9e\u4f53\u952e\u6620\u5c04 \u00b7 \u6700\u8fd1\u4efb\u52a1/\u7ed3\u675f\u524d\u53f0/\u622a\u5c4f \u00b7 \u957f\u6309\u65f6\u95f4 \u00b7 \u6392\u9664\u5e94\u7528"
 
     invoke-static {p0, v4, v5, v6, v7}, Lcom/keymouse/tool/KmCfg;->L(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 

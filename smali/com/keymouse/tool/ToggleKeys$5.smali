@@ -3,7 +3,7 @@
 .source "ToggleKeys.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Landroid/widget/CompoundButton$OnCheckedChangeListener;
 
 
 # annotations
@@ -20,10 +20,14 @@
 # instance fields
 .field final synthetic val$dir:Ljava/io/File;
 
+.field final synthetic val$guard:[Z
+
+.field final synthetic val$lastDot:[J
+
 
 # direct methods
-.method constructor <init>(Ljava/io/File;)V
-    .registers 2
+.method constructor <init>([Z[JLjava/io/File;)V
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -31,8 +35,12 @@
     .end annotation
 
     .prologue
-    .line 303
-    iput-object p1, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$dir:Ljava/io/File;
+    .line 329
+    iput-object p1, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$guard:[Z
+
+    iput-object p2, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$lastDot:[J
+
+    iput-object p3, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$dir:Ljava/io/File;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -41,52 +49,47 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .registers 6
+.method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
+    .locals 4
 
     .prologue
-    .line 305
-    iget-object v0, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$dir:Ljava/io/File;
+    const/4 v1, 0x0
 
-    const-string v1, "reset"
+    .line 331
+    iget-object v0, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$guard:[Z
 
-    invoke-static {v0, v1}, Lcom/keymouse/tool/ToggleKeys;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
+    aget-boolean v0, v0, v1
 
-    .line 308
-    :try_start_7
-    new-instance v0, Ljava/io/FileOutputStream;
+    if-eqz v0, :cond_0
 
-    new-instance v1, Ljava/io/File;
-
-    iget-object v2, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$dir:Ljava/io/File;
-
-    const-string v3, "keymouse_toggle_keys"
-
-    invoke-direct {v1, v2, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
-
-    invoke-direct {v0, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
-
-    .line 309
-    const-string v1, "59\n"
-
-    invoke-virtual {v1}, Ljava/lang/String;->getBytes()[B
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/io/FileOutputStream;->write([B)V
-
-    .line 310
-    invoke-virtual {v0}, Ljava/io/FileOutputStream;->close()V
-    :try_end_21
-    .catch Ljava/lang/Throwable; {:try_start_7 .. :try_end_21} :catch_22
-
-    .line 313
-    :goto_21
+    .line 336
+    :goto_0
     return-void
 
-    .line 311
-    :catch_22
-    move-exception v0
+    .line 334
+    :cond_0
+    iget-object v0, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$lastDot:[J
 
-    goto :goto_21
+    invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
+
+    move-result-wide v2
+
+    aput-wide v2, v0, v1
+
+    .line 335
+    iget-object v1, p0, Lcom/keymouse/tool/ToggleKeys$5;->val$dir:Ljava/io/File;
+
+    if-eqz p2, :cond_1
+
+    const-string v0, "dot_on"
+
+    :goto_1
+    invoke-static {v1, v0}, Lcom/keymouse/tool/ToggleKeys;->sendCmd(Ljava/io/File;Ljava/lang/String;)V
+
+    goto :goto_0
+
+    :cond_1
+    const-string v0, "dot_off"
+
+    goto :goto_1
 .end method

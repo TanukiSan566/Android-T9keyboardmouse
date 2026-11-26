@@ -23,10 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 69
+    .line 144
     iput-object p1, p0, Lcom/keymouse/tool/KeyCustomActivity$1;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,28 +37,27 @@
 
 # virtual methods
 .method public onCheckedChanged(Landroid/widget/CompoundButton;Z)V
-    .registers 6
+    .locals 3
 
     .prologue
-    .line 71
+    .line 146
     iget-object v1, p0, Lcom/keymouse/tool/KeyCustomActivity$1;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
     const-string v2, "kmOn"
 
-    if-eqz p2, :cond_c
+    if-eqz p2, :cond_0
 
     const-string v0, "1"
 
-    :goto_8
-    # invokes: Lcom/keymouse/tool/KeyCustomActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
+    :goto_0
     invoke-static {v1, v2, v0}, Lcom/keymouse/tool/KeyCustomActivity;->access$000(Lcom/keymouse/tool/KeyCustomActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 72
+    .line 147
     return-void
 
-    .line 71
-    :cond_c
+    .line 146
+    :cond_0
     const-string v0, "0"
 
-    goto :goto_8
+    goto :goto_0
 .end method

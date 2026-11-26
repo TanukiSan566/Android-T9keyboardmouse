@@ -63,10 +63,10 @@ public final class KeyCustomCard {
         t1.setTextColor(0xFFFFFFFF);
         col.addView(t1);
         TextView t2 = new TextView(a);
-        t2.setText(KmCfg.L(a, "Menu / Back / * long-press actions, hold time, lock screen, excluded apps",
-                "Меню / Назад / * по удержанию, время, экран блокировки, исключения",
-                "メニュー/戻る/* 長押し動作・時間・ロック画面・除外アプリ",
-                "菜单/返回/*键 长按映射 · 长按时间 · 锁屏/息屏 · 排除应用"));
+        t2.setText(KmCfg.L(a, "Map 1-4 physical keys to recent apps / close app / screenshot, hold time, excluded apps",
+                "1-4 клавиши → недавние / закрыть / скриншот, время удержания, исключения",
+                "1〜4個のキーに 最近のアプリ/終了/スクリーンショットを割り当て・時間・除外アプリ",
+                "1~4 个实体键映射 · 最近任务/结束前台/截屏 · 长按时间 · 排除应用"));
         t2.setTextSize(12f);
         t2.setTextColor(0xFF9E9E9E);
         col.addView(t2);

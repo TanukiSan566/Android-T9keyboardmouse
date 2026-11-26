@@ -25,7 +25,7 @@
 
 # direct methods
 .method constructor <init>(Ljava/io/File;Ljava/lang/String;)V
-    .registers 3
+    .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "()V"
@@ -46,7 +46,7 @@
 
 # virtual methods
 .method public run()V
-    .registers 7
+    .locals 6
 
     .prologue
     .line 77
@@ -168,16 +168,16 @@
     move-result-object v0
 
     invoke-virtual {v0}, Ljava/lang/Process;->waitFor()I
-    :try_end_73
-    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_73} :catch_74
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     .line 86
-    :goto_73
+    :goto_0
     return-void
 
     .line 84
-    :catch_74
+    :catch_0
     move-exception v0
 
-    goto :goto_73
+    goto :goto_0
 .end method

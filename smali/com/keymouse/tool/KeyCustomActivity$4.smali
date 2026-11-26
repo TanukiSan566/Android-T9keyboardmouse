@@ -23,10 +23,10 @@
 
 # direct methods
 .method constructor <init>(Lcom/keymouse/tool/KeyCustomActivity;)V
-    .registers 2
+    .locals 0
 
     .prologue
-    .line 174
+    .line 242
     iput-object p1, p0, Lcom/keymouse/tool/KeyCustomActivity$4;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,10 +37,10 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .registers 6
+    .locals 4
 
     .prologue
-    .line 176
+    .line 244
     iget-object v0, p0, Lcom/keymouse/tool/KeyCustomActivity$4;->this$0:Lcom/keymouse/tool/KeyCustomActivity;
 
     new-instance v1, Landroid/content/Intent;
@@ -53,6 +53,6 @@
 
     invoke-virtual {v0, v1}, Lcom/keymouse/tool/KeyCustomActivity;->startActivity(Landroid/content/Intent;)V
 
-    .line 177
+    .line 245
     return-void
 .end method
