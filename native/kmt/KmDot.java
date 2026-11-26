@@ -422,8 +422,16 @@ public class KmDot {
             if (b == null) { log("藏箭头: 找不到 input 服务"); writeCursorOk(false); return; }
             inputSvc = Class.forName("android.hardware.input.IInputManager$Stub")
                     .getMethod("asInterface", IBinder.class).invoke(null, b);
+            log("藏箭头诊断: Android SDK=" + android.os.Build.VERSION.SDK_INT + " " + android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL);
             for (Method x : Class.forName("android.hardware.input.IInputManager").getMethods()) {
-                if (x.getName().equals("setPointerIconType")) { setPtrType = x; break; }
+                String n = x.getName();
+                // 把跟"指针/光标/图标"有关的接口全记进日志，下个版本据此找更彻底的藏法
+                if (n.contains("ointer") || n.contains("Icon") || n.contains("ursor") || n.contains("apture")) {
+                    StringBuilder sg = new StringBuilder();
+                    for (Class<?> c : x.getParameterTypes()) sg.append(c.getSimpleName()).append(' ');
+                    log("藏箭头诊断: IInputManager." + n + "(" + sg.toString().trim() + ")");
+                }
+                if (n.equals("setPointerIconType")) { setPtrType = x; }
             }
             if (setPtrType == null) {
                 log("藏箭头: IInputManager 里没有 setPointerIconType(新版 Android)，自绘光标不启用，只缩放红点");
