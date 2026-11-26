@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorA11yService;->probe(II)I
+    value = Lcom/keymouse/tool/CursorA11yService;->probe(II)[I
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -36,7 +36,7 @@
     .locals 0
 
     .prologue
-    .line 60
+    .line 78
     iput-object p1, p0, Lcom/keymouse/tool/CursorA11yService$1;->this$0:Lcom/keymouse/tool/CursorA11yService;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -50,7 +50,7 @@
     .locals 2
 
     .prologue
-    .line 62
+    .line 80
     invoke-virtual {p2}, Landroid/view/accessibility/AccessibilityWindowInfo;->getLayer()I
 
     move-result v0
@@ -68,7 +68,7 @@
     .locals 1
 
     .prologue
-    .line 60
+    .line 78
     check-cast p1, Landroid/view/accessibility/AccessibilityWindowInfo;
 
     check-cast p2, Landroid/view/accessibility/AccessibilityWindowInfo;

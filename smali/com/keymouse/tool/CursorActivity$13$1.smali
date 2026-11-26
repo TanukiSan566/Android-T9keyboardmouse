@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 429
+    .line 421
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
 
     iput-boolean p2, p0, Lcom/keymouse/tool/CursorActivity$13$1;->val$ok:Z
@@ -46,15 +46,35 @@
 
 # virtual methods
 .method public run()V
-    .locals 5
+    .locals 6
 
     .prologue
-    .line 431
+    const/4 v5, 0x1
+
+    .line 423
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
+
+    iget-object v0, v0, Lcom/keymouse/tool/CursorActivity$13;->val$btn:Landroid/widget/Button;
+
+    invoke-virtual {v0, v5}, Landroid/widget/Button;->setEnabled(Z)V
+
+    .line 424
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
+
+    iget-object v0, v0, Lcom/keymouse/tool/CursorActivity$13;->val$btn:Landroid/widget/Button;
+
+    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
+
+    iget-object v1, v1, Lcom/keymouse/tool/CursorActivity$13;->val$old:Ljava/lang/CharSequence;
+
+    invoke-virtual {v0, v1}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
+
+    .line 425
     iget-boolean v0, p0, Lcom/keymouse/tool/CursorActivity$13$1;->val$ok:Z
 
     if-nez v0, :cond_0
 
-    .line 432
+    .line 426
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
 
     iget-object v0, v0, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
@@ -63,33 +83,30 @@
 
     iget-object v1, v1, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    const-string v2, "\u81ea\u52a8\u5f00\u542f\u65e0\u969c\u788d\u5931\u8d25(\u6ca1\u6709 root \u6743\u9650\uff1f)\uff0c\u8bf7\u624b\u52a8\u5230 \u7cfb\u7edf\u8bbe\u7f6e > \u65e0\u969c\u788d \u5f00\u542f KeyMouse"
+    const-string v2, "\u5bfc\u5165\u5931\u8d25(\u6ca1\u6709 root \u6743\u9650\uff1f)"
 
-    const-string v3, "\u81ea\u52d5\u6709\u52b9\u5316\u306b\u5931\u6557(root \u306a\u3057\uff1f)\u3002\u8a2d\u5b9a > \u30e6\u30fc\u30b6\u30fc\u88dc\u52a9 \u3067 KeyMouse \u3092\u6709\u52b9\u306b\u3057\u3066\u304f\u3060\u3055\u3044"
+    const-string v3, "\u53d6\u308a\u8fbc\u307f\u5931\u6557(root \u6a29\u9650\u306a\u3057\uff1f)"
 
-    const-string v4, "Auto-enable failed (no root?). Enable KeyMouse in Settings > Accessibility."
+    const-string v4, "Import failed (no root?)"
 
-    invoke-static {v1, v2, v3, v4}, Lcom/keymouse/tool/CursorActivity;->access$900(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+    invoke-static {v1, v2, v3, v4}, Lcom/keymouse/tool/CursorActivity;->access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v1
 
-    const/4 v2, 0x1
-
-    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-static {v0, v1, v5}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v0
 
-    .line 434
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 436
+    .line 428
     :cond_0
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$13$1;->this$1:Lcom/keymouse/tool/CursorActivity$13;
 
     iget-object v0, v0, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$1200(Lcom/keymouse/tool/CursorActivity;)V
+    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$1000(Lcom/keymouse/tool/CursorActivity;)V
 
-    .line 437
+    .line 429
     return-void
 .end method

@@ -297,53 +297,70 @@ static void logd_write(const char *msg) {
     if (send(fd, buf, o, MSG_DONTWAIT) < 0) { /* ignore */ }
 }
 
-/* 日志同步到内部存储: /sdcard/keymousedebug/<日期>-keymouse.txt
+/* 日志同步到内部存储: /sdcard/keymousedebug/<日期-时间>-keymouse.txt
  * 把 keymouse.log 里新增的内容(守护进程自己的行 + 红点助手/手电筒助手的 [dot]/[torch] 行)
  * 原样追加过去，用户不用再靠剪贴板，直接在文件管理器里拿文件。
- * 每个文件到 10MB 就清空重写；每天换一个新文件，换天时顺手删掉 7 天前的旧文件。
- * 最多每 0.5 秒同步一次(logmsg 里顺带调用)，开销只是一次 stat + 读几百字节。 */
+ * 一次"总开关开启"(= 守护进程启动一次)记录成一个 txt，文件名是启动时刻，好分清是哪一次的事件；
+ * 总开关关闭 = 守护进程退出 = 这个 txt 停止记录(退出前会补写最后一批)。
+ * 持续记录，不用再点按钮；App 里的"Bug 日志记录"开关只是总闸: files/keymouse_debug 内容为 0 才不写，
+ * 没有这个文件 = 开(默认开)。
+ * 每个文件到 10MB 就清空重写；启动时顺手删掉 7 天前的旧文件。
+ * [dot] 真实指针事件速率: 0 个 这种每 5 秒一行的空转刷屏行不写进文件，免得 10MB 被它占满。
+ * 最多每 0.5 秒同步一次(主循环每秒也会主动调一次)，开销只是一次 stat + 读几百字节。 */
 #define DBG_DIR "/sdcard/keymousedebug"
 #define DBG_MAX (10L * 1024L * 1024L)
 static long g_mir_off = -1;
 static long g_mir_last_ms = 0;
-static char g_mir_day[16] = "";
+static char g_mir_name[300] = "";      /* 本次启动对应的 txt 完整路径，第一次要写时才生成 */
+static char g_mir_stamp[32] = "";      /* 启动时刻 YYYYMMDD-HHMMSS，启动时定下，之后不变 */
+static bool g_mir_cleaned = false;
 
-static void log_mirror_poll(void) {
+static void log_mirror_begin(void) {
+    time_t t = time(NULL);
+    struct tm tmv;
+    localtime_r(&t, &tmv);
+    snprintf(g_mir_stamp, sizeof(g_mir_stamp), "%04d%02d%02d-%02d%02d%02d",
+             tmv.tm_year + 1900, tmv.tm_mon + 1, tmv.tm_mday, tmv.tm_hour, tmv.tm_min, tmv.tm_sec);
+}
+
+static bool log_mirror_flag_on(void) {
+    char fp[300] = "";
+    snprintf(fp, sizeof(fp), "%s", g_cfg.logfile);
+    char *sl = strrchr(fp, '/');
+    if (!sl) return true;
+    snprintf(sl + 1, sizeof(fp) - (size_t)(sl + 1 - fp), "keymouse_debug");
+    FILE *ff = fopen(fp, "r");
+    if (!ff) return true;                       /* 没有开关文件 = 默认开 */
+    int ch = fgetc(ff);
+    fclose(ff);
+    return ch != '0';
+}
+
+static bool log_mirror_skip_line(const char *ln, size_t len) {
+    static const char pat[] = "[dot] \xe7\x9c\x9f\xe5\xae\x9e\xe6\x8c\x87\xe9\x92\x88\xe4\xba\x8b\xe4\xbb\xb6\xe9\x80\x9f\xe7\x8e\x87: 0 \xe4\xb8\xaa/";
+    size_t pl = sizeof(pat) - 1;
+    return len >= pl && memcmp(ln, pat, pl) == 0;
+}
+
+static void log_mirror_run(bool force) {
     if (!g_cfg.logfile[0] || g_mir_off < 0) return;
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
     long nm = (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
-    if (nm - g_mir_last_ms < 500) return;
+    if (!force && nm - g_mir_last_ms < 500) return;
     g_mir_last_ms = nm;
     struct stat st;
     if (stat(g_cfg.logfile, &st) != 0) return;
     if (st.st_size < g_mir_off) g_mir_off = 0;               /* 原日志被清空/截断了，从头来 */
-    /* App 主界面的"Bug 日志记录"开关: files/keymouse_debug 内容 1=开。关着不写；
-     * 关着时偏移也跟着走，之后打开只记"打开之后"的日志。 */
-    {
-        char fp[300] = "";
-        snprintf(fp, sizeof(fp), "%s", g_cfg.logfile);
-        char *sl = strrchr(fp, '/');
-        bool on = false;
-        if (sl) {
-            snprintf(sl + 1, sizeof(fp) - (size_t)(sl + 1 - fp), "keymouse_debug");
-            FILE *ff = fopen(fp, "r");
-            if (ff) { int ch = fgetc(ff); on = (ch == '1'); fclose(ff); }
-        }
-        if (!on) { g_mir_off = (long)st.st_size; return; }
-    }
+    if (!log_mirror_flag_on()) { g_mir_off = (long)st.st_size; return; }   /* 关着时偏移也跟着走 */
     if (st.st_size == g_mir_off) return;
     time_t t = time(NULL);
-    struct tm tmv;
-    localtime_r(&t, &tmv);
-    char day[16];
-    snprintf(day, sizeof(day), "%04d%02d%02d", tmv.tm_year + 1900, tmv.tm_mon + 1, tmv.tm_mday);
     mode_t om = umask(0);
     mkdir(DBG_DIR, 0777);
     chmod(DBG_DIR, 0777);
-    if (strcmp(day, g_mir_day) != 0) {
-        snprintf(g_mir_day, sizeof(g_mir_day), "%s", day);
-        DIR *d = opendir(DBG_DIR);                           /* 换天: 清掉 7 天前的旧文件 */
+    if (!g_mir_cleaned) {
+        g_mir_cleaned = true;
+        DIR *d = opendir(DBG_DIR);                           /* 启动后第一次写: 清掉 7 天前的旧文件 */
         if (d) {
             struct dirent *de;
             while ((de = readdir(d)) != NULL) {
@@ -357,14 +374,16 @@ static void log_mirror_poll(void) {
             closedir(d);
         }
     }
-    char out[300];
-    snprintf(out, sizeof(out), DBG_DIR "/%s-keymouse.txt", day);
-    int ofd = open(out, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (!g_mir_name[0]) {
+        if (!g_mir_stamp[0]) log_mirror_begin();
+        snprintf(g_mir_name, sizeof(g_mir_name), DBG_DIR "/%s-keymouse.txt", g_mir_stamp);
+    }
+    int ofd = open(g_mir_name, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (ofd >= 0) {
         struct stat os;
         if (fstat(ofd, &os) == 0 && os.st_size >= DBG_MAX) {   /* 满 10MB: 清空重来 */
             close(ofd);
-            ofd = open(out, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, 0666);
+            ofd = open(g_mir_name, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, 0666);
             if (ofd >= 0) {
                 const char *note = "[日志超过 10MB，已自动清空]\n";
                 ssize_t w0 = write(ofd, note, strlen(note));
@@ -376,17 +395,30 @@ static void log_mirror_poll(void) {
         fchmod(ofd, 0666);
         int ifd = open(g_cfg.logfile, O_RDONLY);
         if (ifd >= 0) {
-            char buf[8192];
+            static char buf[262144 + 8];
             long left = st.st_size - g_mir_off;
             if (left > 262144) { g_mir_off = st.st_size - 262144; left = 262144; }  /* 一次最多补 256KB */
             if (lseek(ifd, g_mir_off, SEEK_SET) == g_mir_off) {
-                while (left > 0) {
-                    ssize_t n = read(ifd, buf, left > (long)sizeof(buf) ? sizeof(buf) : (size_t)left);
-                    if (n <= 0) break;
-                    ssize_t w = write(ofd, buf, (size_t)n);
-                    (void)w;
-                    g_mir_off += n;
-                    left -= n;
+                ssize_t n = read(ifd, buf, (size_t)left);
+                if (n > 0) {
+                    size_t usable = (size_t)n;
+                    if (!force) {                            /* 只写到最后一个换行，半行留给下一轮 */
+                        while (usable > 0 && buf[usable - 1] != '\n') usable--;
+                        if (usable == 0 && n >= 4096) usable = (size_t)n;   /* 超长行就硬写，别卡住 */
+                    }
+                    size_t i = 0;
+                    while (i < usable) {                    /* 逐行过滤刷屏行后写出 */
+                        size_t j = i;
+                        while (j < usable && buf[j] != '\n') j++;
+                        size_t len = j - i;
+                        bool has_nl = (j < usable);
+                        if (!log_mirror_skip_line(buf + i, len)) {
+                            ssize_t w = write(ofd, buf + i, len + (has_nl ? 1 : 0));
+                            (void)w;
+                        }
+                        i = has_nl ? j + 1 : j;
+                    }
+                    g_mir_off += (long)usable;
                 }
             }
             close(ifd);
@@ -395,6 +427,9 @@ static void log_mirror_poll(void) {
     }
     umask(om);
 }
+
+static void log_mirror_poll(void) { log_mirror_run(false); }
+static void log_mirror_flush(void) { log_mirror_run(true); }
 
 static void logmsg(const char *fmt, ...) {
     char line[1000];
@@ -4868,6 +4903,7 @@ int main(int argc, char **argv) {
         g_log = fopen(g_cfg.logfile, "a");
         if (g_log) {
             { struct stat ms0; g_mir_off = stat(g_cfg.logfile, &ms0) == 0 ? (long)ms0.st_size : 0; }   /* 只同步本次启动之后的日志 */
+            log_mirror_begin();                                   /* 本次启动 = 一个新 txt，文件名用启动时刻 */
             /* 守护进程以 root 身份运行(su 启动)，daemonize() 里设置的
              * umask(027) 会让这里新建的日志文件变成 root:root 0640 之类
              * 的权限——App 自身进程不是 root，也不在这个文件的属组里，
@@ -5141,6 +5177,11 @@ int main(int argc, char **argv) {
             }
         }
 
+        /* 日志持续记录: 助手进程([dot]/[torch])自己往 keymouse.log 写，守护进程不一定有 logmsg 可借，
+         * 所以主循环每秒至少醒一次，把新增的内容同步进本次的 txt。 */
+        log_mirror_poll();
+        if (g_cfg.logfile[0] && (timeout < 0 || timeout > 1000)) timeout = 1000;
+
         int n = epoll_wait(epfd, events, 4, timeout);
         if (n < 0) {
             if (errno == EINTR) continue;
@@ -5185,6 +5226,6 @@ int main(int argc, char **argv) {
     destroy_uinput_devices();
     if (g_state_path[0]) unlink(g_state_path);
     if (g_cfg.pidfile[0]) unlink(g_cfg.pidfile);
-    if (g_log) fclose(g_log);
+    if (g_log) { fflush(g_log); log_mirror_flush(); fclose(g_log); }   /* 总开关关闭: 把最后一批日志补写进 txt 再收尾 */
     return 0;
 }

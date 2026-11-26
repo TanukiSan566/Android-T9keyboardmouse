@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 63
+    .line 82
     iput p1, p0, Lcom/keymouse/tool/CursorHit$1;->val$x:I
 
     iput p2, p0, Lcom/keymouse/tool/CursorHit$1;->val$y:I
@@ -49,65 +49,71 @@
     .locals 4
 
     .prologue
-    const/4 v1, 0x0
+    const/4 v0, 0x0
 
-    .line 65
-    .line 67
+    .line 84
+    .line 86
     :try_start_0
-    sget-object v0, Lcom/keymouse/tool/CursorHit;->svc:Lcom/keymouse/tool/CursorA11yService;
+    sget-object v1, Lcom/keymouse/tool/CursorHit;->svc:Lcom/keymouse/tool/CursorA11yService;
 
-    .line 68
-    if-eqz v0, :cond_0
+    .line 87
+    if-eqz v1, :cond_0
 
-    .line 69
+    .line 88
     iget v2, p0, Lcom/keymouse/tool/CursorHit$1;->val$x:I
 
     iget v3, p0, Lcom/keymouse/tool/CursorHit$1;->val$y:I
 
-    invoke-virtual {v0, v2, v3}, Lcom/keymouse/tool/CursorA11yService;->probe(II)I
+    invoke-virtual {v1, v2, v3}, Lcom/keymouse/tool/CursorA11yService;->probe(II)[I
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    move-result v0
+    move-result-object v0
 
-    .line 74
+    .line 93
+    :cond_0
     :goto_0
-    invoke-static {v0}, Lcom/keymouse/tool/CursorHit;->access$002(I)I
+    if-nez v0, :cond_1
 
-    .line 75
-    iget v0, p0, Lcom/keymouse/tool/CursorHit$1;->val$x:I
+    .line 94
+    const/4 v0, 0x5
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorHit;->access$102(I)I
+    new-array v0, v0, [I
 
-    .line 76
-    iget v0, p0, Lcom/keymouse/tool/CursorHit$1;->val$y:I
+    fill-array-data v0, :array_0
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorHit;->access$202(I)I
+    .line 96
+    :cond_1
+    invoke-static {v0}, Lcom/keymouse/tool/CursorHit;->access$002([I)[I
 
-    .line 77
+    .line 97
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
-    move-result-wide v2
+    move-result-wide v0
 
-    invoke-static {v2, v3}, Lcom/keymouse/tool/CursorHit;->access$302(J)J
+    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorHit;->access$102(J)J
 
-    .line 78
-    invoke-static {v1}, Lcom/keymouse/tool/CursorHit;->access$402(Z)Z
+    .line 98
+    const/4 v0, 0x0
 
-    .line 79
+    invoke-static {v0}, Lcom/keymouse/tool/CursorHit;->access$202(Z)Z
+
+    .line 99
     return-void
 
-    .line 71
+    .line 90
     :catch_0
-    move-exception v0
-
-    move v0, v1
-
-    .line 72
-    goto :goto_0
-
-    :cond_0
-    move v0, v1
+    move-exception v1
 
     goto :goto_0
+
+    .line 94
+    :array_0
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method

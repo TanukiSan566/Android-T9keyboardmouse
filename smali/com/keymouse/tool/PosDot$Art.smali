@@ -67,7 +67,7 @@
     .locals 1
 
     .prologue
-    .line 347
+    .line 348
     const/16 v0, 0x8
 
     new-array v0, v0, [F
@@ -101,10 +101,10 @@
 
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 371
+    .line 372
     invoke-direct {p0, p1}, Landroid/view/View;-><init>(Landroid/content/Context;)V
 
-    .line 353
+    .line 354
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x3
@@ -113,84 +113,84 @@
 
     iput-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->bmpPaint:Landroid/graphics/Paint;
 
-    .line 354
+    .line 355
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v3}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotFill:Landroid/graphics/Paint;
 
-    .line 355
+    .line 356
     new-instance v0, Landroid/graphics/Paint;
 
     invoke-direct {v0, v3}, Landroid/graphics/Paint;-><init>(I)V
 
     iput-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotEdge:Landroid/graphics/Paint;
 
-    .line 356
+    .line 357
     const/4 v0, 0x0
 
     iput-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->cs:Lcom/keymouse/tool/CurLoader$Set;
 
-    .line 357
+    .line 358
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->csPx:F
 
-    .line 358
+    .line 359
     iput-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->csStart:J
 
-    .line 359
+    .line 360
     iput-boolean v3, p0, Lcom/keymouse/tool/PosDot$Art;->drawCursor:Z
 
-    .line 360
+    .line 361
     iput-boolean v3, p0, Lcom/keymouse/tool/PosDot$Art;->drawDot:Z
 
-    .line 361
+    .line 362
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->press:I
 
-    .line 362
+    .line 363
     iput v2, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
-    .line 363
+    .line 364
     iput v2, p0, Lcom/keymouse/tool/PosDot$Art;->segFrom:F
 
-    .line 364
+    .line 365
     iput v2, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
-    .line 365
+    .line 366
     iput-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->segStart:J
 
-    .line 366
+    .line 367
     const-wide/16 v0, 0x1
 
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
-    .line 367
+    .line 368
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
-    .line 368
+    .line 369
     iput-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->nextDur:J
 
-    .line 372
+    .line 373
     const/high16 v0, 0x41c00000    # 24.0f
 
     mul-float/2addr v0, p2
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->cursorH:F
 
-    .line 373
+    .line 374
     const/high16 v0, 0x40800000    # 4.0f
 
     mul-float/2addr v0, p2
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->pad:F
 
-    .line 374
+    .line 375
     const/high16 v0, 0x40a00000    # 5.0f
 
     const/high16 v1, 0x40c00000    # 6.0f
@@ -203,7 +203,7 @@
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotR:F
 
-    .line 376
+    .line 377
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->cursorH:F
 
     const/high16 v1, 0x42900000    # 72.0f
@@ -236,35 +236,35 @@
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->win:I
 
-    .line 377
+    .line 378
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotFill:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 378
+    .line 379
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotFill:Landroid/graphics/Paint;
 
     const/high16 v1, -0x10000
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 379
+    .line 380
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotEdge:Landroid/graphics/Paint;
 
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 380
+    .line 381
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotEdge:Landroid/graphics/Paint;
 
     const/4 v1, -0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 381
+    .line 382
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotEdge:Landroid/graphics/Paint;
 
     invoke-static {v2, p2}, Ljava/lang/Math;->max(FF)F
@@ -273,7 +273,7 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 382
+    .line 383
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->cursorH:F
 
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->pad:F
@@ -284,7 +284,7 @@
 
     iput-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->bmp:Landroid/graphics/Bitmap;
 
-    .line 383
+    .line 384
     return-void
 .end method
 
@@ -296,7 +296,7 @@
 
     const/high16 v2, 0x3f800000    # 1.0f
 
-    .line 429
+    .line 430
     iget-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
     const-wide/16 v6, 0x0
@@ -307,32 +307,32 @@
 
     move v1, v2
 
-    .line 430
+    .line 431
     :goto_0
     cmpl-float v3, v1, v2
 
     if-ltz v3, :cond_2
 
-    .line 431
+    .line 432
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
     cmpg-float v1, v1, v0
 
     if-gez v1, :cond_1
 
-    .line 432
+    .line 433
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
-    .line 433
+    .line 434
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
-    .line 445
+    .line 446
     :goto_1
     return v0
 
-    .line 429
+    .line 430
     :cond_0
     iget-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->segStart:J
 
@@ -348,31 +348,31 @@
 
     goto :goto_0
 
-    .line 436
+    .line 437
     :cond_1
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->segFrom:F
 
-    .line 437
+    .line 438
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
-    .line 438
+    .line 439
     iget-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->nextDur:J
 
     iput-wide v4, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
-    .line 439
+    .line 440
     iput-wide p1, p0, Lcom/keymouse/tool/PosDot$Art;->segStart:J
 
-    .line 440
+    .line 441
     const/high16 v1, -0x40800000    # -1.0f
 
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
-    .line 443
+    .line 444
     :goto_2
     sub-float v1, v2, v0
 
@@ -382,7 +382,7 @@
 
     sub-float v0, v2, v0
 
-    .line 444
+    .line 445
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->segFrom:F
 
     iget v2, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
@@ -397,7 +397,7 @@
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
-    .line 445
+    .line 446
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
     goto :goto_1
@@ -412,12 +412,12 @@
     .locals 15
 
     .prologue
-    .line 491
+    .line 492
     const v0, 0x3f3851ec    # 0.72f
 
     mul-float v8, p0, v0
 
-    .line 492
+    .line 493
     const/high16 v0, 0x40000000    # 2.0f
 
     mul-float v0, v0, p1
@@ -432,7 +432,7 @@
 
     double-to-int v9, v0
 
-    .line 493
+    .line 494
     const/high16 v0, 0x40000000    # 2.0f
 
     mul-float v0, v0, p1
@@ -447,10 +447,10 @@
 
     double-to-int v10, v0
 
-    .line 495
+    .line 496
     const/4 v0, 0x2
 
-    .line 496
+    .line 497
     mul-int v1, v9, v0
 
     mul-int v2, v10, v0
@@ -461,24 +461,24 @@
 
     move-result-object v11
 
-    .line 497
+    .line 498
     new-instance v12, Landroid/graphics/Canvas;
 
     invoke-direct {v12, v11}, Landroid/graphics/Canvas;-><init>(Landroid/graphics/Bitmap;)V
 
-    .line 498
+    .line 499
     int-to-float v1, v0
 
     int-to-float v0, v0
 
     invoke-virtual {v12, v1, v0}, Landroid/graphics/Canvas;->scale(FF)V
 
-    .line 499
+    .line 500
     new-instance v13, Landroid/graphics/Path;
 
     invoke-direct {v13}, Landroid/graphics/Path;-><init>()V
 
-    .line 500
+    .line 501
     const/4 v0, 0x0
 
     :goto_0
@@ -488,7 +488,7 @@
 
     if-ge v0, v1, :cond_1
 
-    .line 501
+    .line 502
     sget-object v1, Lcom/keymouse/tool/PosDot$Art;->SHAPE:[F
 
     aget v1, v1, v0
@@ -497,7 +497,7 @@
 
     add-float v1, v1, p1
 
-    .line 502
+    .line 503
     sget-object v2, Lcom/keymouse/tool/PosDot$Art;->SHAPE:[F
 
     add-int/lit8 v3, v0, 0x1
@@ -508,45 +508,45 @@
 
     add-float v2, v2, p1
 
-    .line 503
+    .line 504
     if-nez v0, :cond_0
 
     invoke-virtual {v13, v1, v2}, Landroid/graphics/Path;->moveTo(FF)V
 
-    .line 500
+    .line 501
     :goto_1
     add-int/lit8 v0, v0, 0x2
 
     goto :goto_0
 
-    .line 503
+    .line 504
     :cond_0
     invoke-virtual {v13, v1, v2}, Landroid/graphics/Path;->lineTo(FF)V
 
     goto :goto_1
 
-    .line 505
+    .line 506
     :cond_1
     invoke-virtual {v13}, Landroid/graphics/Path;->close()V
 
-    .line 508
+    .line 509
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
-    .line 509
+    .line 510
     sget-object v1, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 510
+    .line 511
     const/high16 v1, 0x55000000
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 511
+    .line 512
     new-instance v1, Landroid/graphics/CornerPathEffect;
 
     const v2, 0x3f99999a    # 1.2f
@@ -557,10 +557,10 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 512
+    .line 513
     invoke-virtual {v12}, Landroid/graphics/Canvas;->save()I
 
-    .line 513
+    .line 514
     const v1, 0x3f99999a    # 1.2f
 
     mul-float v1, v1, p2
@@ -571,25 +571,25 @@
 
     invoke-virtual {v12, v1, v2}, Landroid/graphics/Canvas;->translate(FF)V
 
-    .line 514
+    .line 515
     invoke-virtual {v12, v13, v0}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 515
+    .line 516
     invoke-virtual {v12}, Landroid/graphics/Canvas;->restore()V
 
-    .line 518
+    .line 519
     new-instance v14, Landroid/graphics/Paint;
 
     const/4 v0, 0x1
 
     invoke-direct {v14, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    .line 519
+    .line 520
     sget-object v0, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v14, v0}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 520
+    .line 521
     new-instance v0, Landroid/graphics/CornerPathEffect;
 
     const v1, 0x3f99999a    # 1.2f
@@ -600,7 +600,7 @@
 
     invoke-virtual {v14, v0}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 521
+    .line 522
     new-instance v0, Landroid/graphics/LinearGradient;
 
     const v1, 0x3d4ccccd    # 0.05f
@@ -637,35 +637,35 @@
 
     invoke-virtual {v14, v0}, Landroid/graphics/Paint;->setShader(Landroid/graphics/Shader;)Landroid/graphics/Shader;
 
-    .line 524
+    .line 525
     invoke-virtual {v12, v13, v14}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 527
+    .line 528
     invoke-virtual {v12}, Landroid/graphics/Canvas;->save()I
 
-    .line 528
+    .line 529
     invoke-virtual {v12, v13}, Landroid/graphics/Canvas;->clipPath(Landroid/graphics/Path;)Z
 
-    .line 529
+    .line 530
     new-instance v1, Ljava/util/Random;
 
     const-wide/16 v2, 0x7
 
     invoke-direct {v1, v2, v3}, Ljava/util/Random;-><init>(J)V
 
-    .line 530
+    .line 531
     new-instance v2, Landroid/graphics/Paint;
 
     const/4 v0, 0x1
 
     invoke-direct {v2, v0}, Landroid/graphics/Paint;-><init>(I)V
 
-    .line 531
+    .line 532
     sget-object v0, Landroid/graphics/Paint$Style;->FILL:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v2, v0}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 532
+    .line 533
     const/4 v0, 0x0
 
     :goto_2
@@ -673,7 +673,7 @@
 
     if-ge v0, v3, :cond_2
 
-    .line 533
+    .line 534
     const v3, 0x3eb33333    # 0.35f
 
     const v4, 0x3f19999a    # 0.6f
@@ -690,7 +690,7 @@
 
     add-float v3, v3, p1
 
-    .line 534
+    .line 535
     const/high16 v4, 0x3e800000    # 0.25f
 
     const v5, 0x3f266666    # 0.65f
@@ -707,7 +707,7 @@
 
     add-float v4, v4, p1
 
-    .line 535
+    .line 536
     const/16 v5, 0x3c
 
     invoke-virtual {v1, v5}, Ljava/util/Random;->nextInt(I)I
@@ -728,7 +728,7 @@
 
     invoke-virtual {v2, v5}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 536
+    .line 537
     const v5, 0x3e99999a    # 0.3f
 
     const/high16 v6, 0x3f000000    # 0.5f
@@ -745,33 +745,33 @@
 
     invoke-virtual {v12, v3, v4, v5, v2}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 532
+    .line 533
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_2
 
-    .line 538
+    .line 539
     :cond_2
     invoke-virtual {v12}, Landroid/graphics/Canvas;->restore()V
 
-    .line 541
+    .line 542
     new-instance v0, Landroid/graphics/Paint;
 
     const/4 v1, 0x1
 
     invoke-direct {v0, v1}, Landroid/graphics/Paint;-><init>(I)V
 
-    .line 542
+    .line 543
     sget-object v1, Landroid/graphics/Paint$Style;->STROKE:Landroid/graphics/Paint$Style;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStyle(Landroid/graphics/Paint$Style;)V
 
-    .line 543
+    .line 544
     sget-object v1, Landroid/graphics/Paint$Join;->ROUND:Landroid/graphics/Paint$Join;
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeJoin(Landroid/graphics/Paint$Join;)V
 
-    .line 544
+    .line 545
     const/high16 v1, 0x3f800000    # 1.0f
 
     const v2, 0x3f8ccccd    # 1.1f
@@ -784,12 +784,12 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setStrokeWidth(F)V
 
-    .line 545
+    .line 546
     const/4 v1, -0x1
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setColor(I)V
 
-    .line 546
+    .line 547
     new-instance v1, Landroid/graphics/CornerPathEffect;
 
     const v2, 0x3f99999a    # 1.2f
@@ -800,26 +800,26 @@
 
     invoke-virtual {v0, v1}, Landroid/graphics/Paint;->setPathEffect(Landroid/graphics/PathEffect;)Landroid/graphics/PathEffect;
 
-    .line 547
+    .line 548
     invoke-virtual {v12, v13, v0}, Landroid/graphics/Canvas;->drawPath(Landroid/graphics/Path;Landroid/graphics/Paint;)V
 
-    .line 549
+    .line 550
     const/4 v0, 0x1
 
     invoke-static {v11, v9, v10, v0}, Landroid/graphics/Bitmap;->createScaledBitmap(Landroid/graphics/Bitmap;IIZ)Landroid/graphics/Bitmap;
 
     move-result-object v0
 
-    .line 550
+    .line 551
     if-eq v0, v11, :cond_3
 
     invoke-virtual {v11}, Landroid/graphics/Bitmap;->recycle()V
 
-    .line 551
+    .line 552
     :cond_3
     return-object v0
 
-    .line 521
+    .line 522
     :array_0
     .array-data 4
         -0x2de1
@@ -841,7 +841,7 @@
     .locals 1
 
     .prologue
-    .line 386
+    .line 387
     iget-boolean v0, p0, Lcom/keymouse/tool/PosDot$Art;->drawCursor:Z
 
     if-ne p1, v0, :cond_0
@@ -850,17 +850,17 @@
 
     if-eq p2, v0, :cond_1
 
-    .line 387
+    .line 388
     :cond_0
     iput-boolean p1, p0, Lcom/keymouse/tool/PosDot$Art;->drawCursor:Z
 
-    .line 388
+    .line 389
     iput-boolean p2, p0, Lcom/keymouse/tool/PosDot$Art;->drawDot:Z
 
-    .line 389
+    .line 390
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->invalidate()V
 
-    .line 391
+    .line 392
     :cond_1
     return-void
 .end method
@@ -873,17 +873,17 @@
 
     const/4 v9, 0x0
 
-    .line 460
+    .line 461
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
 
-    .line 461
+    .line 462
     invoke-direct {p0, v0, v1}, Lcom/keymouse/tool/PosDot$Art;->currentScale(J)F
 
     move-result v2
 
-    .line 462
+    .line 463
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->getWidth()I
 
     move-result v3
@@ -892,7 +892,7 @@
 
     div-float/2addr v3, v5
 
-    .line 463
+    .line 464
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->getHeight()I
 
     move-result v4
@@ -901,21 +901,21 @@
 
     div-float/2addr v4, v5
 
-    .line 464
+    .line 465
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 465
+    .line 466
     invoke-virtual {p1, v2, v2, v3, v4}, Landroid/graphics/Canvas;->scale(FFFF)V
 
-    .line 466
+    .line 467
     iget-boolean v5, p0, Lcom/keymouse/tool/PosDot$Art;->drawCursor:Z
 
     if-eqz v5, :cond_2
 
-    .line 467
+    .line 468
     iget-object v5, p0, Lcom/keymouse/tool/PosDot$Art;->cs:Lcom/keymouse/tool/CurLoader$Set;
 
-    .line 468
+    .line 469
     if-eqz v5, :cond_6
 
     iget-object v6, v5, Lcom/keymouse/tool/CurLoader$Set;->frames:[Landroid/graphics/Bitmap;
@@ -924,7 +924,7 @@
 
     if-lez v6, :cond_6
 
-    .line 469
+    .line 470
     iget-wide v6, p0, Lcom/keymouse/tool/PosDot$Art;->csStart:J
 
     sub-long/2addr v0, v6
@@ -933,7 +933,7 @@
 
     move-result v0
 
-    .line 470
+    .line 471
     if-ltz v0, :cond_0
 
     iget-object v1, v5, Lcom/keymouse/tool/CurLoader$Set;->frames:[Landroid/graphics/Bitmap;
@@ -945,7 +945,7 @@
     :cond_0
     const/4 v0, 0x0
 
-    .line 471
+    .line 472
     :cond_1
     iget v1, p0, Lcom/keymouse/tool/PosDot$Art;->csPx:F
 
@@ -967,10 +967,10 @@
 
     div-float/2addr v1, v6
 
-    .line 472
+    .line 473
     invoke-virtual {p1}, Landroid/graphics/Canvas;->save()I
 
-    .line 473
+    .line 474
     iget-object v6, v5, Lcom/keymouse/tool/CurLoader$Set;->hx:[I
 
     aget v6, v6, v0
@@ -993,10 +993,10 @@
 
     invoke-virtual {p1, v6, v7}, Landroid/graphics/Canvas;->translate(FF)V
 
-    .line 474
+    .line 475
     invoke-virtual {p1, v1, v1}, Landroid/graphics/Canvas;->scale(FF)V
 
-    .line 475
+    .line 476
     iget-object v1, v5, Lcom/keymouse/tool/CurLoader$Set;->frames:[Landroid/graphics/Bitmap;
 
     aget-object v0, v1, v0
@@ -1005,35 +1005,35 @@
 
     invoke-virtual {p1, v0, v9, v9, v1}, Landroid/graphics/Canvas;->drawBitmap(Landroid/graphics/Bitmap;FFLandroid/graphics/Paint;)V
 
-    .line 476
+    .line 477
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
-    .line 481
+    .line 482
     :cond_2
     :goto_0
     iget-boolean v0, p0, Lcom/keymouse/tool/PosDot$Art;->drawDot:Z
 
     if-eqz v0, :cond_3
 
-    .line 482
+    .line 483
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotR:F
 
     iget-object v1, p0, Lcom/keymouse/tool/PosDot$Art;->dotFill:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v3, v4, v0, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 483
+    .line 484
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->dotR:F
 
     iget-object v1, p0, Lcom/keymouse/tool/PosDot$Art;->dotEdge:Landroid/graphics/Paint;
 
     invoke-virtual {p1, v3, v4, v0, v1}, Landroid/graphics/Canvas;->drawCircle(FFFLandroid/graphics/Paint;)V
 
-    .line 485
+    .line 486
     :cond_3
     invoke-virtual {p1}, Landroid/graphics/Canvas;->restore()V
 
-    .line 486
+    .line 487
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
     cmpl-float v0, v2, v0
@@ -1065,11 +1065,11 @@
     :cond_4
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->postInvalidateOnAnimation()V
 
-    .line 487
+    .line 488
     :cond_5
     return-void
 
-    .line 478
+    .line 479
     :cond_6
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->bmp:Landroid/graphics/Bitmap;
 
@@ -1094,31 +1094,31 @@
     .prologue
     const/high16 v1, 0x3f800000    # 1.0f
 
-    .line 450
+    .line 451
     const/4 v0, 0x0
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->press:I
 
-    .line 451
+    .line 452
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->scale:F
 
-    .line 452
+    .line 453
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->segFrom:F
 
-    .line 453
+    .line 454
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
-    .line 454
+    .line 455
     const-wide/16 v0, 0x1
 
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
-    .line 455
+    .line 456
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
-    .line 456
+    .line 457
     return-void
 .end method
 
@@ -1128,72 +1128,72 @@
     .prologue
     const/4 v4, 0x2
 
-    .line 407
+    .line 408
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->press:I
 
     if-ne p1, v0, :cond_1
 
-    .line 426
+    .line 427
     :cond_0
     :goto_0
     return-void
 
-    .line 408
+    .line 409
     :cond_1
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->press:I
 
-    .line 409
+    .line 410
     iput p1, p0, Lcom/keymouse/tool/PosDot$Art;->press:I
 
-    .line 410
+    .line 411
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v2
 
-    .line 411
+    .line 412
     invoke-direct {p0, v2, v3}, Lcom/keymouse/tool/PosDot$Art;->currentScale(J)F
 
     move-result v1
 
-    .line 412
+    .line 413
     iput v1, p0, Lcom/keymouse/tool/PosDot$Art;->segFrom:F
 
-    .line 413
+    .line 414
     iput-wide v2, p0, Lcom/keymouse/tool/PosDot$Art;->segStart:J
 
-    .line 414
+    .line 415
     if-nez p1, :cond_2
 
-    .line 415
+    .line 416
     if-eqz v0, :cond_0
 
-    .line 416
+    .line 417
     const v0, 0x3f99999a    # 1.2f
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
-    .line 417
+    .line 418
     const-wide/16 v0, 0x5a
 
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
-    .line 418
+    .line 419
     const/high16 v0, 0x3f800000    # 1.0f
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
-    .line 419
+    .line 420
     const-wide/16 v0, 0x6e
 
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->nextDur:J
 
-    .line 425
+    .line 426
     :goto_1
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->postInvalidateOnAnimation()V
 
     goto :goto_0
 
-    .line 421
+    .line 422
     :cond_2
     if-ne p1, v4, :cond_3
 
@@ -1202,7 +1202,7 @@
     :goto_2
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
 
-    .line 422
+    .line 423
     if-ne p1, v4, :cond_4
 
     const-wide/16 v0, 0x8c
@@ -1210,20 +1210,20 @@
     :goto_3
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->segDur:J
 
-    .line 423
+    .line 424
     const/high16 v0, -0x40800000    # -1.0f
 
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->nextTo:F
 
     goto :goto_1
 
-    .line 421
+    .line 422
     :cond_3
     const/high16 v0, 0x3f000000    # 0.5f
 
     goto :goto_2
 
-    .line 422
+    .line 423
     :cond_4
     const-wide/16 v0, 0x46
 
@@ -1234,25 +1234,25 @@
     .locals 2
 
     .prologue
-    .line 395
+    .line 396
     iget-object v0, p0, Lcom/keymouse/tool/PosDot$Art;->cs:Lcom/keymouse/tool/CurLoader$Set;
 
     if-eq p1, v0, :cond_0
 
-    .line 396
+    .line 397
     iput-object p1, p0, Lcom/keymouse/tool/PosDot$Art;->cs:Lcom/keymouse/tool/CurLoader$Set;
 
-    .line 397
+    .line 398
     invoke-static {}, Landroid/os/SystemClock;->uptimeMillis()J
 
     move-result-wide v0
 
     iput-wide v0, p0, Lcom/keymouse/tool/PosDot$Art;->csStart:J
 
-    .line 398
+    .line 399
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->invalidate()V
 
-    .line 400
+    .line 401
     :cond_0
     iget v0, p0, Lcom/keymouse/tool/PosDot$Art;->csPx:F
 
@@ -1260,13 +1260,13 @@
 
     if-eqz v0, :cond_1
 
-    .line 401
+    .line 402
     iput p2, p0, Lcom/keymouse/tool/PosDot$Art;->csPx:F
 
-    .line 402
+    .line 403
     invoke-virtual {p0}, Lcom/keymouse/tool/PosDot$Art;->invalidate()V
 
-    .line 404
+    .line 405
     :cond_1
     return-void
 .end method

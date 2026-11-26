@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->rebuildThemes(Ljava/util/ArrayList;)V
+    value = Lcom/keymouse/tool/CursorActivity;->onCreate(Landroid/os/Bundle;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
-.field final synthetic val$t:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 266
+    .line 214
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$6;->val$t:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,16 +37,49 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 2
+    .locals 5
 
     .prologue
-    .line 268
+    .line 216
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$6;->val$t:Ljava/lang/String;
+    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->installDefaultFiles(Landroid/content/Context;)V
 
-    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorActivity;->access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    .line 217
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    .line 269
+    const/4 v1, 0x1
+
+    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorCfg;->applyDefaultCfg(Landroid/content/Context;Z)V
+
+    .line 218
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    const-string v2, "\u5df2\u6062\u590d\u9ed8\u8ba4\u6307\u9488"
+
+    const-string v3, "\u623b\u3057\u307e\u3057\u305f"
+
+    const-string v4, "Restored"
+
+    invoke-static {v1, v2, v3, v4}, Lcom/keymouse/tool/CursorActivity;->access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v1
+
+    const/4 v2, 0x0
+
+    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
+
+    .line 219
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$500(Lcom/keymouse/tool/CursorActivity;)V
+
+    .line 220
     return-void
 .end method

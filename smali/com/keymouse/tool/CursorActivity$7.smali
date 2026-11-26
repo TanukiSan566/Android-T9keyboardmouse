@@ -3,12 +3,12 @@
 .source "CursorActivity.java"
 
 # interfaces
-.implements Ljava/lang/Runnable;
+.implements Landroid/view/View$OnClickListener;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->recreateSoon()V
+    value = Lcom/keymouse/tool/CursorActivity;->rebuildThemes(Ljava/util/ArrayList;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,14 +20,23 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
+.field final synthetic val$t:Ljava/lang/String;
+
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
     .locals 0
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
 
     .prologue
-    .line 296
+    .line 278
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$7;->this$0:Lcom/keymouse/tool/CursorActivity;
+
+    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$7;->val$t:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -36,15 +45,17 @@
 
 
 # virtual methods
-.method public run()V
-    .locals 1
+.method public onClick(Landroid/view/View;)V
+    .locals 2
 
     .prologue
-    .line 298
+    .line 280
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$7;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    invoke-virtual {v0}, Lcom/keymouse/tool/CursorActivity;->recreate()V
+    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$7;->val$t:Ljava/lang/String;
 
-    .line 299
+    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorActivity;->access$600(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+
+    .line 281
     return-void
 .end method

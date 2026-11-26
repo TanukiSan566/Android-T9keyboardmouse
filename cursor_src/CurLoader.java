@@ -376,7 +376,8 @@ final class CurLoader {
                         continue;       // 32 位且带 alpha: 以 alpha 为准，不看掩码
                     }
                     if (transparent) {
-                        px[i] = 0;
+                        // 掩码=透明但颜色非黑 = Windows 的"反色"光标: 安卓没法反色，按实色画
+                        px[i] = (bits != 32 && (px[i] & 0xFFFFFF) != 0) ? (px[i] | 0xFF000000) : 0;
                     } else if (bits == 32) {
                         px[i] |= 0xFF000000;
                     }

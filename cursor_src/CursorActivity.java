@@ -100,7 +100,7 @@ public class CursorActivity extends Activity {
         Switch on = new Switch(this);
         on.setTextSize(16f);
         on.setText(S("启用自定义鼠标", "カスタムポインタを使う", "Use custom pointer"));
-        on.setChecked(CursorCfg.geti(mCfg, "on", 0) != 0);
+        on.setChecked(CursorCfg.geti(mCfg, "on", 1) != 0);
         on.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton v, boolean c) {
                 if (!mBuilding) {
@@ -208,6 +208,18 @@ public class CursorActivity extends Activity {
         mLibInfo = new TextView(this);
         mLibInfo.setTextSize(13f);
         mBox.addView(mLibInfo);
+
+        Button rst = new Button(this);
+        rst.setText(S("恢复默认指针(STMC)", "既定のポインタに戻す(STMC)", "Restore default pointers (STMC)"));
+        rst.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                CursorCfg.installDefaultFiles(CursorActivity.this);
+                CursorCfg.applyDefaultCfg(CursorActivity.this, true);
+                Toast.makeText(CursorActivity.this, S("已恢复默认指针", "戻しました", "Restored"), Toast.LENGTH_SHORT).show();
+                recreateSoon();
+            }
+        });
+        mBox.addView(rst);
 
         mBox.addView(title(S("套用整套主题", "テーマを丸ごと適用", "Apply a whole theme")));
         mThemes = new LinearLayout(this);

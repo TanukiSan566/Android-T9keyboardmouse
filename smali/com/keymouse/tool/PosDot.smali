@@ -201,7 +201,7 @@
 
     const/4 v0, 0x0
 
-    .line 327
+    .line 328
     cmpg-float v2, p0, v0
 
     if-gez v2, :cond_1
@@ -226,12 +226,12 @@
     .locals 2
 
     .prologue
-    .line 188
+    .line 189
     sget-object v0, Lcom/keymouse/tool/PosDot;->sSets:[Lcom/keymouse/tool/CurLoader$Set;
 
     aget-object v0, v0, p0
 
-    .line 189
+    .line 190
     if-eqz v0, :cond_0
 
     :goto_0
@@ -253,30 +253,30 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 139
+    .line 140
     :try_start_0
     new-instance v1, Ljava/io/FileInputStream;
 
     invoke-direct {v1, p0}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
 
-    .line 140
+    .line 141
     sget-object v2, Lcom/keymouse/tool/PosDot;->BUF:[B
 
     invoke-virtual {v1, v2}, Ljava/io/FileInputStream;->read([B)I
 
     move-result v2
 
-    .line 141
+    .line 142
     invoke-virtual {v1}, Ljava/io/FileInputStream;->close()V
 
-    .line 142
+    .line 143
     if-gtz v2, :cond_0
 
-    .line 145
+    .line 146
     :goto_0
     return-object v0
 
-    .line 143
+    .line 144
     :cond_0
     new-instance v1, Ljava/lang/String;
 
@@ -294,7 +294,7 @@
 
     goto :goto_0
 
-    .line 144
+    .line 145
     :catch_0
     move-exception v1
 
@@ -309,7 +309,7 @@
 
     const/4 v1, 0x0
 
-    .line 151
+    .line 152
     sget-wide v4, Lcom/keymouse/tool/PosDot;->sCfgAt:J
 
     sub-long v4, p0, v4
@@ -320,17 +320,17 @@
 
     if-lez v0, :cond_1
 
-    .line 152
+    .line 153
     sput-wide p0, Lcom/keymouse/tool/PosDot;->sCfgAt:J
 
-    .line 153
+    .line 154
     sget-object v0, Lcom/keymouse/tool/PosDot;->sCursorCfg:Ljava/io/File;
 
     invoke-static {v0}, Lcom/keymouse/tool/PosDot;->readFirstLine(Ljava/io/File;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 154
+    .line 155
     if-eqz v0, :cond_0
 
     const-string v3, "0"
@@ -347,7 +347,7 @@
     :goto_0
     sput-boolean v0, Lcom/keymouse/tool/PosDot;->sCursorOn:Z
 
-    .line 156
+    .line 157
     :cond_1
     sget-wide v4, Lcom/keymouse/tool/PosDot;->sOkAt:J
 
@@ -359,17 +359,17 @@
 
     if-lez v0, :cond_2
 
-    .line 157
+    .line 158
     sput-wide p0, Lcom/keymouse/tool/PosDot;->sOkAt:J
 
-    .line 158
+    .line 159
     sget-object v0, Lcom/keymouse/tool/PosDot;->sCursorOk:Ljava/io/File;
 
     invoke-static {v0}, Lcom/keymouse/tool/PosDot;->readFirstLine(Ljava/io/File;)Ljava/lang/String;
 
     move-result-object v0
 
-    .line 159
+    .line 160
     if-eqz v0, :cond_4
 
     const-string v3, "1"
@@ -383,20 +383,20 @@
     :goto_1
     sput-boolean v2, Lcom/keymouse/tool/PosDot;->sCursorHide:Z
 
-    .line 161
+    .line 162
     :cond_2
     return-void
 
     :cond_3
     move v0, v1
 
-    .line 154
+    .line 155
     goto :goto_0
 
     :cond_4
     move v2, v1
 
-    .line 159
+    .line 160
     goto :goto_1
 .end method
 
@@ -404,11 +404,11 @@
     .locals 8
 
     .prologue
-    const/4 v2, 0x1
-
     const/4 v3, 0x0
 
-    .line 165
+    const/4 v2, 0x1
+
+    .line 166
     sget-wide v0, Lcom/keymouse/tool/PosDot;->sThemeChk:J
 
     sub-long v0, p0, v0
@@ -419,15 +419,15 @@
 
     if-gez v0, :cond_1
 
-    .line 185
+    .line 186
     :cond_0
     return-void
 
-    .line 166
+    .line 167
     :cond_1
     sput-wide p0, Lcom/keymouse/tool/PosDot;->sThemeChk:J
 
-    .line 167
+    .line 168
     sget-object v0, Lcom/keymouse/tool/PosDot;->sThemeCfg:Ljava/io/File;
 
     invoke-virtual {v0}, Ljava/io/File;->exists()Z
@@ -442,7 +442,7 @@
 
     move-result-wide v0
 
-    .line 168
+    .line 169
     :goto_0
     sget-wide v4, Lcom/keymouse/tool/PosDot;->sThemeMt:J
 
@@ -450,20 +450,20 @@
 
     if-eqz v4, :cond_0
 
-    .line 169
+    .line 170
     sput-wide v0, Lcom/keymouse/tool/PosDot;->sThemeMt:J
 
-    .line 170
+    .line 171
     sget-object v0, Lcom/keymouse/tool/PosDot;->sThemeCfg:Ljava/io/File;
 
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->parse(Ljava/io/File;)Ljava/util/Map;
 
     move-result-object v1
 
-    .line 171
+    .line 172
     const-string v0, "on"
 
-    invoke-static {v1, v0, v3}, Lcom/keymouse/tool/CursorCfg;->geti(Ljava/util/Map;Ljava/lang/String;I)I
+    invoke-static {v1, v0, v2}, Lcom/keymouse/tool/CursorCfg;->geti(Ljava/util/Map;Ljava/lang/String;I)I
 
     move-result v0
 
@@ -474,7 +474,7 @@
     :goto_1
     sput-boolean v0, Lcom/keymouse/tool/PosDot;->sThemeOn:Z
 
-    .line 172
+    .line 173
     const/16 v0, 0x10
 
     const/16 v4, 0x48
@@ -497,7 +497,7 @@
 
     sput v0, Lcom/keymouse/tool/PosDot;->sSizeDp:I
 
-    .line 173
+    .line 174
     const-string v0, "smart"
 
     invoke-static {v1, v0, v2}, Lcom/keymouse/tool/CursorCfg;->geti(Ljava/util/Map;Ljava/lang/String;I)I
@@ -509,7 +509,7 @@
     :goto_2
     sput-boolean v2, Lcom/keymouse/tool/PosDot;->sSmart:Z
 
-    .line 174
+    .line 175
     const/16 v0, 0xc8
 
     const/16 v2, 0x5dc
@@ -532,35 +532,35 @@
 
     sput v0, Lcom/keymouse/tool/PosDot;->sGrabMs:I
 
-    .line 175
+    .line 176
     invoke-static {}, Lcom/keymouse/tool/CursorHit;->reset()V
 
-    .line 176
+    .line 177
     :goto_3
     const/4 v0, 0x4
 
     if-ge v3, v0, :cond_0
 
-    .line 177
+    .line 178
     sget-object v0, Lcom/keymouse/tool/PosDot;->sSets:[Lcom/keymouse/tool/CurLoader$Set;
 
     const/4 v2, 0x0
 
     aput-object v2, v0, v3
 
-    .line 178
+    .line 179
     sget-boolean v0, Lcom/keymouse/tool/PosDot;->sThemeOn:Z
 
     if-nez v0, :cond_6
 
-    .line 176
+    .line 177
     :cond_2
     :goto_4
     add-int/lit8 v3, v3, 0x1
 
     goto :goto_3
 
-    .line 167
+    .line 168
     :cond_3
     const-wide/16 v0, -0x1
 
@@ -569,29 +569,29 @@
     :cond_4
     move v0, v3
 
-    .line 171
+    .line 172
     goto :goto_1
 
     :cond_5
     move v2, v3
 
-    .line 173
+    .line 174
     goto :goto_2
 
-    .line 179
+    .line 180
     :cond_6
     sget-object v0, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
     aget-object v2, v0, v3
 
-    .line 180
+    .line 181
     invoke-interface {v1, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 181
+    .line 182
     if-eqz v0, :cond_2
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -600,7 +600,7 @@
 
     if-eqz v4, :cond_2
 
-    .line 182
+    .line 183
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -627,7 +627,7 @@
 
     move-result v2
 
-    .line 183
+    .line 184
     sget-object v4, Lcom/keymouse/tool/PosDot;->sSets:[Lcom/keymouse/tool/CurLoader$Set;
 
     new-instance v5, Ljava/io/File;
@@ -654,7 +654,7 @@
 
     if-eqz v2, :cond_0
 
-    .line 124
+    .line 125
     :goto_0
     return-void
 
@@ -702,6 +702,9 @@
     sput v2, Lcom/keymouse/tool/PosDot;->sDensity:F
 
     .line 91
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->ensureDefaults(Landroid/content/Context;)V
+
+    .line 92
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_cursor_theme.cfg"
@@ -710,7 +713,7 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sThemeCfg:Ljava/io/File;
 
-    .line 92
+    .line 93
     new-instance v4, Ljava/io/File;
 
     const-string v5, "cursor_lib"
@@ -719,12 +722,12 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sLibDir:Ljava/io/File;
 
-    .line 93
+    .line 94
     const-wide/16 v4, -0x2
 
     sput-wide v4, Lcom/keymouse/tool/PosDot;->sThemeMt:J
 
-    .line 94
+    .line 95
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_pos"
@@ -733,7 +736,7 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sFile:Ljava/io/File;
 
-    .line 95
+    .line 96
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_ptr"
@@ -742,7 +745,7 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sPtr:Ljava/io/File;
 
-    .line 96
+    .line 97
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_cursor"
@@ -751,7 +754,7 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sCursorCfg:Ljava/io/File;
 
-    .line 97
+    .line 98
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_cursor_ok"
@@ -760,7 +763,7 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sCursorOk:Ljava/io/File;
 
-    .line 98
+    .line 99
     new-instance v4, Ljava/io/File;
 
     const-string v5, "keymouse_cursor_beat"
@@ -769,22 +772,22 @@
 
     sput-object v4, Lcom/keymouse/tool/PosDot;->sBeat:Ljava/io/File;
 
-    .line 100
+    .line 101
     new-instance v9, Lcom/keymouse/tool/PosDot$Art;
 
     invoke-direct {v9, p0, v2}, Lcom/keymouse/tool/PosDot$Art;-><init>(Landroid/content/Context;F)V
 
-    .line 101
+    .line 102
     iget v2, v9, Lcom/keymouse/tool/PosDot$Art;->win:I
 
     sput v2, Lcom/keymouse/tool/PosDot;->sWin:I
 
-    .line 102
+    .line 103
     const/4 v2, 0x4
 
     invoke-virtual {v9, v2}, Lcom/keymouse/tool/PosDot$Art;->setVisibility(I)V
 
-    .line 105
+    .line 106
     new-instance v2, Landroid/view/WindowManager$LayoutParams;
 
     sget v3, Lcom/keymouse/tool/PosDot;->sWin:I
@@ -799,54 +802,54 @@
 
     invoke-direct/range {v2 .. v7}, Landroid/view/WindowManager$LayoutParams;-><init>(IIIII)V
 
-    .line 106
+    .line 107
     const/16 v3, 0x33
 
     iput v3, v2, Landroid/view/WindowManager$LayoutParams;->gravity:I
 
-    .line 107
+    .line 108
     invoke-interface {v8, v9, v2}, Landroid/view/WindowManager;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 109
+    .line 110
     sput-object v8, Lcom/keymouse/tool/PosDot;->sWm:Landroid/view/WindowManager;
 
-    .line 110
+    .line 111
     sput-object v9, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
-    .line 111
+    .line 112
     sput-object v2, Lcom/keymouse/tool/PosDot;->sLp:Landroid/view/WindowManager$LayoutParams;
 
-    .line 112
+    .line 113
     const/4 v2, 0x0
 
     sput-boolean v2, Lcom/keymouse/tool/PosDot;->sVisible:Z
 
-    .line 113
+    .line 114
     const v2, -0x1869f
 
     sput v2, Lcom/keymouse/tool/PosDot;->sLastX:I
 
-    .line 114
+    .line 115
     const v2, -0x1869f
 
     sput v2, Lcom/keymouse/tool/PosDot;->sLastY:I
 
-    .line 115
+    .line 116
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/keymouse/tool/PosDot;->sCfgAt:J
 
-    .line 116
+    .line 117
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/keymouse/tool/PosDot;->sOkAt:J
 
-    .line 117
+    .line 118
     const-wide/16 v2, 0x0
 
     sput-wide v2, Lcom/keymouse/tool/PosDot;->sBeatAt:J
 
-    .line 118
+    .line 119
     sget-object v2, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
 
     if-nez v2, :cond_1
@@ -861,7 +864,7 @@
 
     sput-object v2, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
 
-    .line 119
+    .line 120
     :cond_1
     sget-object v2, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
 
@@ -869,7 +872,7 @@
 
     invoke-virtual {v2, v3}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 120
+    .line 121
     sget-object v2, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
 
     sget-object v3, Lcom/keymouse/tool/PosDot;->TICK:Lcom/keymouse/tool/PosDot$Tick;
@@ -880,11 +883,11 @@
 
     goto/16 :goto_0
 
-    .line 121
+    .line 122
     :catch_0
     move-exception v2
 
-    .line 122
+    .line 123
     const/4 v2, 0x0
 
     sput-object v2, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
@@ -901,7 +904,7 @@
     .locals 2
 
     .prologue
-    .line 128
+    .line 129
     :try_start_0
     sget-object v0, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
 
@@ -913,7 +916,7 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->removeCallbacks(Ljava/lang/Runnable;)V
 
-    .line 129
+    .line 130
     :cond_0
     sget-object v0, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
@@ -931,22 +934,22 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 133
+    .line 134
     :cond_1
     :goto_0
     const/4 v0, 0x0
 
     sput-object v0, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
-    .line 134
+    .line 135
     const/4 v0, 0x0
 
     sput-boolean v0, Lcom/keymouse/tool/PosDot;->sVisible:Z
 
-    .line 135
+    .line 136
     return-void
 
-    .line 130
+    .line 131
     :catch_0
     move-exception v0
 
@@ -957,29 +960,29 @@
     .locals 20
 
     .prologue
-    .line 193
+    .line 194
     sget-object v0, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     if-nez v0, :cond_1
 
-    .line 310
+    .line 311
     :cond_0
     :goto_0
     return-void
 
-    .line 194
+    .line 195
     :cond_1
     invoke-static {}, Ljava/lang/System;->currentTimeMillis()J
 
     move-result-wide v12
 
-    .line 195
+    .line 196
     invoke-static {v12, v13}, Lcom/keymouse/tool/PosDot;->refreshCursorFlags(J)V
 
-    .line 196
+    .line 197
     invoke-static {v12, v13}, Lcom/keymouse/tool/PosDot;->refreshTheme(J)V
 
-    .line 200
+    .line 201
     sget-boolean v0, Lcom/keymouse/tool/PosDot;->sCursorOn:Z
 
     if-eqz v0, :cond_2
@@ -998,20 +1001,20 @@
 
     if-lez v0, :cond_2
 
-    .line 201
+    .line 202
     sput-wide v12, Lcom/keymouse/tool/PosDot;->sBeatAt:J
 
-    .line 202
+    .line 203
     invoke-static {}, Lcom/keymouse/tool/PosDot;->touchBeat()V
 
-    .line 204
+    .line 205
     :cond_2
     const/4 v7, 0x0
 
-    .line 205
+    .line 206
     const/4 v6, 0x1
 
-    .line 206
+    .line 207
     const/4 v5, 0x0
 
     const/4 v4, 0x0
@@ -1022,7 +1025,7 @@
 
     const/4 v0, 0x0
 
-    .line 207
+    .line 208
     sget-object v1, Lcom/keymouse/tool/PosDot;->sFile:Ljava/io/File;
 
     invoke-virtual {v1}, Ljava/io/File;->lastModified()J
@@ -1031,7 +1034,7 @@
 
     sub-long v14, v12, v8
 
-    .line 209
+    .line 210
     const-wide/16 v8, 0x0
 
     cmp-long v1, v14, v8
@@ -1044,7 +1047,7 @@
 
     if-gtz v1, :cond_1b
 
-    .line 210
+    .line 211
     :try_start_0
     new-instance v1, Ljava/io/FileInputStream;
 
@@ -1052,22 +1055,22 @@
 
     invoke-direct {v1, v8}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
 
-    .line 211
+    .line 212
     sget-object v8, Lcom/keymouse/tool/PosDot;->BUF:[B
 
     invoke-virtual {v1, v8}, Ljava/io/FileInputStream;->read([B)I
 
     move-result v8
 
-    .line 212
+    .line 213
     invoke-virtual {v1}, Ljava/io/FileInputStream;->close()V
 
-    .line 213
+    .line 214
     const/16 v1, 0x18
 
     if-lt v8, v1, :cond_1b
 
-    .line 214
+    .line 215
     new-instance v1, Ljava/lang/String;
 
     sget-object v9, Lcom/keymouse/tool/PosDot;->BUF:[B
@@ -1086,7 +1089,7 @@
 
     move-result-object v8
 
-    .line 215
+    .line 216
     array-length v1, v8
 
     const/4 v9, 0x5
@@ -1105,7 +1108,7 @@
 
     if-eqz v1, :cond_1b
 
-    .line 216
+    .line 217
     const/4 v1, 0x1
 
     aget-object v1, v8, v1
@@ -1114,7 +1117,7 @@
 
     move-result v5
 
-    .line 217
+    .line 218
     const/4 v1, 0x2
 
     aget-object v1, v8, v1
@@ -1123,7 +1126,7 @@
 
     move-result v4
 
-    .line 218
+    .line 219
     const/4 v1, 0x3
 
     aget-object v1, v8, v1
@@ -1132,7 +1135,7 @@
 
     move-result v3
 
-    .line 219
+    .line 220
     const/4 v1, 0x4
 
     aget-object v1, v8, v1
@@ -1141,7 +1144,7 @@
 
     move-result v2
 
-    .line 220
+    .line 221
     array-length v1, v8
 
     const/4 v7, 0x6
@@ -1158,7 +1161,7 @@
 
     move-result v1
 
-    .line 221
+    .line 222
     :goto_1
     :try_start_1
     array-length v0, v8
@@ -1186,7 +1189,7 @@
     :goto_2
     move v6, v0
 
-    .line 222
+    .line 223
     :cond_3
     const/4 v0, 0x1
 
@@ -1210,7 +1213,7 @@
 
     move v11, v6
 
-    .line 229
+    .line 230
     :goto_5
     if-eqz v7, :cond_d
 
@@ -1226,7 +1229,7 @@
 
     move v6, v0
 
-    .line 230
+    .line 231
     :goto_6
     if-eqz v7, :cond_e
 
@@ -1236,7 +1239,7 @@
 
     move v5, v0
 
-    .line 231
+    .line 232
     :goto_7
     if-nez v6, :cond_4
 
@@ -1245,11 +1248,11 @@
     :cond_4
     const/4 v0, 0x1
 
-    .line 234
+    .line 235
     :goto_8
     if-eqz v0, :cond_17
 
-    .line 235
+    .line 236
     :try_start_2
     sget-object v1, Lcom/keymouse/tool/PosDot;->sWm:Landroid/view/WindowManager;
 
@@ -1257,20 +1260,20 @@
 
     move-result-object v1
 
-    .line 236
+    .line 237
     new-instance v7, Landroid/graphics/Point;
 
     invoke-direct {v7}, Landroid/graphics/Point;-><init>()V
 
-    .line 237
+    .line 238
     invoke-virtual {v1, v7}, Landroid/view/Display;->getRealSize(Landroid/graphics/Point;)V
 
-    .line 238
+    .line 239
     invoke-virtual {v1}, Landroid/view/Display;->getRotation()I
 
     move-result v11
 
-    .line 239
+    .line 240
     int-to-float v1, v10
 
     add-int/lit8 v2, v3, -0x1
@@ -1283,7 +1286,7 @@
 
     move-result v2
 
-    .line 240
+    .line 241
     int-to-float v1, v4
 
     add-int/lit8 v3, v9, -0x1
@@ -1296,19 +1299,19 @@
 
     move-result v3
 
-    .line 243
+    .line 244
     const/4 v1, 0x1
 
     if-ne v11, v1, :cond_10
 
-    .line 244
+    .line 245
     const/high16 v1, 0x3f800000    # 1.0f
 
     sub-float/2addr v1, v2
 
     move v4, v3
 
-    .line 252
+    .line 253
     :goto_9
     iget v2, v7, Landroid/graphics/Point;->x:I
 
@@ -1318,7 +1321,7 @@
 
     float-to-int v3, v2
 
-    .line 253
+    .line 254
     iget v2, v7, Landroid/graphics/Point;->y:I
 
     int-to-float v2, v2
@@ -1327,7 +1330,7 @@
 
     float-to-int v1, v1
 
-    .line 255
+    .line 256
     sget-object v2, Lcom/keymouse/tool/PosDot;->sPtr:Ljava/io/File;
 
     invoke-virtual {v2}, Ljava/io/File;->lastModified()J
@@ -1336,7 +1339,7 @@
 
     sub-long v16, v12, v16
 
-    .line 256
+    .line 257
     const-wide/16 v18, 0x0
 
     cmp-long v2, v16, v18
@@ -1349,14 +1352,14 @@
 
     if-gtz v2, :cond_19
 
-    .line 257
+    .line 258
     sget-object v2, Lcom/keymouse/tool/PosDot;->sPtr:Ljava/io/File;
 
     invoke-static {v2}, Lcom/keymouse/tool/PosDot;->readFirstLine(Ljava/io/File;)Ljava/lang/String;
 
     move-result-object v2
 
-    .line 258
+    .line 259
     if-eqz v2, :cond_19
 
     invoke-virtual {v2}, Ljava/lang/String;->length()I
@@ -1367,14 +1370,14 @@
 
     if-le v4, v7, :cond_19
 
-    .line 259
+    .line 260
     const-string v4, " +"
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
 
     move-result-object v2
 
-    .line 260
+    .line 261
     array-length v4, v2
 
     const/4 v7, 0x5
@@ -1391,7 +1394,7 @@
 
     if-ne v4, v11, :cond_19
 
-    .line 261
+    .line 262
     const/4 v1, 0x3
 
     aget-object v1, v2, v1
@@ -1402,7 +1405,7 @@
 
     float-to-int v3, v1
 
-    .line 262
+    .line 263
     const/4 v1, 0x4
 
     aget-object v1, v2, v1
@@ -1415,7 +1418,7 @@
 
     move v2, v1
 
-    .line 266
+    .line 267
     :goto_a
     sget v1, Lcom/keymouse/tool/PosDot;->sWin:I
 
@@ -1423,21 +1426,21 @@
 
     sub-int v4, v3, v1
 
-    .line 267
+    .line 268
     sget v1, Lcom/keymouse/tool/PosDot;->sWin:I
 
     div-int/lit8 v1, v1, 0x2
 
     sub-int v7, v2, v1
 
-    .line 269
+    .line 270
     const-wide/16 v10, 0x37dc
 
     cmp-long v1, v14, v10
 
     if-lez v1, :cond_13
 
-    .line 270
+    .line 271
     const/4 v1, 0x0
 
     const-wide/16 v10, 0x3a98
@@ -1454,28 +1457,28 @@
 
     move-result v1
 
-    .line 271
+    .line 272
     :goto_b
     sget-object v9, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     invoke-virtual {v9, v1}, Lcom/keymouse/tool/PosDot$Art;->setAlpha(F)V
 
-    .line 272
+    .line 273
     sget-object v1, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     invoke-virtual {v1, v6, v5}, Lcom/keymouse/tool/PosDot$Art;->configure(ZZ)V
 
-    .line 275
+    .line 276
     const/4 v1, 0x0
 
-    .line 276
+    .line 277
     sget-boolean v5, Lcom/keymouse/tool/PosDot;->sThemeOn:Z
 
     if-eqz v5, :cond_7
 
     if-eqz v6, :cond_7
 
-    .line 277
+    .line 278
     sget-boolean v1, Lcom/keymouse/tool/PosDot;->sSmart:Z
 
     if-eqz v1, :cond_14
@@ -1484,7 +1487,7 @@
 
     move-result v1
 
-    .line 278
+    .line 279
     :goto_c
     if-lez v8, :cond_5
 
@@ -1492,17 +1495,17 @@
 
     if-nez v2, :cond_5
 
-    .line 279
+    .line 280
     sput-wide v12, Lcom/keymouse/tool/PosDot;->sPressAt:J
 
-    .line 280
+    .line 281
     sput v1, Lcom/keymouse/tool/PosDot;->sLatched:I
 
-    .line 283
+    .line 284
     :cond_5
     if-lez v8, :cond_6
 
-    .line 284
+    .line 285
     sget v1, Lcom/keymouse/tool/PosDot;->sLatched:I
 
     const/4 v2, 0x2
@@ -1511,18 +1514,18 @@
 
     const/4 v1, 0x2
 
-    .line 286
+    .line 287
     :cond_6
     :goto_d
     invoke-static {v1}, Lcom/keymouse/tool/PosDot;->pickSet(I)Lcom/keymouse/tool/CurLoader$Set;
 
     move-result-object v1
 
-    .line 288
+    .line 289
     :cond_7
     sput v8, Lcom/keymouse/tool/PosDot;->sPrevPress:I
 
-    .line 289
+    .line 290
     sget-object v2, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     sget v3, Lcom/keymouse/tool/PosDot;->sSizeDp:I
@@ -1535,12 +1538,12 @@
 
     invoke-virtual {v2, v1, v3}, Lcom/keymouse/tool/PosDot$Art;->setSet(Lcom/keymouse/tool/CurLoader$Set;F)V
 
-    .line 290
+    .line 291
     sget-object v1, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     invoke-virtual {v1, v8}, Lcom/keymouse/tool/PosDot$Art;->setPress(I)V
 
-    .line 291
+    .line 292
     sget v1, Lcom/keymouse/tool/PosDot;->sLastX:I
 
     if-ne v4, v1, :cond_8
@@ -1549,18 +1552,18 @@
 
     if-eq v7, v1, :cond_9
 
-    .line 292
+    .line 293
     :cond_8
     sget-object v1, Lcom/keymouse/tool/PosDot;->sLp:Landroid/view/WindowManager$LayoutParams;
 
     iput v4, v1, Landroid/view/WindowManager$LayoutParams;->x:I
 
-    .line 293
+    .line 294
     sget-object v1, Lcom/keymouse/tool/PosDot;->sLp:Landroid/view/WindowManager$LayoutParams;
 
     iput v7, v1, Landroid/view/WindowManager$LayoutParams;->y:I
 
-    .line 294
+    .line 295
     sget-object v1, Lcom/keymouse/tool/PosDot;->sWm:Landroid/view/WindowManager;
 
     sget-object v2, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
@@ -1569,20 +1572,20 @@
 
     invoke-interface {v1, v2, v3}, Landroid/view/WindowManager;->updateViewLayout(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 295
+    .line 296
     sput v4, Lcom/keymouse/tool/PosDot;->sLastX:I
 
-    .line 296
+    .line 297
     sput v7, Lcom/keymouse/tool/PosDot;->sLastY:I
 
-    .line 302
+    .line 303
     :cond_9
     :goto_e
     sget-boolean v1, Lcom/keymouse/tool/PosDot;->sVisible:Z
 
     if-eq v0, v1, :cond_a
 
-    .line 303
+    .line 304
     sget-object v2, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     if-eqz v0, :cond_18
@@ -1592,12 +1595,12 @@
     :goto_f
     invoke-virtual {v2, v1}, Lcom/keymouse/tool/PosDot$Art;->setVisibility(I)V
 
-    .line 304
+    .line 305
     sput-boolean v0, Lcom/keymouse/tool/PosDot;->sVisible:Z
     :try_end_2
     .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_1
 
-    .line 309
+    .line 310
     :cond_a
     :goto_10
     sget-object v0, Lcom/keymouse/tool/PosDot;->sHandler:Landroid/os/Handler;
@@ -1618,23 +1621,23 @@
 
     goto/16 :goto_0
 
-    .line 221
+    .line 222
     :cond_b
     const/4 v0, 0x0
 
     goto/16 :goto_2
 
-    .line 222
+    .line 223
     :cond_c
     const/4 v0, 0x0
 
     goto/16 :goto_3
 
-    .line 226
+    .line 227
     :catch_0
     move-exception v1
 
-    .line 227
+    .line 228
     :goto_11
     const/4 v7, 0x0
 
@@ -1648,7 +1651,7 @@
 
     goto/16 :goto_5
 
-    .line 229
+    .line 230
     :cond_d
     const/4 v0, 0x0
 
@@ -1656,7 +1659,7 @@
 
     goto/16 :goto_6
 
-    .line 230
+    .line 231
     :cond_e
     const/4 v0, 0x0
 
@@ -1664,19 +1667,19 @@
 
     goto/16 :goto_7
 
-    .line 231
+    .line 232
     :cond_f
     const/4 v0, 0x0
 
     goto/16 :goto_8
 
-    .line 245
+    .line 246
     :cond_10
     const/4 v1, 0x2
 
     if-ne v11, v1, :cond_11
 
-    .line 246
+    .line 247
     const/high16 v1, 0x3f800000    # 1.0f
 
     sub-float v2, v1, v2
@@ -1689,13 +1692,13 @@
 
     goto/16 :goto_9
 
-    .line 247
+    .line 248
     :cond_11
     const/4 v1, 0x3
 
     if-ne v11, v1, :cond_12
 
-    .line 248
+    .line 249
     const/high16 v1, 0x3f800000    # 1.0f
 
     sub-float v3, v1, v3
@@ -1711,22 +1714,22 @@
 
     move v4, v2
 
-    .line 250
+    .line 251
     goto/16 :goto_9
 
-    .line 270
+    .line 271
     :cond_13
     const/high16 v1, 0x3f800000    # 1.0f
 
     goto/16 :goto_b
 
-    .line 277
+    .line 278
     :cond_14
     const/4 v1, 0x0
 
     goto/16 :goto_c
 
-    .line 284
+    .line 285
     :cond_15
     :try_start_3
     sget-wide v2, Lcom/keymouse/tool/PosDot;->sPressAt:J
@@ -1750,13 +1753,13 @@
 
     goto/16 :goto_d
 
-    .line 299
+    .line 300
     :cond_17
     sget-object v1, Lcom/keymouse/tool/PosDot;->sDot:Lcom/keymouse/tool/PosDot$Art;
 
     invoke-virtual {v1}, Lcom/keymouse/tool/PosDot$Art;->reset()V
 
-    .line 300
+    .line 301
     const/4 v1, 0x0
 
     sput v1, Lcom/keymouse/tool/PosDot;->sPrevPress:I
@@ -1765,19 +1768,19 @@
 
     goto :goto_e
 
-    .line 306
+    .line 307
     :catch_1
     move-exception v0
 
     goto :goto_10
 
-    .line 303
+    .line 304
     :cond_18
     const/4 v1, 0x4
 
     goto :goto_f
 
-    .line 226
+    .line 227
     :catch_2
     move-exception v0
 
@@ -1805,7 +1808,7 @@
     .locals 4
 
     .prologue
-    .line 314
+    .line 315
     :try_start_0
     sget-object v0, Lcom/keymouse/tool/PosDot;->sBeat:Ljava/io/File;
 
@@ -1815,22 +1818,22 @@
 
     if-nez v0, :cond_0
 
-    .line 315
+    .line 316
     new-instance v0, Ljava/io/FileOutputStream;
 
     sget-object v1, Lcom/keymouse/tool/PosDot;->sBeat:Ljava/io/File;
 
     invoke-direct {v0, v1}, Ljava/io/FileOutputStream;-><init>(Ljava/io/File;)V
 
-    .line 316
+    .line 317
     const/16 v1, 0x31
 
     invoke-virtual {v0, v1}, Ljava/io/FileOutputStream;->write(I)V
 
-    .line 317
+    .line 318
     invoke-virtual {v0}, Ljava/io/FileOutputStream;->close()V
 
-    .line 318
+    .line 319
     sget-object v0, Lcom/keymouse/tool/PosDot;->sBeat:Ljava/io/File;
 
     const/4 v1, 0x1
@@ -1839,7 +1842,7 @@
 
     invoke-virtual {v0, v1, v2}, Ljava/io/File;->setReadable(ZZ)Z
 
-    .line 320
+    .line 321
     :cond_0
     sget-object v0, Lcom/keymouse/tool/PosDot;->sBeat:Ljava/io/File;
 
@@ -1851,11 +1854,11 @@
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 324
+    .line 325
     :goto_0
     return-void
 
-    .line 321
+    .line 322
     :catch_0
     move-exception v0
 

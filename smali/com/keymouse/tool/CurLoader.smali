@@ -56,7 +56,7 @@
     :cond_0
     const/4 v2, 0x0
 
-    .line 390
+    .line 391
     :goto_0
     return-object v2
 
@@ -177,7 +177,7 @@
     .line 325
     const/16 v7, 0x8
 
-    if-gt v11, v7, :cond_1d
+    if-gt v11, v7, :cond_1e
 
     .line 326
     if-lez v3, :cond_7
@@ -577,13 +577,13 @@
 
     .line 368
     :cond_14
-    if-eqz v3, :cond_1b
+    if-eqz v3, :cond_1c
 
     .line 369
     const/4 v4, 0x0
 
     :goto_b
-    if-ge v4, v12, :cond_1c
+    if-ge v4, v12, :cond_1d
 
     .line 370
     if-eqz v2, :cond_16
@@ -602,7 +602,7 @@
     move v5, v3
 
     :goto_d
-    if-ge v5, v10, :cond_1a
+    if-ge v5, v10, :cond_1b
 
     .line 373
     div-int/lit8 v3, v5, 0x8
@@ -665,22 +665,44 @@
 
     .line 378
     :cond_18
+    if-eqz v3, :cond_1a
+
+    .line 380
+    const/16 v3, 0x20
+
+    if-eq v11, v3, :cond_19
+
+    aget v3, v18, v7
+
+    const v9, 0xffffff
+
+    and-int/2addr v3, v9
+
     if-eqz v3, :cond_19
 
-    .line 379
-    const/4 v3, 0x0
+    aget v3, v18, v7
 
+    const/high16 v9, -0x1000000
+
+    or-int/2addr v3, v9
+
+    :goto_10
     aput v3, v18, v7
 
     goto :goto_f
 
-    .line 380
     :cond_19
+    const/4 v3, 0x0
+
+    goto :goto_10
+
+    .line 381
+    :cond_1a
     const/16 v3, 0x20
 
     if-ne v11, v3, :cond_15
 
-    .line 381
+    .line 382
     aget v3, v18, v7
 
     const/high16 v9, -0x1000000
@@ -692,30 +714,30 @@
     goto :goto_f
 
     .line 369
-    :cond_1a
+    :cond_1b
     add-int/lit8 v4, v4, 0x1
 
     goto :goto_b
 
-    .line 385
-    :cond_1b
+    .line 386
+    :cond_1c
     const/16 v2, 0x20
 
-    if-ne v11, v2, :cond_1c
+    if-ne v11, v2, :cond_1d
 
-    if-nez v8, :cond_1c
+    if-nez v8, :cond_1d
 
-    .line 386
+    .line 387
     const/4 v2, 0x0
 
-    :goto_10
+    :goto_11
     move-object/from16 v0, v18
 
     array-length v3, v0
 
-    if-ge v2, v3, :cond_1c
+    if-ge v2, v3, :cond_1d
 
-    .line 387
+    .line 388
     aget v3, v18, v2
 
     const/high16 v4, -0x1000000
@@ -724,13 +746,13 @@
 
     aput v3, v18, v2
 
-    .line 386
+    .line 387
     add-int/lit8 v2, v2, 0x1
 
-    goto :goto_10
+    goto :goto_11
 
-    .line 390
-    :cond_1c
+    .line 391
+    :cond_1d
     sget-object v2, Landroid/graphics/Bitmap$Config;->ARGB_8888:Landroid/graphics/Bitmap$Config;
 
     move-object/from16 v0, v18
@@ -741,7 +763,7 @@
 
     goto/16 :goto_0
 
-    :cond_1d
+    :cond_1e
     move v9, v4
 
     goto/16 :goto_3
@@ -2070,20 +2092,20 @@
     .prologue
     const/high16 v0, -0x1000000
 
-    .line 394
+    .line 395
     if-lt p2, p3, :cond_0
 
-    .line 398
+    .line 399
     :goto_0
     return v0
 
-    .line 397
+    .line 398
     :cond_0
     mul-int/lit8 v1, p2, 0x4
 
     add-int/2addr v1, p1
 
-    .line 398
+    .line 399
     add-int/lit8 v2, v1, 0x2
 
     invoke-static {p0, v2}, Lcom/keymouse/tool/CurLoader;->u8([BI)I

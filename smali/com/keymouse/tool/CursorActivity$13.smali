@@ -8,7 +8,7 @@
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->smartToggled(Z)V
+    value = Lcom/keymouse/tool/CursorActivity;->doImport(Landroid/widget/Button;)V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,11 +20,13 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
-.field final synthetic val$c:Z
+.field final synthetic val$btn:Landroid/widget/Button;
+
+.field final synthetic val$old:Ljava/lang/CharSequence;
 
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Z)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;Ljava/lang/CharSequence;)V
     .locals 0
     .annotation system Ldalvik/annotation/Signature;
         value = {
@@ -33,10 +35,12 @@
     .end annotation
 
     .prologue
-    .line 426
+    .line 418
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    iput-boolean p2, p0, Lcom/keymouse/tool/CursorActivity$13;->val$c:Z
+    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$13;->val$btn:Landroid/widget/Button;
+
+    iput-object p3, p0, Lcom/keymouse/tool/CursorActivity$13;->val$old:Ljava/lang/CharSequence;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -46,17 +50,17 @@
 
 # virtual methods
 .method public run()V
-    .locals 6
+    .locals 3
 
     .prologue
-    .line 428
-    iget-boolean v0, p0, Lcom/keymouse/tool/CursorActivity$13;->val$c:Z
+    .line 420
+    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->setA11y(Z)Z
+    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->importLib(Landroid/content/Context;)Z
 
     move-result v0
 
-    .line 429
+    .line 421
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$13;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-static {v1}, Lcom/keymouse/tool/CursorActivity;->access$1100(Lcom/keymouse/tool/CursorActivity;)Landroid/os/Handler;
@@ -67,10 +71,8 @@
 
     invoke-direct {v2, p0, v0}, Lcom/keymouse/tool/CursorActivity$13$1;-><init>(Lcom/keymouse/tool/CursorActivity$13;Z)V
 
-    const-wide/16 v4, 0x320
+    invoke-virtual {v1, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    invoke-virtual {v1, v2, v4, v5}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
-
-    .line 439
+    .line 431
     return-void
 .end method

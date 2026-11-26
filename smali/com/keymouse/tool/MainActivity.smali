@@ -2037,22 +2037,11 @@
 
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    new-instance v7, Landroid/widget/Button;
+    invoke-static {p0}, Lcom/keymouse/tool/DebugLog;->build(Landroid/app/Activity;)Landroid/view/View;
 
-    invoke-direct {v7, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
-
-    .local v7, "btnLog":Landroid/widget/Button;
-    invoke-direct {p0}, Lcom/keymouse/tool/MainActivity;->strCopyLogBtn()Ljava/lang/String;
-
-    move-result-object v8
-
-    invoke-virtual {v7, v8}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
-
-    invoke-virtual {v7, p0}, Landroid/view/View;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+    move-result-object v7
 
     invoke-virtual {v0, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
-
-    iput-object v7, p0, Lcom/keymouse/tool/MainActivity;->mBtnLog:Landroid/widget/Button;
 
     new-instance v9, Landroid/widget/ScrollView;
 

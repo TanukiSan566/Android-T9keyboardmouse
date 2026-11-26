@@ -142,59 +142,7 @@
     return-void
 .end method
 
-.method static synthetic access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
-    .locals 0
-
-    .prologue
-    .line 32
-    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->applyTheme(Ljava/lang/String;)V
-
-    return-void
-.end method
-
-.method static synthetic access$500(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
-    .locals 0
-
-    .prologue
-    .line 32
-    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->pickFile(Ljava/lang/String;)V
-
-    return-void
-.end method
-
-.method static synthetic access$600(Lcom/keymouse/tool/CursorActivity;)V
-    .locals 0
-
-    .prologue
-    .line 32
-    invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
-
-    return-void
-.end method
-
-.method static synthetic access$700(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)I
-    .locals 1
-
-    .prologue
-    .line 32
-    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->hsOf(Ljava/lang/String;)I
-
-    move-result v0
-
-    return v0
-.end method
-
-.method static synthetic access$800(Lcom/keymouse/tool/CursorActivity;)V
-    .locals 0
-
-    .prologue
-    .line 32
-    invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->recreateSoon()V
-
-    return-void
-.end method
-
-.method static synthetic access$900(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+.method static synthetic access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
     .locals 1
 
     .prologue
@@ -206,13 +154,65 @@
     return-object v0
 .end method
 
+.method static synthetic access$500(Lcom/keymouse/tool/CursorActivity;)V
+    .locals 0
+
+    .prologue
+    .line 32
+    invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->recreateSoon()V
+
+    return-void
+.end method
+
+.method static synthetic access$600(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    .locals 0
+
+    .prologue
+    .line 32
+    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->applyTheme(Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method static synthetic access$700(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    .locals 0
+
+    .prologue
+    .line 32
+    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->pickFile(Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method static synthetic access$800(Lcom/keymouse/tool/CursorActivity;)V
+    .locals 0
+
+    .prologue
+    .line 32
+    invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
+
+    return-void
+.end method
+
+.method static synthetic access$900(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)I
+    .locals 1
+
+    .prologue
+    .line 32
+    invoke-direct {p0, p1}, Lcom/keymouse/tool/CursorActivity;->hsOf(Ljava/lang/String;)I
+
+    move-result v0
+
+    return v0
+.end method
+
 .method private applyTheme(Ljava/lang/String;)V
     .locals 8
 
     .prologue
     const/4 v3, 0x0
 
-    .line 277
+    .line 289
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
 
     move-result-object v0
@@ -221,7 +221,7 @@
 
     move-result-object v4
 
-    .line 279
+    .line 291
     sget-object v5, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
     array-length v6, v5
@@ -235,23 +235,23 @@
 
     aget-object v7, v5, v2
 
-    .line 280
+    .line 292
     invoke-interface {v4, v7}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 281
+    .line 293
     invoke-direct {p0, v7, v0}, Lcom/keymouse/tool/CursorActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 282
+    .line 294
     if-eqz v0, :cond_1
 
-    .line 283
+    .line 295
     add-int/lit8 v0, v1, 0x1
 
-    .line 279
+    .line 291
     :goto_1
     add-int/lit8 v2, v2, 0x1
 
@@ -259,7 +259,7 @@
 
     goto :goto_0
 
-    .line 286
+    .line 298
     :cond_0
     const-string v0, "on"
 
@@ -267,18 +267,18 @@
 
     invoke-direct {p0, v0, v2}, Lcom/keymouse/tool/CursorActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 287
+    .line 299
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
 
-    .line 288
+    .line 300
     const/4 v0, 0x1
 
     iput-boolean v0, p0, Lcom/keymouse/tool/CursorActivity;->mBuilding:Z
 
-    .line 289
+    .line 301
     iput-boolean v3, p0, Lcom/keymouse/tool/CursorActivity;->mBuilding:Z
 
-    .line 290
+    .line 302
     new-instance v0, Ljava/lang/StringBuilder;
 
     invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
@@ -327,10 +327,10 @@
 
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 292
+    .line 304
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->recreateSoon()V
 
-    .line 293
+    .line 305
     return-void
 
     :cond_1
@@ -343,34 +343,34 @@
     .locals 3
 
     .prologue
-    .line 403
+    .line 415
     const/4 v0, 0x0
 
     invoke-virtual {p1, v0}, Landroid/widget/Button;->setEnabled(Z)V
 
-    .line 404
+    .line 416
     invoke-virtual {p1}, Landroid/widget/Button;->getText()Ljava/lang/CharSequence;
 
     move-result-object v0
 
-    .line 405
+    .line 417
     const-string v1, "\u2026"
 
     invoke-virtual {p1, v1}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 406
+    .line 418
     new-instance v1, Ljava/lang/Thread;
 
-    new-instance v2, Lcom/keymouse/tool/CursorActivity$12;
+    new-instance v2, Lcom/keymouse/tool/CursorActivity$13;
 
-    invoke-direct {v2, p0, p1, v0}, Lcom/keymouse/tool/CursorActivity$12;-><init>(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;Ljava/lang/CharSequence;)V
+    invoke-direct {v2, p0, p1, v0}, Lcom/keymouse/tool/CursorActivity$13;-><init>(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;Ljava/lang/CharSequence;)V
 
     invoke-direct {v1, v2}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 420
+    .line 432
     invoke-virtual {v1}, Ljava/lang/Thread;->start()V
 
-    .line 421
+    .line 433
     return-void
 .end method
 
@@ -432,7 +432,7 @@
     .locals 3
 
     .prologue
-    .line 382
+    .line 394
     if-nez p1, :cond_0
 
     const-string v0, "\u5de6\u4e0a"
@@ -483,7 +483,7 @@
     .locals 3
 
     .prologue
-    .line 378
+    .line 390
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mCfg:Ljava/util/Map;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -519,7 +519,7 @@
     .locals 3
 
     .prologue
-    .line 386
+    .line 398
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
 
     move-result-object v0
@@ -528,14 +528,14 @@
 
     move-result-object v0
 
-    .line 387
+    .line 399
     invoke-virtual {v0}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v1
 
     if-eqz v1, :cond_0
 
-    .line 388
+    .line 400
     const-string v0, "\u5e93\u662f\u7a7a\u7684\uff0c\u5148\u628a\u6587\u4ef6\u653e\u8fdb keymousecursor \u518d\u5bfc\u5165"
 
     const-string v1, "\u30e9\u30a4\u30d6\u30e9\u30ea\u304c\u7a7a\u3067\u3059\u3002\u5148\u306b keymousecursor \u306b\u7f6e\u3044\u3066\u53d6\u308a\u8fbc\u3093\u3067\u304f\u3060\u3055\u3044"
@@ -552,14 +552,14 @@
 
     move-result-object v0
 
-    .line 389
+    .line 401
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
-    .line 400
+    .line 412
     :goto_0
     return-void
 
-    .line 392
+    .line 404
     :cond_0
     const/4 v1, 0x0
 
@@ -571,7 +571,7 @@
 
     check-cast v0, [Ljava/lang/String;
 
-    .line 393
+    .line 405
     new-instance v1, Landroid/app/AlertDialog$Builder;
 
     invoke-direct {v1, p0}, Landroid/app/AlertDialog$Builder;-><init>(Landroid/content/Context;)V
@@ -584,15 +584,15 @@
 
     move-result-object v1
 
-    new-instance v2, Lcom/keymouse/tool/CursorActivity$11;
+    new-instance v2, Lcom/keymouse/tool/CursorActivity$12;
 
-    invoke-direct {v2, p0, p1, v0}, Lcom/keymouse/tool/CursorActivity$11;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;[Ljava/lang/String;)V
+    invoke-direct {v2, p0, p1, v0}, Lcom/keymouse/tool/CursorActivity$12;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;[Ljava/lang/String;)V
 
     invoke-virtual {v1, v0, v2}, Landroid/app/AlertDialog$Builder;->setItems([Ljava/lang/CharSequence;Landroid/content/DialogInterface$OnClickListener;)Landroid/app/AlertDialog$Builder;
 
     move-result-object v0
 
-    .line 399
+    .line 411
     invoke-virtual {v0}, Landroid/app/AlertDialog$Builder;->show()Landroid/app/AlertDialog;
 
     goto :goto_0
@@ -632,12 +632,12 @@
     .locals 14
 
     .prologue
-    .line 304
+    .line 316
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mSlots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 305
+    .line 317
     sget-object v2, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
     array-length v3, v2
@@ -651,17 +651,17 @@
 
     aget-object v4, v2, v1
 
-    .line 306
+    .line 318
     new-instance v5, Landroid/widget/LinearLayout;
 
     invoke-direct {v5, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 307
+    .line 319
     const/4 v0, 0x1
 
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 308
+    .line 320
     const/4 v0, 0x0
 
     const/16 v6, 0xa
@@ -680,57 +680,57 @@
 
     invoke-virtual {v5, v0, v6, v7, v8}, Landroid/widget/LinearLayout;->setPadding(IIII)V
 
-    .line 309
+    .line 321
     new-instance v0, Landroid/widget/TextView;
 
     invoke-direct {v0, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 310
+    .line 322
     const/high16 v6, 0x41700000    # 15.0f
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 311
+    .line 323
     invoke-direct {p0, v4}, Lcom/keymouse/tool/CursorActivity;->slotName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v6
 
     invoke-virtual {v0, v6}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 312
+    .line 324
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 314
+    .line 326
     new-instance v6, Landroid/widget/LinearLayout;
 
     invoke-direct {v6, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 315
+    .line 327
     const/4 v0, 0x0
 
     invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 316
+    .line 328
     const/16 v0, 0x10
 
     invoke-virtual {v6, v0}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 317
+    .line 329
     new-instance v7, Landroid/widget/ImageView;
 
     invoke-direct {v7, p0}, Landroid/widget/ImageView;-><init>(Landroid/content/Context;)V
 
-    .line 318
+    .line 330
     const v0, -0x222223
 
     invoke-virtual {v7, v0}, Landroid/widget/ImageView;->setBackgroundColor(I)V
 
-    .line 319
+    .line 331
     sget-object v0, Landroid/widget/ImageView$ScaleType;->FIT_CENTER:Landroid/widget/ImageView$ScaleType;
 
     invoke-virtual {v7, v0}, Landroid/widget/ImageView;->setScaleType(Landroid/widget/ImageView$ScaleType;)V
 
-    .line 320
+    .line 332
     const/4 v0, 0x3
 
     invoke-direct {p0, v0}, Lcom/keymouse/tool/CursorActivity;->dp(I)I
@@ -757,7 +757,7 @@
 
     invoke-virtual {v7, v0, v8, v9, v10}, Landroid/widget/ImageView;->setPadding(IIII)V
 
-    .line 321
+    .line 333
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
     const/16 v8, 0x30
@@ -776,17 +776,17 @@
 
     invoke-virtual {v6, v7, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 322
+    .line 334
     new-instance v8, Landroid/widget/TextView;
 
     invoke-direct {v8, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 323
+    .line 335
     const/high16 v0, 0x41500000    # 13.0f
 
     invoke-virtual {v8, v0}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 324
+    .line 336
     const/16 v0, 0xa
 
     invoke-direct {p0, v0}, Lcom/keymouse/tool/CursorActivity;->dp(I)I
@@ -805,7 +805,7 @@
 
     invoke-virtual {v8, v0, v9, v10, v11}, Landroid/widget/TextView;->setPadding(IIII)V
 
-    .line 325
+    .line 337
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mCfg:Ljava/util/Map;
 
     invoke-interface {v0, v4}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
@@ -814,7 +814,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 326
+    .line 338
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -823,7 +823,7 @@
 
     if-nez v9, :cond_1
 
-    .line 327
+    .line 339
     :cond_0
     const-string v0, "\u672a\u8bbe\u7f6e"
 
@@ -837,12 +837,12 @@
 
     invoke-virtual {v8, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 328
+    .line 340
     const v0, 0x3f19999a    # 0.6f
 
     invoke-virtual {v8, v0}, Landroid/widget/TextView;->setAlpha(F)V
 
-    .line 341
+    .line 353
     :goto_1
     new-instance v0, Landroid/widget/LinearLayout$LayoutParams;
 
@@ -856,25 +856,25 @@
 
     invoke-virtual {v6, v8, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 342
+    .line 354
     invoke-virtual {v5, v6}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 344
+    .line 356
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 345
+    .line 357
     const/4 v6, 0x0
 
     invoke-virtual {v0, v6}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 346
+    .line 358
     new-instance v6, Landroid/widget/Button;
 
     invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    .line 347
+    .line 359
     const-string v7, "\u9009\u62e9"
 
     const-string v8, "\u9078\u629e"
@@ -887,14 +887,14 @@
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 348
-    new-instance v7, Lcom/keymouse/tool/CursorActivity$8;
+    .line 360
+    new-instance v7, Lcom/keymouse/tool/CursorActivity$9;
 
-    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$8;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$9;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 353
+    .line 365
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, 0x0
@@ -907,12 +907,12 @@
 
     invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 354
+    .line 366
     new-instance v6, Landroid/widget/Button;
 
     invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    .line 355
+    .line 367
     const-string v7, "\u6e05\u9664"
 
     const-string v8, "\u30af\u30ea\u30a2"
@@ -925,14 +925,14 @@
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 356
-    new-instance v7, Lcom/keymouse/tool/CursorActivity$9;
+    .line 368
+    new-instance v7, Lcom/keymouse/tool/CursorActivity$10;
 
-    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$9;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$10;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 362
+    .line 374
     new-instance v7, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v8, 0x0
@@ -945,12 +945,12 @@
 
     invoke-virtual {v0, v6, v7}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 363
+    .line 375
     new-instance v6, Landroid/widget/Button;
 
     invoke-direct {v6, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    .line 364
+    .line 376
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -987,14 +987,14 @@
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 365
-    new-instance v7, Lcom/keymouse/tool/CursorActivity$10;
+    .line 377
+    new-instance v7, Lcom/keymouse/tool/CursorActivity$11;
 
-    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$10;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    invoke-direct {v7, p0, v4}, Lcom/keymouse/tool/CursorActivity$11;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
     invoke-virtual {v6, v7}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 371
+    .line 383
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v7, 0x0
@@ -1007,26 +1007,26 @@
 
     invoke-virtual {v0, v6, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 372
+    .line 384
     invoke-virtual {v5, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 373
+    .line 385
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mSlots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 305
+    .line 317
     add-int/lit8 v0, v1, 0x1
 
     move v1, v0
 
     goto/16 :goto_0
 
-    .line 330
+    .line 342
     :cond_1
     invoke-virtual {v8, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 331
+    .line 343
     new-instance v9, Ljava/io/File;
 
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
@@ -1043,10 +1043,10 @@
 
     move-result-object v9
 
-    .line 332
+    .line 344
     if-eqz v9, :cond_3
 
-    .line 333
+    .line 345
     iget-object v10, v9, Lcom/keymouse/tool/CurLoader$Set;->frames:[Landroid/graphics/Bitmap;
 
     const-wide/16 v12, 0x0
@@ -1057,10 +1057,10 @@
 
     aget-object v10, v10, v11
 
-    .line 334
+    .line 346
     invoke-virtual {v7, v10}, Landroid/widget/ImageView;->setImageBitmap(Landroid/graphics/Bitmap;)V
 
-    .line 335
+    .line 347
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -1097,7 +1097,7 @@
 
     move-result-object v7
 
-    .line 336
+    .line 348
     invoke-virtual {v9}, Lcom/keymouse/tool/CurLoader$Set;->animated()Z
 
     move-result v0
@@ -1157,18 +1157,18 @@
 
     move-result-object v0
 
-    .line 335
+    .line 347
     invoke-virtual {v8, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
     goto/16 :goto_1
 
-    .line 336
+    .line 348
     :cond_2
     const-string v0, ""
 
     goto :goto_2
 
-    .line 338
+    .line 350
     :cond_3
     new-instance v7, Ljava/lang/StringBuilder;
 
@@ -1206,7 +1206,7 @@
 
     goto/16 :goto_1
 
-    .line 375
+    .line 387
     :cond_4
     return-void
 .end method
@@ -1226,19 +1226,19 @@
     .prologue
     const/4 v7, 0x0
 
-    .line 251
+    .line 263
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0}, Landroid/widget/LinearLayout;->removeAllViews()V
 
-    .line 252
+    .line 264
     invoke-virtual {p1}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v0
 
     if-eqz v0, :cond_1
 
-    .line 253
+    .line 265
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
     const-string v1, "\u8fd8\u6ca1\u6709\u4e3b\u9898\u6587\u4ef6\u5939(\u5355\u4e2a\u6587\u4ef6\u8bf7\u5728\u4e0b\u9762\u5404\u72b6\u6001\u91cc\u9009)\u3002"
@@ -1257,11 +1257,11 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 274
+    .line 286
     :cond_0
     return-void
 
-    .line 256
+    .line 268
     :cond_1
     invoke-virtual {p1}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -1280,33 +1280,33 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 257
+    .line 269
     new-instance v2, Landroid/widget/LinearLayout;
 
     invoke-direct {v2, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
-    .line 258
+    .line 270
     invoke-virtual {v2, v7}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 259
+    .line 271
     const/16 v3, 0x10
 
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->setGravity(I)V
 
-    .line 260
+    .line 272
     new-instance v3, Landroid/widget/TextView;
 
     invoke-direct {v3, p0}, Landroid/widget/TextView;-><init>(Landroid/content/Context;)V
 
-    .line 261
+    .line 273
     const/high16 v4, 0x41700000    # 15.0f
 
     invoke-virtual {v3, v4}, Landroid/widget/TextView;->setTextSize(F)V
 
-    .line 262
+    .line 274
     invoke-virtual {v3, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 263
+    .line 275
     new-instance v4, Landroid/widget/LinearLayout$LayoutParams;
 
     const/4 v5, -0x2
@@ -1317,12 +1317,12 @@
 
     invoke-virtual {v2, v3, v4}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;Landroid/view/ViewGroup$LayoutParams;)V
 
-    .line 264
+    .line 276
     new-instance v3, Landroid/widget/Button;
 
     invoke-direct {v3, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
 
-    .line 265
+    .line 277
     const-string v4, "\u5957\u7528"
 
     const-string v5, "\u9069\u7528"
@@ -1335,17 +1335,17 @@
 
     invoke-virtual {v3, v4}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
 
-    .line 266
-    new-instance v4, Lcom/keymouse/tool/CursorActivity$6;
+    .line 278
+    new-instance v4, Lcom/keymouse/tool/CursorActivity$7;
 
-    invoke-direct {v4, p0, v0}, Lcom/keymouse/tool/CursorActivity$6;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+    invoke-direct {v4, p0, v0}, Lcom/keymouse/tool/CursorActivity$7;-><init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
     invoke-virtual {v3, v4}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
 
-    .line 271
+    .line 283
     invoke-virtual {v2, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 272
+    .line 284
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v2}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
@@ -1357,18 +1357,18 @@
     .locals 4
 
     .prologue
-    .line 296
+    .line 308
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mH:Landroid/os/Handler;
 
-    new-instance v1, Lcom/keymouse/tool/CursorActivity$7;
+    new-instance v1, Lcom/keymouse/tool/CursorActivity$8;
 
-    invoke-direct {v1, p0}, Lcom/keymouse/tool/CursorActivity$7;-><init>(Lcom/keymouse/tool/CursorActivity;)V
+    invoke-direct {v1, p0}, Lcom/keymouse/tool/CursorActivity$8;-><init>(Lcom/keymouse/tool/CursorActivity;)V
 
     const-wide/16 v2, 0x96
 
     invoke-virtual {v0, v1, v2, v3}, Landroid/os/Handler;->postDelayed(Ljava/lang/Runnable;J)Z
 
-    .line 301
+    .line 313
     return-void
 .end method
 
@@ -1376,27 +1376,27 @@
     .locals 4
 
     .prologue
-    .line 444
+    .line 456
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mA11yStatus:Landroid/widget/TextView;
 
     if-nez v0, :cond_0
 
-    .line 454
+    .line 466
     :goto_0
     return-void
 
-    .line 447
+    .line 459
     :cond_0
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->a11yListed(Landroid/content/Context;)Z
 
     move-result v0
 
-    .line 448
+    .line 460
     invoke-static {}, Lcom/keymouse/tool/CursorHit;->available()Z
 
     move-result v1
 
-    .line 449
+    .line 461
     if-eqz v1, :cond_1
 
     const-string v0, "\u65e0\u969c\u788d\u670d\u52a1: \u5df2\u8fde\u63a5\uff0c\u6b63\u5728\u5de5\u4f5c"
@@ -1409,13 +1409,13 @@
 
     move-result-object v0
 
-    .line 452
+    .line 464
     :goto_1
     iget-object v2, p0, Lcom/keymouse/tool/CursorActivity;->mA11yStatus:Landroid/widget/TextView;
 
     invoke-virtual {v2, v0}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 453
+    .line 465
     iget-object v2, p0, Lcom/keymouse/tool/CursorActivity;->mA11yStatus:Landroid/widget/TextView;
 
     if-eqz v1, :cond_3
@@ -1427,7 +1427,7 @@
 
     goto :goto_0
 
-    .line 450
+    .line 462
     :cond_1
     if-eqz v0, :cond_2
 
@@ -1443,7 +1443,7 @@
 
     goto :goto_1
 
-    .line 451
+    .line 463
     :cond_2
     const-string v0, "\u65e0\u969c\u788d\u670d\u52a1: \u672a\u5f00\u542f(\u6253\u5f00\u4e0a\u9762\u7684\u5f00\u5173\u5373\u53ef\uff0c\u9700\u8981 root)"
 
@@ -1457,7 +1457,7 @@
 
     goto :goto_1
 
-    .line 453
+    .line 465
     :cond_3
     const v0, -0x619600
 
@@ -1468,22 +1468,22 @@
     .locals 7
 
     .prologue
-    .line 240
+    .line 252
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
 
     move-result-object v0
 
-    .line 241
+    .line 253
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->listFiles(Ljava/io/File;)Ljava/util/ArrayList;
 
     move-result-object v1
 
-    .line 242
+    .line 254
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->listThemes(Ljava/io/File;)Ljava/util/ArrayList;
 
     move-result-object v0
 
-    .line 243
+    .line 255
     iget-object v2, p0, Lcom/keymouse/tool/CursorActivity;->mLibInfo:Landroid/widget/TextView;
 
     new-instance v3, Ljava/lang/StringBuilder;
@@ -1518,7 +1518,7 @@
 
     const-string v5, " files, "
 
-    .line 244
+    .line 256
     invoke-direct {p0, v3, v4, v5}, Lcom/keymouse/tool/CursorActivity;->S(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -1553,19 +1553,19 @@
 
     move-result-object v1
 
-    .line 243
+    .line 255
     invoke-virtual {v2, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 245
+    .line 257
     invoke-direct {p0, v0}, Lcom/keymouse/tool/CursorActivity;->rebuildThemes(Ljava/util/ArrayList;)V
 
-    .line 246
+    .line 258
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
 
-    .line 247
+    .line 259
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->refreshA11yStatus()V
 
-    .line 248
+    .line 260
     return-void
 .end method
 
@@ -1662,7 +1662,7 @@
     .locals 2
 
     .prologue
-    .line 424
+    .line 436
     const-string v1, "smart"
 
     if-eqz p1, :cond_0
@@ -1672,29 +1672,29 @@
     :goto_0
     invoke-direct {p0, v1, v0}, Lcom/keymouse/tool/CursorActivity;->put(Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 425
+    .line 437
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mA11yStatus:Landroid/widget/TextView;
 
     const-string v1, "\u2026"
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 426
+    .line 438
     new-instance v0, Ljava/lang/Thread;
 
-    new-instance v1, Lcom/keymouse/tool/CursorActivity$13;
+    new-instance v1, Lcom/keymouse/tool/CursorActivity$14;
 
-    invoke-direct {v1, p0, p1}, Lcom/keymouse/tool/CursorActivity$13;-><init>(Lcom/keymouse/tool/CursorActivity;Z)V
+    invoke-direct {v1, p0, p1}, Lcom/keymouse/tool/CursorActivity$14;-><init>(Lcom/keymouse/tool/CursorActivity;Z)V
 
     invoke-direct {v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 440
+    .line 452
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
 
-    .line 441
+    .line 453
     return-void
 
-    .line 424
+    .line 436
     :cond_0
     const-string v0, "0"
 
@@ -1828,7 +1828,7 @@
 
     const-string v4, "on"
 
-    invoke-static {v0, v4, v2}, Lcom/keymouse/tool/CursorCfg;->geti(Ljava/util/Map;Ljava/lang/String;I)I
+    invoke-static {v0, v4, v1}, Lcom/keymouse/tool/CursorCfg;->geti(Ljava/util/Map;Ljava/lang/String;I)I
 
     move-result v0
 
@@ -2328,6 +2328,36 @@
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
     .line 212
+    new-instance v0, Landroid/widget/Button;
+
+    invoke-direct {v0, p0}, Landroid/widget/Button;-><init>(Landroid/content/Context;)V
+
+    .line 213
+    const-string v3, "\u6062\u590d\u9ed8\u8ba4\u6307\u9488(STMC)"
+
+    const-string v4, "\u65e2\u5b9a\u306e\u30dd\u30a4\u30f3\u30bf\u306b\u623b\u3059(STMC)"
+
+    const-string v5, "Restore default pointers (STMC)"
+
+    invoke-direct {p0, v3, v4, v5}, Lcom/keymouse/tool/CursorActivity;->S(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v0, v3}, Landroid/widget/Button;->setText(Ljava/lang/CharSequence;)V
+
+    .line 214
+    new-instance v3, Lcom/keymouse/tool/CursorActivity$6;
+
+    invoke-direct {v3, p0}, Lcom/keymouse/tool/CursorActivity$6;-><init>(Lcom/keymouse/tool/CursorActivity;)V
+
+    invoke-virtual {v0, v3}, Landroid/widget/Button;->setOnClickListener(Landroid/view/View$OnClickListener;)V
+
+    .line 222
+    iget-object v3, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
+
+    invoke-virtual {v3, v0}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
+    .line 224
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     const-string v3, "\u5957\u7528\u6574\u5957\u4e3b\u9898"
@@ -2346,26 +2376,26 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 213
+    .line 225
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
     iput-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
-    .line 214
+    .line 226
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 215
+    .line 227
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/keymouse/tool/CursorActivity;->mThemes:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 217
+    .line 229
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     const-string v3, "\u5404\u72b6\u6001\u7684\u6307\u9488"
@@ -2384,26 +2414,26 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 218
+    .line 230
     new-instance v0, Landroid/widget/LinearLayout;
 
     invoke-direct {v0, p0}, Landroid/widget/LinearLayout;-><init>(Landroid/content/Context;)V
 
     iput-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mSlots:Landroid/widget/LinearLayout;
 
-    .line 219
+    .line 231
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mSlots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v1}, Landroid/widget/LinearLayout;->setOrientation(I)V
 
-    .line 220
+    .line 232
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     iget-object v3, p0, Lcom/keymouse/tool/CursorActivity;->mSlots:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 221
+    .line 233
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     const-string v3, "\u6ca1\u8bbe\u7684\u72b6\u6001\u6cbf\u7528\"\u5e38\u89c4\"\u90a3\u4e2a\uff1b\"\u5e38\u89c4\"\u4e5f\u6ca1\u8bbe\u5c31\u7528\u5185\u7f6e\u7bad\u5934\u3002.cur \u81ea\u5e26\u70ed\u70b9\uff1bpng \u6ca1\u6709\u70ed\u70b9\uff0c\u7528\u53f3\u8fb9\u6309\u94ae\u9009\u70ed\u70b9\u4f4d\u7f6e(\u5de6\u4e0a/\u4e0a\u8fb9\u4e2d\u95f4/\u6b63\u4e2d)\u3002.ani \u4f1a\u6309\u6587\u4ef6\u91cc\u7684\u5e27\u548c\u901f\u5ea6\u64ad\u653e\u3002"
@@ -2422,29 +2452,29 @@
 
     invoke-virtual {v0, v3}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
-    .line 225
+    .line 237
     iput-boolean v2, p0, Lcom/keymouse/tool/CursorActivity;->mBuilding:Z
 
-    .line 226
+    .line 238
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->refreshAll()V
 
-    .line 227
+    .line 239
     new-instance v0, Landroid/widget/ScrollView;
 
     invoke-direct {v0, p0}, Landroid/widget/ScrollView;-><init>(Landroid/content/Context;)V
 
-    .line 228
+    .line 240
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->setFillViewport(Z)V
 
-    .line 229
+    .line 241
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity;->mBox:Landroid/widget/LinearLayout;
 
     invoke-virtual {v0, v1}, Landroid/widget/ScrollView;->addView(Landroid/view/View;)V
 
-    .line 230
+    .line 242
     invoke-virtual {p0, v0}, Lcom/keymouse/tool/CursorActivity;->setContentView(Landroid/view/View;)V
 
-    .line 231
+    .line 243
     return-void
 
     :cond_0
@@ -2464,12 +2494,12 @@
     .locals 0
 
     .prologue
-    .line 235
+    .line 247
     invoke-super {p0}, Landroid/app/Activity;->onResume()V
 
-    .line 236
+    .line 248
     invoke-direct {p0}, Lcom/keymouse/tool/CursorActivity;->refreshA11yStatus()V
 
-    .line 237
+    .line 249
     return-void
 .end method

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 356
+    .line 360
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$9;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$9;->val$slot:Ljava/lang/String;
@@ -46,23 +46,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 3
+    .locals 2
 
     .prologue
-    .line 358
+    .line 362
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$9;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$9;->val$slot:Ljava/lang/String;
 
-    const/4 v2, 0x0
+    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorActivity;->access$700(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
-    invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 359
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$9;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$600(Lcom/keymouse/tool/CursorActivity;)V
-
-    .line 360
+    .line 363
     return-void
 .end method

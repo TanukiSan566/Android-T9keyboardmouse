@@ -88,6 +88,7 @@ public final class PosDot {
             float density = app.getResources().getDisplayMetrics().density;
             File dir = app.getFilesDir();
             sDensity = density;
+            CursorCfg.ensureDefaults(app);
             sThemeCfg = new File(dir, "keymouse_cursor_theme.cfg");
             sLibDir = new File(dir, "cursor_lib");
             sThemeMt = -2;
@@ -168,7 +169,7 @@ public final class PosDot {
         if (mt == sThemeMt) return;
         sThemeMt = mt;
         Map<String, String> m = CursorCfg.parse(sThemeCfg);
-        sThemeOn = CursorCfg.geti(m, "on", 0) != 0;
+        sThemeOn = CursorCfg.geti(m, "on", 1) != 0;
         sSizeDp = Math.max(16, Math.min(72, CursorCfg.geti(m, "size", 32)));
         sSmart = CursorCfg.geti(m, "smart", 1) != 0;
         sGrabMs = Math.max(200, Math.min(1500, CursorCfg.geti(m, "grabms", 450)));

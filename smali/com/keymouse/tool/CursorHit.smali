@@ -12,6 +12,8 @@
 
 .field private static volatile busy:Z
 
+.field private static lastStart:J
+
 .field private static lastX:I
 
 .field private static lastY:I
@@ -20,13 +22,9 @@
 
 .field private static pending:Z
 
+.field private static volatile res:[I
+
 .field private static volatile resAt:J
-
-.field private static volatile resType:I
-
-.field private static volatile resX:I
-
-.field private static volatile resY:I
 
 .field static volatile svc:Lcom/keymouse/tool/CursorA11yService;
 
@@ -38,98 +36,93 @@
     .locals 4
 
     .prologue
-    const-wide/16 v2, 0x0
-
     const/4 v1, 0x0
 
     const v0, -0x1869f
 
-    .line 18
-    sput v0, Lcom/keymouse/tool/CursorHit;->lastX:I
-
-    .line 19
-    sput v0, Lcom/keymouse/tool/CursorHit;->lastY:I
-
-    .line 20
-    sput-wide v2, Lcom/keymouse/tool/CursorHit;->movedAt:J
-
-    .line 21
-    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->pending:Z
-
-    .line 22
-    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->busy:Z
-
-    .line 23
-    sput v1, Lcom/keymouse/tool/CursorHit;->resType:I
+    const-wide/16 v2, 0x0
 
     .line 24
-    sput v0, Lcom/keymouse/tool/CursorHit;->resX:I
+    sput v0, Lcom/keymouse/tool/CursorHit;->lastX:I
 
     .line 25
-    sput v0, Lcom/keymouse/tool/CursorHit;->resY:I
+    sput v0, Lcom/keymouse/tool/CursorHit;->lastY:I
 
     .line 26
+    sput-wide v2, Lcom/keymouse/tool/CursorHit;->movedAt:J
+
+    .line 27
+    sput-wide v2, Lcom/keymouse/tool/CursorHit;->lastStart:J
+
+    .line 28
+    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->pending:Z
+
+    .line 29
+    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->busy:Z
+
+    .line 30
+    const/4 v0, 0x5
+
+    new-array v0, v0, [I
+
+    fill-array-data v0, :array_0
+
+    sput-object v0, Lcom/keymouse/tool/CursorHit;->res:[I
+
+    .line 31
     sput-wide v2, Lcom/keymouse/tool/CursorHit;->resAt:J
 
     return-void
+
+    .line 30
+    nop
+
+    :array_0
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method
 
 .method private constructor <init>()V
     .locals 0
 
     .prologue
-    .line 29
+    .line 34
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 30
+    .line 35
     return-void
 .end method
 
-.method static synthetic access$002(I)I
+.method static synthetic access$002([I)[I
     .locals 0
 
     .prologue
-    .line 11
-    sput p0, Lcom/keymouse/tool/CursorHit;->resType:I
+    .line 17
+    sput-object p0, Lcom/keymouse/tool/CursorHit;->res:[I
 
-    return p0
+    return-object p0
 .end method
 
-.method static synthetic access$102(I)I
+.method static synthetic access$102(J)J
     .locals 0
 
     .prologue
-    .line 11
-    sput p0, Lcom/keymouse/tool/CursorHit;->resX:I
-
-    return p0
-.end method
-
-.method static synthetic access$202(I)I
-    .locals 0
-
-    .prologue
-    .line 11
-    sput p0, Lcom/keymouse/tool/CursorHit;->resY:I
-
-    return p0
-.end method
-
-.method static synthetic access$302(J)J
-    .locals 0
-
-    .prologue
-    .line 11
+    .line 17
     sput-wide p0, Lcom/keymouse/tool/CursorHit;->resAt:J
 
     return-wide p0
 .end method
 
-.method static synthetic access$402(Z)Z
+.method static synthetic access$202(Z)Z
     .locals 0
 
     .prologue
-    .line 11
+    .line 17
     sput-boolean p0, Lcom/keymouse/tool/CursorHit;->busy:Z
 
     return p0
@@ -139,7 +132,7 @@
     .locals 1
 
     .prologue
-    .line 33
+    .line 38
     sget-object v0, Lcom/keymouse/tool/CursorHit;->svc:Lcom/keymouse/tool/CursorA11yService;
 
     if-eqz v0, :cond_0
@@ -156,175 +149,258 @@
 .end method
 
 .method static poll(IIJ)I
-    .locals 8
+    .locals 10
 
     .prologue
-    const/16 v6, 0x1c
+    const/4 v8, 0x2
 
-    const/4 v2, 0x3
-
-    const/4 v0, 0x0
-
-    .line 38
-    sget-object v1, Lcom/keymouse/tool/CursorHit;->svc:Lcom/keymouse/tool/CursorA11yService;
-
-    if-nez v1, :cond_1
-
-    .line 53
-    :cond_0
-    :goto_0
-    return v0
-
-    .line 41
-    :cond_1
-    sget v1, Lcom/keymouse/tool/CursorHit;->lastX:I
-
-    sub-int v1, p0, v1
-
-    invoke-static {v1}, Ljava/lang/Math;->abs(I)I
-
-    move-result v1
-
-    if-gt v1, v2, :cond_2
-
-    sget v1, Lcom/keymouse/tool/CursorHit;->lastY:I
-
-    sub-int v1, p1, v1
-
-    invoke-static {v1}, Ljava/lang/Math;->abs(I)I
-
-    move-result v1
-
-    if-le v1, v2, :cond_4
-
-    .line 42
-    :cond_2
-    sput p0, Lcom/keymouse/tool/CursorHit;->lastX:I
-
-    .line 43
-    sput p1, Lcom/keymouse/tool/CursorHit;->lastY:I
-
-    .line 44
-    sput-wide p2, Lcom/keymouse/tool/CursorHit;->movedAt:J
-
-    .line 45
     const/4 v1, 0x1
 
-    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->pending:Z
+    const/4 v2, 0x0
+
+    .line 43
+    sget-object v0, Lcom/keymouse/tool/CursorHit;->svc:Lcom/keymouse/tool/CursorA11yService;
+
+    if-nez v0, :cond_1
+
+    .line 72
+    :cond_0
+    :goto_0
+    return v2
+
+    .line 46
+    :cond_1
+    sget v0, Lcom/keymouse/tool/CursorHit;->lastX:I
+
+    sub-int v0, p0, v0
+
+    invoke-static {v0}, Ljava/lang/Math;->abs(I)I
+
+    move-result v0
+
+    if-gt v0, v8, :cond_2
+
+    sget v0, Lcom/keymouse/tool/CursorHit;->lastY:I
+
+    sub-int v0, p1, v0
+
+    invoke-static {v0}, Ljava/lang/Math;->abs(I)I
+
+    move-result v0
+
+    if-le v0, v8, :cond_5
+
+    :cond_2
+    move v0, v1
+
+    .line 47
+    :goto_1
+    if-eqz v0, :cond_3
+
+    .line 48
+    sput p0, Lcom/keymouse/tool/CursorHit;->lastX:I
+
+    .line 49
+    sput p1, Lcom/keymouse/tool/CursorHit;->lastY:I
 
     .line 50
-    :cond_3
-    :goto_1
-    sget v1, Lcom/keymouse/tool/CursorHit;->resX:I
-
-    sub-int v1, p0, v1
-
-    invoke-static {v1}, Ljava/lang/Math;->abs(I)I
-
-    move-result v1
-
-    if-gt v1, v6, :cond_0
-
-    sget v1, Lcom/keymouse/tool/CursorHit;->resY:I
-
-    sub-int v1, p1, v1
-
-    invoke-static {v1}, Ljava/lang/Math;->abs(I)I
-
-    move-result v1
-
-    if-gt v1, v6, :cond_0
+    sput-wide p2, Lcom/keymouse/tool/CursorHit;->movedAt:J
 
     .line 51
-    sget v0, Lcom/keymouse/tool/CursorHit;->resType:I
+    sput-boolean v1, Lcom/keymouse/tool/CursorHit;->pending:Z
+
+    .line 53
+    :cond_3
+    sget-boolean v3, Lcom/keymouse/tool/CursorHit;->busy:Z
+
+    if-nez v3, :cond_4
+
+    .line 55
+    if-eqz v0, :cond_7
+
+    .line 56
+    sget-wide v4, Lcom/keymouse/tool/CursorHit;->lastStart:J
+
+    sub-long v4, p2, v4
+
+    const-wide/16 v6, 0x46
+
+    cmp-long v0, v4, v6
+
+    if-ltz v0, :cond_6
+
+    move v0, v1
+
+    .line 62
+    :goto_2
+    if-eqz v0, :cond_4
+
+    .line 63
+    sput-boolean v2, Lcom/keymouse/tool/CursorHit;->pending:Z
+
+    .line 64
+    sput-wide p2, Lcom/keymouse/tool/CursorHit;->lastStart:J
+
+    .line 65
+    invoke-static {p0, p1}, Lcom/keymouse/tool/CursorHit;->startQuery(II)V
+
+    .line 68
+    :cond_4
+    sget-object v0, Lcom/keymouse/tool/CursorHit;->res:[I
+
+    .line 69
+    aget v3, v0, v2
+
+    if-eqz v3, :cond_0
+
+    aget v1, v0, v1
+
+    if-lt p0, v1, :cond_0
+
+    const/4 v1, 0x3
+
+    aget v1, v0, v1
+
+    if-ge p0, v1, :cond_0
+
+    aget v1, v0, v8
+
+    if-lt p1, v1, :cond_0
+
+    const/4 v1, 0x4
+
+    aget v1, v0, v1
+
+    if-ge p1, v1, :cond_0
+
+    .line 70
+    aget v2, v0, v2
 
     goto :goto_0
 
+    :cond_5
+    move v0, v2
+
     .line 46
-    :cond_4
-    sget-boolean v1, Lcom/keymouse/tool/CursorHit;->busy:Z
-
-    if-nez v1, :cond_3
-
-    sget-boolean v1, Lcom/keymouse/tool/CursorHit;->pending:Z
-
-    if-eqz v1, :cond_5
-
-    sget-wide v2, Lcom/keymouse/tool/CursorHit;->movedAt:J
-
-    sub-long v2, p2, v2
-
-    const-wide/16 v4, 0x6e
-
-    cmp-long v1, v2, v4
-
-    if-ltz v1, :cond_3
-
-    .line 47
-    :goto_2
-    sput-boolean v0, Lcom/keymouse/tool/CursorHit;->pending:Z
-
-    .line 48
-    invoke-static {p0, p1}, Lcom/keymouse/tool/CursorHit;->startQuery(II)V
-
     goto :goto_1
 
-    .line 46
-    :cond_5
-    sget-wide v2, Lcom/keymouse/tool/CursorHit;->resAt:J
+    :cond_6
+    move v0, v2
 
-    sub-long v2, p2, v2
+    .line 56
+    goto :goto_2
 
-    const-wide/16 v4, 0x5dc
+    .line 57
+    :cond_7
+    sget-boolean v0, Lcom/keymouse/tool/CursorHit;->pending:Z
 
-    cmp-long v1, v2, v4
+    if-eqz v0, :cond_9
 
-    if-ltz v1, :cond_3
+    .line 58
+    sget-wide v4, Lcom/keymouse/tool/CursorHit;->movedAt:J
+
+    sub-long v4, p2, v4
+
+    const-wide/16 v6, 0x5a
+
+    cmp-long v0, v4, v6
+
+    if-ltz v0, :cond_8
+
+    move v0, v1
+
+    goto :goto_2
+
+    :cond_8
+    move v0, v2
+
+    goto :goto_2
+
+    .line 60
+    :cond_9
+    sget-wide v4, Lcom/keymouse/tool/CursorHit;->resAt:J
+
+    sub-long v4, p2, v4
+
+    sget-object v0, Lcom/keymouse/tool/CursorHit;->res:[I
+
+    aget v0, v0, v2
+
+    if-nez v0, :cond_a
+
+    const/16 v0, 0x4b0
+
+    :goto_3
+    int-to-long v6, v0
+
+    cmp-long v0, v4, v6
+
+    if-ltz v0, :cond_b
+
+    move v0, v1
+
+    goto :goto_2
+
+    :cond_a
+    const/16 v0, 0x1c2
+
+    goto :goto_3
+
+    :cond_b
+    move v0, v2
 
     goto :goto_2
 .end method
 
 .method static reset()V
-    .locals 2
+    .locals 1
 
     .prologue
-    const v1, -0x1869f
+    .line 104
+    const/4 v0, 0x5
 
-    .line 84
-    const/4 v0, 0x0
+    new-array v0, v0, [I
 
-    sput v0, Lcom/keymouse/tool/CursorHit;->resType:I
+    fill-array-data v0, :array_0
 
-    .line 85
-    sput v1, Lcom/keymouse/tool/CursorHit;->resX:I
+    sput-object v0, Lcom/keymouse/tool/CursorHit;->res:[I
 
-    .line 86
-    sput v1, Lcom/keymouse/tool/CursorHit;->resY:I
-
-    .line 87
+    .line 105
     return-void
+
+    .line 104
+    nop
+
+    :array_0
+    .array-data 4
+        0x0
+        0x0
+        0x0
+        0x0
+        0x0
+    .end array-data
 .end method
 
 .method private static startQuery(II)V
     .locals 2
 
     .prologue
-    .line 57
+    .line 76
     sget-object v0, Lcom/keymouse/tool/CursorHit;->worker:Landroid/os/Handler;
 
     if-nez v0, :cond_0
 
-    .line 58
+    .line 77
     new-instance v0, Landroid/os/HandlerThread;
 
     const-string v1, "km-hit"
 
     invoke-direct {v0, v1}, Landroid/os/HandlerThread;-><init>(Ljava/lang/String;)V
 
-    .line 59
+    .line 78
     invoke-virtual {v0}, Landroid/os/HandlerThread;->start()V
 
-    .line 60
+    .line 79
     new-instance v1, Landroid/os/Handler;
 
     invoke-virtual {v0}, Landroid/os/HandlerThread;->getLooper()Landroid/os/Looper;
@@ -335,13 +411,13 @@
 
     sput-object v1, Lcom/keymouse/tool/CursorHit;->worker:Landroid/os/Handler;
 
-    .line 62
+    .line 81
     :cond_0
     const/4 v0, 0x1
 
     sput-boolean v0, Lcom/keymouse/tool/CursorHit;->busy:Z
 
-    .line 63
+    .line 82
     sget-object v0, Lcom/keymouse/tool/CursorHit;->worker:Landroid/os/Handler;
 
     new-instance v1, Lcom/keymouse/tool/CursorHit$1;
@@ -350,6 +426,6 @@
 
     invoke-virtual {v0, v1}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 
-    .line 81
+    .line 101
     return-void
 .end method

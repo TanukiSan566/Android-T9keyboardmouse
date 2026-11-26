@@ -106,6 +106,105 @@ final class CursorCfg {
         }
     }
 
+    // ------------------------------------------------------------ 内嵌默认指针(Sam Toki 的 STMC)
+
+    static final String DEF_DIR = "STMC";
+    private static boolean sDefChecked = false;
+
+    private static void copyAsset(Context c, String name, File dst) throws Exception {
+        InputStream in = c.getAssets().open("cursor_default/" + DEF_DIR + "/" + name);
+        try {
+            FileOutputStream o = new FileOutputStream(dst);
+            try {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    o.write(buf, 0, n);
+                }
+            } finally {
+                o.close();
+            }
+        } finally {
+            in.close();
+        }
+        dst.setReadable(true, false);
+    }
+
+    /** 把 assets 里内嵌的 STMC 指针复制进 files/cursor_lib/STMC/(没复制过才做)。 */
+    static void installDefaultFiles(Context c) {
+        try {
+            File dir = new File(lib(c), DEF_DIR);
+            File mark = new File(dir, ".v71");
+            if (mark.exists()) {
+                return;
+            }
+            dir.mkdirs();
+            String[] names = c.getAssets().list("cursor_default/" + DEF_DIR);
+            if (names == null) {
+                return;
+            }
+            for (String n : names) {
+                copyAsset(c, n, new File(dir, n));
+            }
+            mark.createNewFile();
+        } catch (Throwable t) {
+            // 忽略
+        }
+    }
+
+    /** 默认槽位 = 内嵌 STMC theme.cfg 里写的文件。force=true 覆盖用户已选的。 */
+    static void applyDefaultCfg(Context c, boolean force) {
+        Map<String, String> m = load(c);
+        Map<String, String> th = themeFromFolder(lib(c), DEF_DIR);
+        boolean fresh = m.isEmpty();
+        if (force || fresh || !m.containsKey("on")) {
+            m.put("on", "1");
+        }
+        if (force || !m.containsKey("smart")) {
+            m.put("smart", "1");
+        }
+        if (force || !m.containsKey("size")) {
+            m.put("size", "32");
+        }
+        for (String slot : SLOTS) {
+            String p = th.get(slot);
+            if (p == null) {
+                continue;
+            }
+            if (force || m.get(slot) == null || m.get(slot).length() == 0) {
+                m.put(slot, p);
+                m.remove("hs_" + slot);
+            }
+        }
+        m.put("def", "1");
+        save(c, m);
+    }
+
+    /** App 进程启动光标层时调用一次: 装默认文件、首次套用默认配置、智能手型开着但服务没开就用 root 补开。 */
+    static void ensureDefaults(final Context c) {
+        if (sDefChecked) {
+            return;
+        }
+        sDefChecked = true;
+        try {
+            installDefaultFiles(c);
+            Map<String, String> m = load(c);
+            if (!"1".equals(m.get("def"))) {
+                applyDefaultCfg(c, false);
+                m = load(c);
+            }
+            if (geti(m, "on", 1) != 0 && geti(m, "smart", 1) != 0 && !a11yListed(c)) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        setA11y(true);
+                    }
+                }).start();
+            }
+        } catch (Throwable t) {
+            // 忽略
+        }
+    }
+
     // ------------------------------------------------------------ 指针库
 
     static boolean isCursorFile(String n) {
@@ -215,6 +314,20 @@ final class CursorCfg {
     static Map<String, String> themeFromFolder(File lib, String rel) {
         Map<String, String> out = new HashMap<String, String>();
         File dir = new File(lib, rel);
+        // 文件夹里有 theme.cfg(arrow=xx.cur 之类)就直接按它来，最准
+        File tc = new File(dir, "theme.cfg");
+        if (tc.isFile()) {
+            Map<String, String> t = parse(tc);
+            for (String slot : SLOTS) {
+                String v = t.get(slot);
+                if (v != null && v.length() > 0 && new File(dir, v).isFile()) {
+                    out.put(slot, rel + "/" + v);
+                }
+            }
+            if (!out.isEmpty()) {
+                return out;
+            }
+        }
         ArrayList<String> files = new ArrayList<String>();
         walk(lib, dir, files, 0);
         Collections.sort(files, String.CASE_INSENSITIVE_ORDER);
