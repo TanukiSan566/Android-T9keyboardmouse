@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 262
+    .line 330
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,9 +34,9 @@
     .locals 0
 
     .prologue
-    .line 264
+    .line 332
     invoke-static {}, Lcom/keymouse/tool/PosDot;->tick()V
 
-    .line 265
+    .line 333
     return-void
 .end method

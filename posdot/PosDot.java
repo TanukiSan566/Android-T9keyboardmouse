@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.WindowManager;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -60,6 +61,21 @@ public final class PosDot {
     private static long sBeatAt = 0;
     private static final byte[] BUF = new byte[64];
 
+    // ---- 自定义鼠标(指针库): 配置在 files/keymouse_cursor_theme.cfg，由设置页写
+    private static File sThemeCfg;
+    private static File sLibDir;
+    private static long sThemeMt = -2;
+    private static long sThemeChk = 0;
+    private static boolean sThemeOn = false;
+    private static int sSizeDp = 32;
+    private static boolean sSmart = true;
+    private static int sGrabMs = 450;
+    private static float sDensity = 1f;
+    private static final CurLoader.Set[] sSets = new CurLoader.Set[4];   // 0 箭头 1 手型 2 文字 3 抓取
+    private static int sPrevPress = 0;
+    private static long sPressAt = 0;
+    private static int sLatched = 0;
+
     private PosDot() {
     }
 
@@ -71,6 +87,10 @@ public final class PosDot {
             WindowManager wm = (WindowManager) app.getSystemService("window");
             float density = app.getResources().getDisplayMetrics().density;
             File dir = app.getFilesDir();
+            sDensity = density;
+            sThemeCfg = new File(dir, "keymouse_cursor_theme.cfg");
+            sLibDir = new File(dir, "cursor_lib");
+            sThemeMt = -2;
             sFile = new File(dir, "keymouse_pos");
             sPtr = new File(dir, "keymouse_ptr");
             sCursorCfg = new File(dir, "keymouse_cursor");
@@ -140,10 +160,40 @@ public final class PosDot {
         }
     }
 
+    /** 每 0.5 秒看一眼自定义鼠标配置，变了就重新读文件、重新解码。 */
+    private static void refreshTheme(long nowMs) {
+        if (nowMs - sThemeChk < 500) return;
+        sThemeChk = nowMs;
+        long mt = sThemeCfg.exists() ? sThemeCfg.lastModified() : -1;
+        if (mt == sThemeMt) return;
+        sThemeMt = mt;
+        Map<String, String> m = CursorCfg.parse(sThemeCfg);
+        sThemeOn = CursorCfg.geti(m, "on", 0) != 0;
+        sSizeDp = Math.max(16, Math.min(72, CursorCfg.geti(m, "size", 32)));
+        sSmart = CursorCfg.geti(m, "smart", 1) != 0;
+        sGrabMs = Math.max(200, Math.min(1500, CursorCfg.geti(m, "grabms", 450)));
+        CursorHit.reset();
+        for (int i = 0; i < 4; i++) {
+            sSets[i] = null;
+            if (!sThemeOn) continue;
+            String slot = CursorCfg.SLOTS[i];
+            String rel = m.get(slot);
+            if (rel == null || rel.length() == 0) continue;
+            int hs = CursorCfg.geti(m, "hs_" + slot, CursorCfg.defHotspot(slot));
+            sSets[i] = CurLoader.load(new File(sLibDir, rel), hs);
+        }
+    }
+
+    private static CurLoader.Set pickSet(int slot) {
+        CurLoader.Set s = sSets[slot];
+        return s != null ? s : sSets[0];
+    }
+
     static void tick() {
         if (sDot == null) return;
         long nowMs = System.currentTimeMillis();
         refreshCursorFlags(nowMs);
+        refreshTheme(nowMs);
         // 心跳: "自绘光标已启用、本类还活着"，root 助手据此在鼠标模式开着的整个期间都把系统箭头藏着
         // (不只是光标可见时)，否则空闲淡出后第一次移动，系统箭头会先闪一下才被藏起来。
         // 本类停了/App 被冻结/被杀，0.8 秒后心跳过期，系统箭头自动还回来。
@@ -220,6 +270,23 @@ public final class PosDot {
                         ? Math.max(0f, (FADE_MS - age) / (float) FADE_ANIM_MS) : 1f;
                 sDot.setAlpha(alpha);
                 sDot.configure(wantCursor, wantDot);
+                // 选指针样式: 0 箭头 1 手型 2 文字 3 抓取。按下时锁定按下那一刻的类型，
+                // 按住超过 sGrabMs(长按)且不是文字，就切抓取。
+                CurLoader.Set cs = null;
+                if (sThemeOn && wantCursor) {
+                    int hit = sSmart ? CursorHit.poll(cx, cy, nowMs) : 0;
+                    if (press > 0 && sPrevPress == 0) {
+                        sPressAt = nowMs;
+                        sLatched = hit;
+                    }
+                    int slot = hit;
+                    if (press > 0) {
+                        slot = sLatched == 2 ? 2 : (nowMs - sPressAt >= sGrabMs ? 3 : sLatched);
+                    }
+                    cs = pickSet(slot);
+                }
+                sPrevPress = press;
+                sDot.setSet(cs, sSizeDp * sDensity);
                 sDot.setPress(press);
                 if (x != sLastX || y != sLastY) {
                     sLp.x = x;
@@ -230,6 +297,7 @@ public final class PosDot {
                 }
             } else {
                 sDot.reset();
+                sPrevPress = 0;
             }
             if (visible != sVisible) {
                 sDot.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
@@ -285,6 +353,9 @@ public final class PosDot {
         private final Paint bmpPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         private final Paint dotFill = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint dotEdge = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private CurLoader.Set cs = null;
+        private float csPx = 0f;
+        private long csStart = 0;
         private boolean drawCursor = true;
         private boolean drawDot = true;
         private int press = 0;
@@ -302,7 +373,7 @@ public final class PosDot {
             pad = 4f * density;
             dotR = Math.max(5f, 6f * density);
             // 缩放时最大 1.25 倍，箭头往右下伸 cursorH*1.25，窗口留够，免得被窗口边界裁掉
-            win = (int) Math.ceil((cursorH * 1.25f + pad) * 2f);
+            win = (int) Math.ceil((Math.max(cursorH, 72f * density) * 1.25f + pad) * 2f);
             dotFill.setStyle(Paint.Style.FILL);
             dotFill.setColor(0xFFFF0000);
             dotEdge.setStyle(Paint.Style.STROKE);
@@ -315,6 +386,19 @@ public final class PosDot {
             if (cursor != drawCursor || dot != drawDot) {
                 drawCursor = cursor;
                 drawDot = dot;
+                invalidate();
+            }
+        }
+
+        /** 换成自定义指针(null=内置黄红箭头)。同一个指针不重复重置动画。 */
+        void setSet(CurLoader.Set s, float px) {
+            if (s != cs) {
+                cs = s;
+                csStart = SystemClock.uptimeMillis();
+                invalidate();
+            }
+            if (px != csPx) {
+                csPx = px;
                 invalidate();
             }
         }
@@ -380,14 +464,26 @@ public final class PosDot {
             c.save();
             c.scale(s, s, cx, cy);
             if (drawCursor) {
-                c.drawBitmap(bmp, cx - pad, cy - pad, bmpPaint);
+                CurLoader.Set q = cs;
+                if (q != null && q.frames.length > 0) {
+                    int fi = q.frameAt(now - csStart);
+                    if (fi < 0 || fi >= q.frames.length) fi = 0;
+                    float k = csPx / (float) Math.max(1, Math.max(q.baseW, q.baseH));
+                    c.save();
+                    c.translate(cx - q.hx[fi] * k, cy - q.hy[fi] * k);
+                    c.scale(k, k);
+                    c.drawBitmap(q.frames[fi], 0f, 0f, bmpPaint);
+                    c.restore();
+                } else {
+                    c.drawBitmap(bmp, cx - pad, cy - pad, bmpPaint);
+                }
             }
             if (drawDot) {
                 c.drawCircle(cx, cy, dotR, dotFill);
                 c.drawCircle(cx, cy, dotR, dotEdge);
             }
             c.restore();
-            if (s != segTo || nextTo >= 0f) postInvalidateOnAnimation();
+            if (s != segTo || nextTo >= 0f || (drawCursor && cs != null && cs.animated())) postInvalidateOnAnimation();
         }
 
         /** 预先画好光标位图: 黄→橙→红渐变 + 少量颗粒 + 白色细边 + 柔和阴影。热点(尖端)在位图的 (pad, pad)。 */

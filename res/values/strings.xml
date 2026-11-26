@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cursor_a11y_desc">KeyMouse 自定义鼠标：只查询指针下方控件的类型（可点击/文字），用来切换手型和 I 型光标；不读取也不保存屏幕内容。</string>
+</resources>

@@ -1926,6 +1926,12 @@
 
     invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
 
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCard;->build(Landroid/app/Activity;)Landroid/view/View;
+
+    move-result-object v5
+
+    invoke-virtual {v0, v5}, Landroid/widget/LinearLayout;->addView(Landroid/view/View;)V
+
     invoke-direct {p0}, Lcom/keymouse/tool/MainActivity;->getLang()I
 
     move-result v6
