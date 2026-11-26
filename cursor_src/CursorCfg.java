@@ -106,13 +106,46 @@ final class CursorCfg {
         }
     }
 
-    // ------------------------------------------------------------ 内嵌默认指针(Sam Toki 的 STMC)
+    // ------------------------------------------------------------ 内置主题(assets/cursor_themes)
+    // 每个主题一个文件夹: arrow.cur hand.cur ibeam.cur grab.cur + theme.cfg；index.txt 每行 id|中文名|英文名|日文名。
+    // 第一次用到某个主题时才复制到 files/cursor_lib/_themes/<id>/，配置里的槽位直接指向 _themes/<id>/xxx.cur。
+    // 下划线开头的文件夹不算"用户导入的主题"，也不出现在"选择文件"列表里。
 
-    static final String DEF_DIR = "STMC";
+    static final String BUILTIN_ASSET = "cursor_themes";
+    static final String BUILTIN_DIR = "_themes";
+    static final String DEFAULT_THEME = "stmc-1-1";
     private static boolean sDefChecked = false;
 
+    /** 内置主题条目: {id, 中文名, 英文名, 日文名}，顺序同 index.txt。 */
+    static ArrayList<String[]> builtinThemes(Context c) {
+        ArrayList<String[]> out = new ArrayList<String[]>();
+        try {
+            InputStream in = c.getAssets().open(BUILTIN_ASSET + "/index.txt");
+            byte[] b;
+            try {
+                b = readStream(in);
+            } finally {
+                in.close();
+            }
+            for (String ln : new String(b, "UTF-8").split("\n")) {
+                String[] p = ln.trim().split("\\|");
+                if (p.length >= 4) {
+                    out.add(p);
+                }
+            }
+        } catch (Throwable t) {
+            // 忽略
+        }
+        return out;
+    }
+
+    /** 主题按当前界面语言显示的名字。 */
+    static String themeName(Context c, String[] t) {
+        return KmCfg.L(c, t[2], t[2], t[3], t[1]);
+    }
+
     private static void copyAsset(Context c, String name, File dst) throws Exception {
-        InputStream in = c.getAssets().open("cursor_default/" + DEF_DIR + "/" + name);
+        InputStream in = c.getAssets().open(name);
         try {
             FileOutputStream o = new FileOutputStream(dst);
             try {
@@ -130,34 +163,90 @@ final class CursorCfg {
         dst.setReadable(true, false);
     }
 
-    /** 把 assets 里内嵌的 STMC 指针复制进 files/cursor_lib/STMC/(没复制过才做)。 */
-    static void installDefaultFiles(Context c) {
+    /** 主题文件夹在库里的位置。 */
+    static File themeDir(Context c, String id) {
+        return new File(new File(lib(c), BUILTIN_DIR), id);
+    }
+
+    /** 把一个内置主题复制进库(已经复制过就跳过)。返回是否可用。 */
+    static boolean installTheme(Context c, String id) {
         try {
-            File dir = new File(lib(c), DEF_DIR);
-            File mark = new File(dir, ".v71");
+            File dir = themeDir(c, id);
+            File mark = new File(dir, ".ok");
             if (mark.exists()) {
-                return;
+                return true;
             }
             dir.mkdirs();
-            String[] names = c.getAssets().list("cursor_default/" + DEF_DIR);
-            if (names == null) {
-                return;
+            String[] names = c.getAssets().list(BUILTIN_ASSET + "/" + id);
+            if (names == null || names.length == 0) {
+                return false;
             }
             for (String n : names) {
-                copyAsset(c, n, new File(dir, n));
+                copyAsset(c, BUILTIN_ASSET + "/" + id + "/" + n, new File(dir, n));
             }
             mark.createNewFile();
+            return true;
         } catch (Throwable t) {
-            // 忽略
+            return false;
         }
     }
 
-    /** 默认槽位 = 内嵌 STMC theme.cfg 里写的文件。force=true 覆盖用户已选的。 */
+    /** 把所有内置主题都复制进库(给主题列表做预览用)。 */
+    static void installAllThemes(Context c) {
+        for (String[] t : builtinThemes(c)) {
+            installTheme(c, t[0]);
+        }
+    }
+
+    /** 套用一个内置主题: 四个状态都指向它的文件，并打开自定义鼠标。 */
+    static boolean applyBuiltin(Context c, String id) {
+        if (!installTheme(c, id)) {
+            return false;
+        }
+        Map<String, String> m = load(c);
+        for (String slot : SLOTS) {
+            m.put(slot, BUILTIN_DIR + "/" + id + "/" + slot + ".cur");
+            m.remove("hs_" + slot);
+        }
+        m.put("on", "1");
+        m.put("theme", id);
+        save(c, m);
+        return true;
+    }
+
+    /** 当前套用的内置主题 id(用户后来单独改过某个状态就是 null)。 */
+    static String currentThemeId(Map<String, String> m) {
+        String id = m.get("theme");
+        return id == null || id.length() == 0 ? null : id;
+    }
+
+    /** 路径(相对库)是不是内置主题里的文件 -> 返回主题条目，否则 null。 */
+    static String[] builtinOfPath(Context c, String rel) {
+        if (rel == null || !rel.startsWith(BUILTIN_DIR + "/")) {
+            return null;
+        }
+        String[] parts = rel.split("/");
+        if (parts.length < 3) {
+            return null;
+        }
+        for (String[] t : builtinThemes(c)) {
+            if (t[0].equals(parts[1])) {
+                return t;
+            }
+        }
+        return null;
+    }
+
+    /** 默认: 内置 STMC 标准主题 + 智能手型 + 32dp。force=true 全部恢复，否则只补空的。 */
     static void applyDefaultCfg(Context c, boolean force) {
         Map<String, String> m = load(c);
-        Map<String, String> th = themeFromFolder(lib(c), DEF_DIR);
-        boolean fresh = m.isEmpty();
-        if (force || fresh || !m.containsKey("on")) {
+        String a = m.get("arrow");
+        boolean noSlots = a == null || a.length() == 0;
+        if (force || m.isEmpty() || noSlots) {
+            applyBuiltin(c, DEFAULT_THEME);
+            m = load(c);
+        }
+        if (force || !m.containsKey("on")) {
             m.put("on", "1");
         }
         if (force || !m.containsKey("smart")) {
@@ -166,31 +255,23 @@ final class CursorCfg {
         if (force || !m.containsKey("size")) {
             m.put("size", "32");
         }
-        for (String slot : SLOTS) {
-            String p = th.get(slot);
-            if (p == null) {
-                continue;
-            }
-            if (force || m.get(slot) == null || m.get(slot).length() == 0) {
-                m.put(slot, p);
-                m.remove("hs_" + slot);
-            }
-        }
-        m.put("def", "1");
+        m.put("def", "2");
         save(c, m);
     }
 
-    /** App 进程启动光标层时调用一次: 装默认文件、首次套用默认配置、智能手型开着但服务没开就用 root 补开。 */
+    /** App 进程启动光标层时调用一次: 装默认主题、首次套用默认配置、智能手型开着但服务没开就用 root 补开。 */
     static void ensureDefaults(final Context c) {
         if (sDefChecked) {
             return;
         }
         sDefChecked = true;
         try {
-            installDefaultFiles(c);
+            installTheme(c, DEFAULT_THEME);
             Map<String, String> m = load(c);
-            if (!"1".equals(m.get("def"))) {
-                applyDefaultCfg(c, false);
+            if (!"2".equals(m.get("def"))) {
+                String a = m.get("arrow");
+                boolean oldDefault = a != null && a.startsWith("STMC/");     // v71 的旧默认(单独的 STMC 文件夹)，换成新的内置默认主题
+                applyDefaultCfg(c, oldDefault);
                 m = load(c);
             }
             if (geti(m, "on", 1) != 0 && geti(m, "smart", 1) != 0 && !a11yListed(c)) {
@@ -219,6 +300,9 @@ final class CursorCfg {
         }
         for (File f : fs) {
             if (f.isDirectory()) {
+                if (depth == 0 && f.getName().startsWith("_")) {
+                    continue;        // _themes: 内置主题，不算用户文件
+                }
                 walk(root, f, out, depth + 1);
             } else if (isCursorFile(f.getName())) {
                 String p = f.getPath().substring(root.getPath().length() + 1);
@@ -243,7 +327,7 @@ final class CursorCfg {
             return out;
         }
         for (File f : fs) {
-            if (f.isDirectory()) {
+            if (f.isDirectory() && !f.getName().startsWith("_") && !f.getName().equals("STMC")) {
                 ArrayList<String> in = new ArrayList<String>();
                 walk(f, f, in, 0);
                 if (!in.isEmpty()) {

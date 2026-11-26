@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 214
+    .line 227
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -37,49 +37,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 5
+    .locals 1
 
     .prologue
-    .line 216
+    .line 229
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->installDefaultFiles(Landroid/content/Context;)V
+    check-cast p1, Landroid/widget/Button;
 
-    .line 217
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
+    invoke-static {v0, p1}, Lcom/keymouse/tool/CursorActivity;->access$600(Lcom/keymouse/tool/CursorActivity;Landroid/widget/Button;)V
 
-    const/4 v1, 0x1
-
-    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorCfg;->applyDefaultCfg(Landroid/content/Context;Z)V
-
-    .line 218
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    const-string v2, "\u5df2\u6062\u590d\u9ed8\u8ba4\u6307\u9488"
-
-    const-string v3, "\u623b\u3057\u307e\u3057\u305f"
-
-    const-string v4, "Restored"
-
-    invoke-static {v1, v2, v3, v4}, Lcom/keymouse/tool/CursorActivity;->access$400(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    const/4 v2, 0x0
-
-    invoke-static {v0, v1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
-
-    .line 219
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$6;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$500(Lcom/keymouse/tool/CursorActivity;)V
-
-    .line 220
+    .line 230
     return-void
 .end method

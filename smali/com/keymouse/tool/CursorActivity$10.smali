@@ -3,12 +3,12 @@
 .source "CursorActivity.java"
 
 # interfaces
-.implements Landroid/view/View$OnClickListener;
+.implements Ljava/lang/Runnable;
 
 
 # annotations
 .annotation system Ldalvik/annotation/EnclosingMethod;
-    value = Lcom/keymouse/tool/CursorActivity;->rebuildSlots()V
+    value = Lcom/keymouse/tool/CursorActivity;->recreateSoon()V
 .end annotation
 
 .annotation system Ldalvik/annotation/InnerClass;
@@ -20,23 +20,14 @@
 # instance fields
 .field final synthetic this$0:Lcom/keymouse/tool/CursorActivity;
 
-.field final synthetic val$slot:Ljava/lang/String;
-
 
 # direct methods
-.method constructor <init>(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
+.method constructor <init>(Lcom/keymouse/tool/CursorActivity;)V
     .locals 0
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "()V"
-        }
-    .end annotation
 
     .prologue
-    .line 368
+    .line 457
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$10;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$10;->val$slot:Ljava/lang/String;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
@@ -45,24 +36,15 @@
 
 
 # virtual methods
-.method public onClick(Landroid/view/View;)V
-    .locals 3
+.method public run()V
+    .locals 1
 
     .prologue
-    .line 370
+    .line 459
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$10;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$10;->val$slot:Ljava/lang/String;
+    invoke-virtual {v0}, Lcom/keymouse/tool/CursorActivity;->recreate()V
 
-    const/4 v2, 0x0
-
-    invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 371
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$10;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$800(Lcom/keymouse/tool/CursorActivity;)V
-
-    .line 372
+    .line 460
     return-void
 .end method

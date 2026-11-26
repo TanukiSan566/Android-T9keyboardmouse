@@ -4,7 +4,11 @@
 
 
 # static fields
-.field static final DEF_DIR:Ljava/lang/String; = "STMC"
+.field static final BUILTIN_ASSET:Ljava/lang/String; = "cursor_themes"
+
+.field static final BUILTIN_DIR:Ljava/lang/String; = "_themes"
+
+.field static final DEFAULT_THEME:Ljava/lang/String; = "stmc-1-1"
 
 .field static final PUB_DIR:Ljava/lang/String; = "/storage/emulated/0/keymousecursor"
 
@@ -53,10 +57,10 @@
 
     sput-object v0, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
-    .line 112
+    .line 117
     sput-boolean v2, Lcom/keymouse/tool/CursorCfg;->sDefChecked:Z
 
-    .line 410
+    .line 494
     const/16 v0, 0x11
 
     new-array v0, v0, [Ljava/lang/String;
@@ -175,7 +179,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 280
+    .line 364
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
 
@@ -187,7 +191,7 @@
 
     move-result-object v1
 
-    .line 281
+    .line 365
     if-eqz v1, :cond_0
 
     const-string v2, "CursorA11yService"
@@ -202,207 +206,280 @@
 
     const/4 v0, 0x1
 
-    .line 283
+    .line 367
     :cond_0
     :goto_0
     return v0
 
-    .line 282
+    .line 366
     :catch_0
     move-exception v1
 
     goto :goto_0
 .end method
 
-.method static applyDefaultCfg(Landroid/content/Context;Z)V
-    .locals 8
+.method static applyBuiltin(Landroid/content/Context;Ljava/lang/String;)Z
+    .locals 7
 
     .prologue
-    .line 157
+    const/4 v0, 0x0
+
+    .line 203
+    invoke-static {p0, p1}, Lcom/keymouse/tool/CursorCfg;->installTheme(Landroid/content/Context;Ljava/lang/String;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_0
+
+    .line 214
+    :goto_0
+    return v0
+
+    .line 206
+    :cond_0
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->load(Landroid/content/Context;)Ljava/util/Map;
 
-    move-result-object v3
+    move-result-object v1
 
-    .line 158
-    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
+    .line 207
+    sget-object v2, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
-    move-result-object v0
+    array-length v3, v2
 
-    const-string v1, "STMC"
+    :goto_1
+    if-ge v0, v3, :cond_1
 
-    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorCfg;->themeFromFolder(Ljava/io/File;Ljava/lang/String;)Ljava/util/Map;
+    aget-object v4, v2, v0
+
+    .line 208
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "_themes/"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, "/"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    const-string v6, ".cur"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-interface {v1, v4, v5}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 209
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "hs_"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
     move-result-object v4
 
-    .line 159
-    invoke-interface {v3}, Ljava/util/Map;->isEmpty()Z
+    invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
-    move-result v0
+    move-result-object v4
 
-    .line 160
-    if-nez p1, :cond_0
+    invoke-interface {v1, v4}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
 
-    if-nez v0, :cond_0
+    .line 207
+    add-int/lit8 v0, v0, 0x1
 
-    const-string v0, "on"
+    goto :goto_1
 
-    invoke-interface {v3, v0}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
-
-    move-result v0
-
-    if-nez v0, :cond_1
-
-    .line 161
-    :cond_0
-    const-string v0, "on"
-
-    const-string v1, "1"
-
-    invoke-interface {v3, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 163
+    .line 211
     :cond_1
-    if-nez p1, :cond_2
+    const-string v0, "on"
 
-    const-string v0, "smart"
+    const-string v2, "1"
 
-    invoke-interface {v3, v0}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+    invoke-interface {v1, v0, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    move-result v0
+    .line 212
+    const-string v0, "theme"
 
-    if-nez v0, :cond_3
+    invoke-interface {v1, v0, p1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 164
-    :cond_2
-    const-string v0, "smart"
+    .line 213
+    invoke-static {p0, v1}, Lcom/keymouse/tool/CursorCfg;->save(Landroid/content/Context;Ljava/util/Map;)V
 
-    const-string v1, "1"
+    .line 214
+    const/4 v0, 0x1
 
-    invoke-interface {v3, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    goto :goto_0
+.end method
 
-    .line 166
-    :cond_3
-    if-nez p1, :cond_4
+.method static applyDefaultCfg(Landroid/content/Context;Z)V
+    .locals 3
 
-    const-string v0, "size"
+    .prologue
+    .line 242
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->load(Landroid/content/Context;)Ljava/util/Map;
 
-    invoke-interface {v3, v0}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+    move-result-object v1
 
-    move-result v0
+    .line 243
+    const-string v0, "arrow"
 
-    if-nez v0, :cond_5
-
-    .line 167
-    :cond_4
-    const-string v0, "size"
-
-    const-string v1, "32"
-
-    invoke-interface {v3, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 169
-    :cond_5
-    sget-object v5, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
-
-    array-length v6, v5
-
-    const/4 v0, 0x0
-
-    move v2, v0
-
-    :goto_0
-    if-ge v2, v6, :cond_9
-
-    aget-object v7, v5, v2
-
-    .line 170
-    invoke-interface {v4, v7}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-interface {v1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 171
-    if-nez v0, :cond_7
+    .line 244
+    if-eqz v0, :cond_0
 
-    .line 169
-    :cond_6
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v0
+
+    if-nez v0, :cond_8
+
+    :cond_0
+    const/4 v0, 0x1
+
+    .line 245
+    :goto_0
+    if-nez p1, :cond_1
+
+    invoke-interface {v1}, Ljava/util/Map;->isEmpty()Z
+
+    move-result v2
+
+    if-nez v2, :cond_1
+
+    if-eqz v0, :cond_9
+
+    .line 246
+    :cond_1
+    const-string v0, "stmc-1-1"
+
+    invoke-static {p0, v0}, Lcom/keymouse/tool/CursorCfg;->applyBuiltin(Landroid/content/Context;Ljava/lang/String;)Z
+
+    .line 247
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->load(Landroid/content/Context;)Ljava/util/Map;
+
+    move-result-object v0
+
+    .line 249
     :goto_1
-    add-int/lit8 v0, v2, 0x1
+    if-nez p1, :cond_2
 
-    move v2, v0
+    const-string v1, "on"
 
-    goto :goto_0
-
-    .line 174
-    :cond_7
-    if-nez p1, :cond_8
-
-    invoke-interface {v3, v7}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    if-eqz v1, :cond_8
-
-    invoke-interface {v3, v7}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
-
-    move-result-object v1
-
-    check-cast v1, Ljava/lang/String;
-
-    invoke-virtual {v1}, Ljava/lang/String;->length()I
+    invoke-interface {v0, v1}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
 
     move-result v1
 
-    if-nez v1, :cond_6
+    if-nez v1, :cond_3
 
-    .line 175
+    .line 250
+    :cond_2
+    const-string v1, "on"
+
+    const-string v2, "1"
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 252
+    :cond_3
+    if-nez p1, :cond_4
+
+    const-string v1, "smart"
+
+    invoke-interface {v0, v1}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_5
+
+    .line 253
+    :cond_4
+    const-string v1, "smart"
+
+    const-string v2, "1"
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 255
+    :cond_5
+    if-nez p1, :cond_6
+
+    const-string v1, "size"
+
+    invoke-interface {v0, v1}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
+
+    move-result v1
+
+    if-nez v1, :cond_7
+
+    .line 256
+    :cond_6
+    const-string v1, "size"
+
+    const-string v2, "32"
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 258
+    :cond_7
+    const-string v1, "def"
+
+    const-string v2, "2"
+
+    invoke-interface {v0, v1, v2}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 259
+    invoke-static {p0, v0}, Lcom/keymouse/tool/CursorCfg;->save(Landroid/content/Context;Ljava/util/Map;)V
+
+    .line 260
+    return-void
+
+    .line 244
     :cond_8
-    invoke-interface {v3, v7, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+    const/4 v0, 0x0
 
-    .line 176
-    new-instance v0, Ljava/lang/StringBuilder;
+    goto :goto_0
 
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v1, "hs_"
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v0
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v0
-
-    invoke-interface {v3, v0}, Ljava/util/Map;->remove(Ljava/lang/Object;)Ljava/lang/Object;
+    :cond_9
+    move-object v0, v1
 
     goto :goto_1
-
-    .line 179
-    :cond_9
-    const-string v0, "def"
-
-    const-string v1, "1"
-
-    invoke-interface {v3, v0, v1}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 180
-    invoke-static {p0, v3}, Lcom/keymouse/tool/CursorCfg;->save(Landroid/content/Context;Ljava/util/Map;)V
-
-    .line 181
-    return-void
 .end method
 
 .method static baseName(Ljava/lang/String;)Ljava/lang/String;
     .locals 2
 
     .prologue
-    .line 387
+    .line 471
     const/16 v0, 0x2f
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->lastIndexOf(I)I
@@ -419,7 +496,7 @@
 
     move-result v0
 
-    .line 388
+    .line 472
     if-ltz v0, :cond_0
 
     add-int/lit8 v0, v0, 0x1
@@ -430,6 +507,212 @@
 
     :cond_0
     return-object p0
+.end method
+
+.method static builtinOfPath(Landroid/content/Context;Ljava/lang/String;)[Ljava/lang/String;
+    .locals 6
+
+    .prologue
+    const/4 v1, 0x0
+
+    .line 225
+    if-eqz p1, :cond_0
+
+    const-string v0, "_themes/"
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v0
+
+    if-nez v0, :cond_1
+
+    :cond_0
+    move-object v0, v1
+
+    .line 237
+    :goto_0
+    return-object v0
+
+    .line 228
+    :cond_1
+    const-string v0, "/"
+
+    invoke-virtual {p1, v0}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v2
+
+    .line 229
+    array-length v0, v2
+
+    const/4 v3, 0x3
+
+    if-ge v0, v3, :cond_2
+
+    move-object v0, v1
+
+    .line 230
+    goto :goto_0
+
+    .line 232
+    :cond_2
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->builtinThemes(Landroid/content/Context;)Ljava/util/ArrayList;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
+
+    move-result-object v3
+
+    :cond_3
+    invoke-interface {v3}, Ljava/util/Iterator;->hasNext()Z
+
+    move-result v0
+
+    if-eqz v0, :cond_4
+
+    invoke-interface {v3}, Ljava/util/Iterator;->next()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, [Ljava/lang/String;
+
+    .line 233
+    const/4 v4, 0x0
+
+    aget-object v4, v0, v4
+
+    const/4 v5, 0x1
+
+    aget-object v5, v2, v5
+
+    invoke-virtual {v4, v5}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v4
+
+    if-eqz v4, :cond_3
+
+    goto :goto_0
+
+    :cond_4
+    move-object v0, v1
+
+    .line 237
+    goto :goto_0
+.end method
+
+.method static builtinThemes(Landroid/content/Context;)Ljava/util/ArrayList;
+    .locals 7
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Landroid/content/Context;",
+            ")",
+            "Ljava/util/ArrayList",
+            "<[",
+            "Ljava/lang/String;",
+            ">;"
+        }
+    .end annotation
+
+    .prologue
+    .line 121
+    new-instance v1, Ljava/util/ArrayList;
+
+    invoke-direct {v1}, Ljava/util/ArrayList;-><init>()V
+
+    .line 123
+    :try_start_0
+    invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
+
+    move-result-object v0
+
+    const-string v2, "cursor_themes/index.txt"
+
+    invoke-virtual {v0, v2}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
+    :try_end_0
+    .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
+
+    move-result-object v0
+
+    .line 126
+    :try_start_1
+    invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->readStream(Ljava/io/InputStream;)[B
+    :try_end_1
+    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+
+    move-result-object v2
+
+    .line 128
+    :try_start_2
+    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
+
+    .line 130
+    new-instance v0, Ljava/lang/String;
+
+    const-string v3, "UTF-8"
+
+    invoke-direct {v0, v2, v3}, Ljava/lang/String;-><init>([BLjava/lang/String;)V
+
+    const-string v2, "\n"
+
+    invoke-virtual {v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v2
+
+    array-length v3, v2
+
+    const/4 v0, 0x0
+
+    :goto_0
+    if-ge v0, v3, :cond_1
+
+    aget-object v4, v2, v0
+
+    .line 131
+    invoke-virtual {v4}, Ljava/lang/String;->trim()Ljava/lang/String;
+
+    move-result-object v4
+
+    const-string v5, "\\|"
+
+    invoke-virtual {v4, v5}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v4
+
+    .line 132
+    array-length v5, v4
+
+    const/4 v6, 0x4
+
+    if-lt v5, v6, :cond_0
+
+    .line 133
+    invoke-virtual {v1, v4}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+
+    .line 130
+    :cond_0
+    add-int/lit8 v0, v0, 0x1
+
+    goto :goto_0
+
+    .line 128
+    :catchall_0
+    move-exception v2
+
+    invoke-virtual {v0}, Ljava/io/InputStream;->close()V
+
+    .line 129
+    throw v2
+    :try_end_2
+    .catch Ljava/lang/Throwable; {:try_start_2 .. :try_end_2} :catch_0
+
+    .line 136
+    :catch_0
+    move-exception v0
+
+    .line 139
+    :cond_1
+    return-object v1
 .end method
 
 .method private static copyAsset(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)V
@@ -443,34 +726,16 @@
     .prologue
     const/4 v5, 0x0
 
-    .line 115
+    .line 148
     invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
 
     move-result-object v0
 
-    new-instance v1, Ljava/lang/StringBuilder;
-
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v2, "cursor_default/STMC/"
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+    invoke-virtual {v0, p1}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
 
     move-result-object v1
 
-    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Landroid/content/res/AssetManager;->open(Ljava/lang/String;)Ljava/io/InputStream;
-
-    move-result-object v1
-
-    .line 117
+    .line 150
     :try_start_0
     new-instance v2, Ljava/io/FileOutputStream;
 
@@ -478,13 +743,13 @@
     :try_end_0
     .catchall {:try_start_0 .. :try_end_0} :catchall_1
 
-    .line 119
+    .line 152
     const/16 v0, 0x2000
 
     :try_start_1
     new-array v0, v0, [B
 
-    .line 121
+    .line 154
     :goto_0
     invoke-virtual {v1, v0}, Ljava/io/InputStream;->read([B)I
 
@@ -492,7 +757,7 @@
 
     if-lez v3, :cond_0
 
-    .line 122
+    .line 155
     const/4 v4, 0x0
 
     invoke-virtual {v2, v0, v4, v3}, Ljava/io/FileOutputStream;->write([BII)V
@@ -501,44 +766,84 @@
 
     goto :goto_0
 
-    .line 125
+    .line 158
     :catchall_0
     move-exception v0
 
     :try_start_2
     invoke-virtual {v2}, Ljava/io/FileOutputStream;->close()V
 
-    .line 126
+    .line 159
     throw v0
     :try_end_2
     .catchall {:try_start_2 .. :try_end_2} :catchall_1
 
-    .line 128
+    .line 161
     :catchall_1
     move-exception v0
 
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 129
+    .line 162
     throw v0
 
-    .line 125
+    .line 158
     :cond_0
     :try_start_3
     invoke-virtual {v2}, Ljava/io/FileOutputStream;->close()V
     :try_end_3
     .catchall {:try_start_3 .. :try_end_3} :catchall_1
 
-    .line 128
+    .line 161
     invoke-virtual {v1}, Ljava/io/InputStream;->close()V
 
-    .line 130
+    .line 163
     const/4 v0, 0x1
 
     invoke-virtual {p2, v0, v5}, Ljava/io/File;->setReadable(ZZ)Z
 
-    .line 131
+    .line 164
     return-void
+.end method
+
+.method static currentThemeId(Ljava/util/Map;)Ljava/lang/String;
+    .locals 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "(",
+            "Ljava/util/Map",
+            "<",
+            "Ljava/lang/String;",
+            "Ljava/lang/String;",
+            ">;)",
+            "Ljava/lang/String;"
+        }
+    .end annotation
+
+    .prologue
+    .line 219
+    const-string v0, "theme"
+
+    invoke-interface {p0, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, Ljava/lang/String;
+
+    .line 220
+    if-eqz v0, :cond_0
+
+    invoke-virtual {v0}, Ljava/lang/String;->length()I
+
+    move-result v1
+
+    if-nez v1, :cond_1
+
+    :cond_0
+    const/4 v0, 0x0
+
+    :cond_1
+    return-object v0
 .end method
 
 .method static defHotspot(Ljava/lang/String;)I
@@ -593,60 +898,83 @@
 .end method
 
 .method static ensureDefaults(Landroid/content/Context;)V
-    .locals 3
+    .locals 4
 
     .prologue
     const/4 v1, 0x1
 
-    .line 185
+    .line 264
     sget-boolean v0, Lcom/keymouse/tool/CursorCfg;->sDefChecked:Z
 
     if-eqz v0, :cond_1
 
-    .line 206
+    .line 287
     :cond_0
     :goto_0
     return-void
 
-    .line 188
+    .line 267
     :cond_1
     sput-boolean v1, Lcom/keymouse/tool/CursorCfg;->sDefChecked:Z
 
-    .line 190
+    .line 269
     :try_start_0
-    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->installDefaultFiles(Landroid/content/Context;)V
+    const-string v0, "stmc-1-1"
 
-    .line 191
+    invoke-static {p0, v0}, Lcom/keymouse/tool/CursorCfg;->installTheme(Landroid/content/Context;Ljava/lang/String;)Z
+
+    .line 270
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->load(Landroid/content/Context;)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 192
-    const-string v1, "1"
+    .line 271
+    const-string v2, "2"
 
-    const-string v2, "def"
+    const-string v3, "def"
+
+    invoke-interface {v0, v3}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v3
+
+    invoke-virtual {v2, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v2
+
+    if-nez v2, :cond_2
+
+    .line 272
+    const-string v2, "arrow"
 
     invoke-interface {v0, v2}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
-    move-result-object v2
+    move-result-object v0
 
-    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+    check-cast v0, Ljava/lang/String;
 
-    move-result v1
+    .line 273
+    if-eqz v0, :cond_3
 
-    if-nez v1, :cond_2
+    const-string v2, "STMC/"
 
-    .line 193
-    const/4 v0, 0x0
+    invoke-virtual {v0, v2}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
+    move-result v0
+
+    if-eqz v0, :cond_3
+
+    move v0, v1
+
+    .line 274
+    :goto_1
     invoke-static {p0, v0}, Lcom/keymouse/tool/CursorCfg;->applyDefaultCfg(Landroid/content/Context;Z)V
 
-    .line 194
+    .line 275
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->load(Landroid/content/Context;)Ljava/util/Map;
 
     move-result-object v0
 
-    .line 196
+    .line 277
     :cond_2
     const-string v1, "on"
 
@@ -674,7 +1002,7 @@
 
     if-nez v0, :cond_0
 
-    .line 197
+    .line 278
     new-instance v0, Ljava/lang/Thread;
 
     new-instance v1, Lcom/keymouse/tool/CursorCfg$1;
@@ -683,18 +1011,24 @@
 
     invoke-direct {v0, v1}, Ljava/lang/Thread;-><init>(Ljava/lang/Runnable;)V
 
-    .line 201
+    .line 282
     invoke-virtual {v0}, Ljava/lang/Thread;->start()V
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 203
+    .line 284
     :catch_0
     move-exception v0
 
     goto :goto_0
+
+    .line 273
+    :cond_3
+    const/4 v0, 0x0
+
+    goto :goto_1
 .end method
 
 .method private static expand(Ljava/lang/String;Ljava/util/Map;)Ljava/lang/String;
@@ -717,7 +1051,7 @@
 
     const/4 v2, 0x0
 
-    .line 503
+    .line 587
     move v6, v2
 
     move-object v4, p0
@@ -727,7 +1061,7 @@
 
     if-ge v6, v0, :cond_5
 
-    .line 504
+    .line 588
     new-instance v7, Ljava/lang/StringBuilder;
 
     invoke-direct {v7}, Ljava/lang/StringBuilder;-><init>()V
@@ -736,7 +1070,7 @@
 
     move v3, v2
 
-    .line 507
+    .line 591
     :goto_1
     invoke-virtual {v4}, Ljava/lang/String;->length()I
 
@@ -744,12 +1078,12 @@
 
     if-ge v3, v0, :cond_3
 
-    .line 508
+    .line 592
     invoke-virtual {v4, v3}, Ljava/lang/String;->charAt(I)C
 
     move-result v8
 
-    .line 509
+    .line 593
     if-ne v8, v9, :cond_1
 
     add-int/lit8 v0, v3, 0x1
@@ -760,11 +1094,11 @@
 
     move v5, v0
 
-    .line 510
+    .line 594
     :goto_2
     if-le v5, v3, :cond_2
 
-    .line 511
+    .line 595
     add-int/lit8 v0, v3, 0x1
 
     invoke-virtual {v4, v0, v5}, Ljava/lang/String;->substring(II)Ljava/lang/String;
@@ -781,16 +1115,16 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 512
+    .line 596
     if-eqz v0, :cond_0
 
-    .line 513
+    .line 597
     invoke-virtual {v7, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 
-    .line 514
+    .line 598
     const/4 v1, 0x1
 
-    .line 516
+    .line 600
     :cond_0
     add-int/lit8 v3, v5, 0x1
 
@@ -799,10 +1133,10 @@
     :goto_3
     move v1, v0
 
-    .line 521
+    .line 605
     goto :goto_1
 
-    .line 509
+    .line 593
     :cond_1
     const/4 v0, -0x1
 
@@ -810,31 +1144,31 @@
 
     goto :goto_2
 
-    .line 518
+    .line 602
     :cond_2
     invoke-virtual {v7, v8}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 519
+    .line 603
     add-int/lit8 v3, v3, 0x1
 
     move v0, v1
 
     goto :goto_3
 
-    .line 522
+    .line 606
     :cond_3
     invoke-virtual {v7}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 523
+    .line 607
     if-nez v1, :cond_4
 
-    .line 527
+    .line 611
     :goto_4
     return-object v0
 
-    .line 503
+    .line 587
     :cond_4
     add-int/lit8 v1, v6, 0x1
 
@@ -882,23 +1216,23 @@
     .end annotation
 
     .prologue
-    .line 373
+    .line 457
     invoke-virtual {p0}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v1
 
-    .line 374
+    .line 458
     if-eqz v1, :cond_0
 
     const/4 v0, 0x3
 
     if-le p2, v0, :cond_1
 
-    .line 384
+    .line 468
     :cond_0
     return-void
 
-    .line 377
+    .line 461
     :cond_1
     array-length v2, v1
 
@@ -909,26 +1243,26 @@
 
     aget-object v3, v1, v0
 
-    .line 378
+    .line 462
     invoke-virtual {v3}, Ljava/io/File;->isDirectory()Z
 
     move-result v4
 
     if-eqz v4, :cond_3
 
-    .line 379
+    .line 463
     add-int/lit8 v4, p2, 0x1
 
     invoke-static {v3, p1, v4}, Lcom/keymouse/tool/CursorCfg;->findInf(Ljava/io/File;Ljava/util/ArrayList;I)V
 
-    .line 377
+    .line 461
     :cond_2
     :goto_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 380
+    .line 464
     :cond_3
     invoke-virtual {v3}, Ljava/io/File;->getName()Ljava/lang/String;
 
@@ -946,7 +1280,7 @@
 
     if-eqz v4, :cond_2
 
-    .line 381
+    .line 465
     invoke-virtual {p1, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_1
@@ -1015,7 +1349,7 @@
     .locals 1
 
     .prologue
-    .line 392
+    .line 476
     const-string v0, "grab"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -1050,7 +1384,7 @@
 
     const-string v0, "grip"
 
-    .line 393
+    .line 477
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -1065,15 +1399,15 @@
 
     if-eqz v0, :cond_1
 
-    .line 394
+    .line 478
     :cond_0
     const-string v0, "grab"
 
-    .line 407
+    .line 491
     :goto_0
     return-object v0
 
-    .line 396
+    .line 480
     :cond_1
     const-string v0, "ibeam"
 
@@ -1109,20 +1443,20 @@
 
     const-string v0, "xterm"
 
-    .line 397
+    .line 481
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
 
     if-eqz v0, :cond_3
 
-    .line 398
+    .line 482
     :cond_2
     const-string v0, "ibeam"
 
     goto :goto_0
 
-    .line 400
+    .line 484
     :cond_3
     const-string v0, "link"
 
@@ -1156,13 +1490,13 @@
 
     if-eqz v0, :cond_5
 
-    .line 401
+    .line 485
     :cond_4
     const-string v0, "hand"
 
     goto :goto_0
 
-    .line 403
+    .line 487
     :cond_5
     const-string v0, "normal"
 
@@ -1198,7 +1532,7 @@
 
     const-string v0, "pointer"
 
-    .line 404
+    .line 488
     invoke-virtual {p0, v0}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
 
     move-result v0
@@ -1221,13 +1555,13 @@
 
     if-eqz v0, :cond_7
 
-    .line 405
+    .line 489
     :cond_6
     const-string v0, "arrow"
 
     goto/16 :goto_0
 
-    .line 407
+    .line 491
     :cond_7
     const/4 v0, 0x0
 
@@ -1240,7 +1574,7 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 261
+    .line 345
     :try_start_0
     invoke-virtual {p0}, Landroid/content/Context;->getFilesDir()Ljava/io/File;
 
@@ -1250,7 +1584,7 @@
 
     move-result-object v1
 
-    .line 262
+    .line 346
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
 
     move-result-object v2
@@ -1259,7 +1593,7 @@
 
     move-result-object v2
 
-    .line 263
+    .line 347
     new-instance v3, Ljava/lang/StringBuilder;
 
     invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
@@ -1358,7 +1692,7 @@
 
     move-result-object v1
 
-    .line 266
+    .line 350
     invoke-static {}, Ljava/lang/Runtime;->getRuntime()Ljava/lang/Runtime;
 
     move-result-object v2
@@ -1387,14 +1721,14 @@
 
     move-result-object v1
 
-    .line 267
+    .line 351
     invoke-virtual {v1}, Ljava/lang/Process;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v2
 
     invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
 
-    .line 268
+    .line 352
     invoke-virtual {v1}, Ljava/lang/Process;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v2
@@ -1403,10 +1737,10 @@
 
     move-result-object v2
 
-    .line 269
+    .line 353
     invoke-virtual {v1}, Ljava/lang/Process;->waitFor()I
 
-    .line 270
+    .line 354
     new-instance v1, Ljava/lang/String;
 
     invoke-direct {v1, v2}, Ljava/lang/String;-><init>([B)V
@@ -1419,104 +1753,199 @@
 
     move-result v0
 
-    .line 272
+    .line 356
     :goto_0
     return v0
 
-    .line 271
+    .line 355
     :catch_0
     move-exception v1
 
     goto :goto_0
 .end method
 
-.method static installDefaultFiles(Landroid/content/Context;)V
-    .locals 7
+.method static installAllThemes(Landroid/content/Context;)V
+    .locals 3
 
     .prologue
-    .line 136
-    :try_start_0
-    new-instance v1, Ljava/io/File;
-
-    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
+    .line 196
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->builtinThemes(Landroid/content/Context;)Ljava/util/ArrayList;
 
     move-result-object v0
 
-    const-string v2, "STMC"
+    invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
-    invoke-direct {v1, v0, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    move-result-object v1
 
-    .line 137
-    new-instance v2, Ljava/io/File;
-
-    const-string v0, ".v71"
-
-    invoke-direct {v2, v1, v0}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
-
-    .line 138
-    invoke-virtual {v2}, Ljava/io/File;->exists()Z
+    :goto_0
+    invoke-interface {v1}, Ljava/util/Iterator;->hasNext()Z
 
     move-result v0
 
-    if-eqz v0, :cond_1
+    if-eqz v0, :cond_0
 
-    .line 153
-    :cond_0
-    :goto_0
-    return-void
-
-    .line 141
-    :cond_1
-    invoke-virtual {v1}, Ljava/io/File;->mkdirs()Z
-
-    .line 142
-    invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
+    invoke-interface {v1}, Ljava/util/Iterator;->next()Ljava/lang/Object;
 
     move-result-object v0
 
-    const-string v3, "cursor_default/STMC"
+    check-cast v0, [Ljava/lang/String;
 
-    invoke-virtual {v0, v3}, Landroid/content/res/AssetManager;->list(Ljava/lang/String;)[Ljava/lang/String;
+    .line 197
+    const/4 v2, 0x0
+
+    aget-object v0, v0, v2
+
+    invoke-static {p0, v0}, Lcom/keymouse/tool/CursorCfg;->installTheme(Landroid/content/Context;Ljava/lang/String;)Z
+
+    goto :goto_0
+
+    .line 199
+    :cond_0
+    return-void
+.end method
+
+.method static installTheme(Landroid/content/Context;Ljava/lang/String;)Z
+    .locals 10
+
+    .prologue
+    const/4 v0, 0x1
+
+    const/4 v1, 0x0
+
+    .line 174
+    :try_start_0
+    invoke-static {p0, p1}, Lcom/keymouse/tool/CursorCfg;->themeDir(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
 
     move-result-object v3
 
-    .line 143
-    if-eqz v3, :cond_0
+    .line 175
+    new-instance v4, Ljava/io/File;
 
-    .line 146
-    array-length v4, v3
+    const-string v2, ".ok"
 
-    const/4 v0, 0x0
+    invoke-direct {v4, v3, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    .line 176
+    invoke-virtual {v4}, Ljava/io/File;->exists()Z
+
+    move-result v2
+
+    if-eqz v2, :cond_0
+
+    .line 190
+    :goto_0
+    return v0
+
+    .line 179
+    :cond_0
+    invoke-virtual {v3}, Ljava/io/File;->mkdirs()Z
+
+    .line 180
+    invoke-virtual {p0}, Landroid/content/Context;->getAssets()Landroid/content/res/AssetManager;
+
+    move-result-object v2
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "cursor_themes/"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v5
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v5
+
+    invoke-virtual {v2, v5}, Landroid/content/res/AssetManager;->list(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v5
+
+    .line 181
+    if-eqz v5, :cond_1
+
+    array-length v2, v5
+
+    if-nez v2, :cond_2
+
+    :cond_1
+    move v0, v1
+
+    .line 182
+    goto :goto_0
+
+    .line 184
+    :cond_2
+    array-length v6, v5
+
+    move v2, v1
 
     :goto_1
-    if-ge v0, v4, :cond_2
+    if-ge v2, v6, :cond_3
 
-    aget-object v5, v3, v0
+    aget-object v7, v5, v2
 
-    .line 147
-    new-instance v6, Ljava/io/File;
+    .line 185
+    new-instance v8, Ljava/lang/StringBuilder;
 
-    invoke-direct {v6, v1, v5}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+    invoke-direct {v8}, Ljava/lang/StringBuilder;-><init>()V
 
-    invoke-static {p0, v5, v6}, Lcom/keymouse/tool/CursorCfg;->copyAsset(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)V
+    const-string v9, "cursor_themes/"
 
-    .line 146
-    add-int/lit8 v0, v0, 0x1
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    const-string v9, "/"
+
+    invoke-virtual {v8, v9}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8, v7}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v8
+
+    invoke-virtual {v8}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v8
+
+    new-instance v9, Ljava/io/File;
+
+    invoke-direct {v9, v3, v7}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-static {p0, v8, v9}, Lcom/keymouse/tool/CursorCfg;->copyAsset(Landroid/content/Context;Ljava/lang/String;Ljava/io/File;)V
+
+    .line 184
+    add-int/lit8 v2, v2, 0x1
 
     goto :goto_1
 
-    .line 149
-    :cond_2
-    invoke-virtual {v2}, Ljava/io/File;->createNewFile()Z
+    .line 187
+    :cond_3
+    invoke-virtual {v4}, Ljava/io/File;->createNewFile()Z
     :try_end_0
     .catch Ljava/lang/Throwable; {:try_start_0 .. :try_end_0} :catch_0
 
     goto :goto_0
 
-    .line 150
+    .line 189
     :catch_0
     move-exception v0
 
+    move v0, v1
+
+    .line 190
     goto :goto_0
 .end method
 
@@ -1524,12 +1953,12 @@
     .locals 2
 
     .prologue
-    .line 211
+    .line 292
     invoke-virtual {p0}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 212
+    .line 293
     const-string v1, ".cur"
 
     invoke-virtual {v0, v1}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
@@ -1607,27 +2036,27 @@
     .end annotation
 
     .prologue
-    .line 232
+    .line 316
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 233
+    .line 317
     const/4 v1, 0x0
 
     invoke-static {p0, p0, v0, v1}, Lcom/keymouse/tool/CursorCfg;->walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
 
-    .line 234
+    .line 318
     sget-object v1, Ljava/lang/String;->CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
 
     invoke-static {v0, v1}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 235
+    .line 319
     return-object v0
 .end method
 
 .method static listThemes(Ljava/io/File;)Ljava/util/ArrayList;
-    .locals 7
+    .locals 8
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -1643,24 +2072,24 @@
     .prologue
     const/4 v2, 0x0
 
-    .line 240
+    .line 324
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 241
+    .line 325
     invoke-virtual {p0}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v3
 
-    .line 242
+    .line 326
     if-nez v3, :cond_0
 
-    .line 255
+    .line 339
     :goto_0
     return-object v0
 
-    .line 245
+    .line 329
     :cond_0
     array-length v4, v3
 
@@ -1671,42 +2100,66 @@
 
     aget-object v5, v3, v1
 
-    .line 246
+    .line 330
     invoke-virtual {v5}, Ljava/io/File;->isDirectory()Z
 
     move-result v6
 
     if-eqz v6, :cond_1
 
-    .line 247
+    invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
+
+    move-result-object v6
+
+    const-string v7, "_"
+
+    invoke-virtual {v6, v7}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
+
+    move-result v6
+
+    if-nez v6, :cond_1
+
+    invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
+
+    move-result-object v6
+
+    const-string v7, "STMC"
+
+    invoke-virtual {v6, v7}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v6
+
+    if-nez v6, :cond_1
+
+    .line 331
     new-instance v6, Ljava/util/ArrayList;
 
     invoke-direct {v6}, Ljava/util/ArrayList;-><init>()V
 
-    .line 248
+    .line 332
     invoke-static {v5, v5, v6, v2}, Lcom/keymouse/tool/CursorCfg;->walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
 
-    .line 249
+    .line 333
     invoke-virtual {v6}, Ljava/util/ArrayList;->isEmpty()Z
 
     move-result v6
 
     if-nez v6, :cond_1
 
-    .line 250
+    .line 334
     invoke-virtual {v5}, Ljava/io/File;->getName()Ljava/lang/String;
 
     move-result-object v5
 
     invoke-virtual {v0, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 245
+    .line 329
     :cond_1
     add-int/lit8 v1, v1, 0x1
 
     goto :goto_1
 
-    .line 254
+    .line 338
     :cond_2
     sget-object v1, Ljava/lang/String;->CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
 
@@ -1889,12 +2342,12 @@
 
     const/4 v1, 0x0
 
-    .line 433
+    .line 517
     invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->readAll(Ljava/io/File;)[B
 
     move-result-object v3
 
-    .line 435
+    .line 519
     array-length v2, v3
 
     if-le v2, v10, :cond_1
@@ -1915,7 +2368,7 @@
 
     if-ne v2, v4, :cond_1
 
-    .line 436
+    .line 520
     new-instance v0, Ljava/lang/String;
 
     array-length v2, v3
@@ -1926,21 +2379,21 @@
 
     invoke-direct {v0, v3, v10, v2, v4}, Ljava/lang/String;-><init>([BIILjava/lang/String;)V
 
-    .line 446
+    .line 530
     :goto_0
     new-instance v4, Ljava/util/HashMap;
 
     invoke-direct {v4}, Ljava/util/HashMap;-><init>()V
 
-    .line 447
+    .line 531
     new-instance v5, Ljava/util/ArrayList;
 
     invoke-direct {v5}, Ljava/util/ArrayList;-><init>()V
 
-    .line 448
+    .line 532
     const-string v3, ""
 
-    .line 449
+    .line 533
     const-string v2, "\r?\n|\r"
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -1958,12 +2411,12 @@
 
     aget-object v3, v6, v2
 
-    .line 450
+    .line 534
     invoke-virtual {v3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v3
 
-    .line 451
+    .line 535
     invoke-virtual {v3}, Ljava/lang/String;->length()I
 
     move-result v8
@@ -1978,14 +2431,14 @@
 
     if-eqz v8, :cond_4
 
-    .line 449
+    .line 533
     :cond_0
     :goto_2
     add-int/lit8 v2, v2, 0x1
 
     goto :goto_1
 
-    .line 437
+    .line 521
     :cond_1
     array-length v2, v3
 
@@ -2007,7 +2460,7 @@
 
     if-ne v2, v4, :cond_2
 
-    .line 438
+    .line 522
     new-instance v0, Ljava/lang/String;
 
     array-length v2, v3
@@ -2020,7 +2473,7 @@
 
     goto :goto_0
 
-    .line 440
+    .line 524
     :cond_2
     array-length v2, v3
 
@@ -2042,7 +2495,7 @@
 
     if-ne v2, v4, :cond_3
 
-    .line 441
+    .line 525
     :goto_3
     new-instance v2, Ljava/lang/String;
 
@@ -2054,7 +2507,7 @@
 
     invoke-direct {v2, v3, v0, v4, v5}, Ljava/lang/String;-><init>([BIILjava/lang/String;)V
 
-    .line 442
+    .line 526
     const v4, 0xfffd
 
     invoke-virtual {v2, v4}, Ljava/lang/String;->indexOf(I)I
@@ -2063,7 +2516,7 @@
 
     if-ltz v4, :cond_c
 
-    .line 443
+    .line 527
     new-instance v2, Ljava/lang/String;
 
     array-length v4, v3
@@ -2085,10 +2538,10 @@
     :cond_3
     move v0, v1
 
-    .line 440
+    .line 524
     goto :goto_3
 
-    .line 454
+    .line 538
     :cond_4
     const-string v8, "["
 
@@ -2098,14 +2551,14 @@
 
     if-eqz v8, :cond_5
 
-    .line 455
+    .line 539
     invoke-virtual {v3}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
     move-result-object v0
 
     goto :goto_2
 
-    .line 458
+    .line 542
     :cond_5
     const-string v8, "[strings]"
 
@@ -2115,15 +2568,15 @@
 
     if-eqz v8, :cond_6
 
-    .line 459
+    .line 543
     invoke-virtual {v3, v12}, Ljava/lang/String;->indexOf(I)I
 
     move-result v8
 
-    .line 460
+    .line 544
     if-lez v8, :cond_0
 
-    .line 461
+    .line 545
     invoke-virtual {v3, v1, v8}, Ljava/lang/String;->substring(II)Ljava/lang/String;
 
     move-result-object v9
@@ -2154,7 +2607,7 @@
 
     goto/16 :goto_2
 
-    .line 463
+    .line 547
     :cond_6
     invoke-virtual {v3}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
 
@@ -2168,12 +2621,12 @@
 
     if-eqz v8, :cond_0
 
-    .line 464
+    .line 548
     invoke-virtual {v5, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto/16 :goto_2
 
-    .line 467
+    .line 551
     :cond_7
     invoke-virtual {v5}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -2193,7 +2646,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 468
+    .line 552
     invoke-virtual {v0, v12}, Ljava/lang/String;->indexOf(I)I
 
     move-result v2
@@ -2212,14 +2665,14 @@
 
     if-ge v2, v5, :cond_9
 
-    .line 469
+    .line 553
     invoke-virtual {v0, v12}, Ljava/lang/String;->indexOf(I)I
 
     move-result v2
 
     add-int/lit8 v2, v2, 0x1
 
-    .line 468
+    .line 552
     :goto_5
     invoke-virtual {v0, v2}, Ljava/lang/String;->substring(I)Ljava/lang/String;
 
@@ -2229,7 +2682,7 @@
 
     move-result-object v2
 
-    .line 470
+    .line 554
     invoke-virtual {v2}, Ljava/util/ArrayList;->size()I
 
     move-result v0
@@ -2238,7 +2691,7 @@
 
     if-lt v0, v5, :cond_8
 
-    .line 473
+    .line 557
     invoke-virtual {v2, v11}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -2257,7 +2710,7 @@
 
     move-result-object v5
 
-    .line 474
+    .line 558
     invoke-virtual {v2, v10}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
 
     move-result-object v0
@@ -2268,7 +2721,7 @@
 
     move-result-object v6
 
-    .line 475
+    .line 559
     const/4 v0, 0x4
 
     invoke-virtual {v2, v0}, Ljava/util/ArrayList;->get(I)Ljava/lang/Object;
@@ -2285,7 +2738,7 @@
 
     move-result-object v0
 
-    .line 476
+    .line 560
     const-string v2, "\\schemes"
 
     invoke-virtual {v5, v2}, Ljava/lang/String;->endsWith(Ljava/lang/String;)Z
@@ -2294,7 +2747,7 @@
 
     if-eqz v2, :cond_a
 
-    .line 477
+    .line 561
     const-string v2, ","
 
     invoke-virtual {v0, v2}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
@@ -2303,7 +2756,7 @@
 
     move v0, v1
 
-    .line 478
+    .line 562
     :goto_6
     array-length v5, v2
 
@@ -2315,7 +2768,7 @@
 
     if-ge v0, v5, :cond_8
 
-    .line 479
+    .line 563
     sget-object v5, Lcom/keymouse/tool/CursorCfg;->WIN_ORDER:[Ljava/lang/String;
 
     aget-object v5, v5, v0
@@ -2328,7 +2781,7 @@
 
     invoke-static {p2, p1, v5, v6}, Lcom/keymouse/tool/CursorCfg;->put(Ljava/util/Map;Ljava/util/Map;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 478
+    .line 562
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_6
@@ -2336,10 +2789,10 @@
     :cond_9
     move v2, v1
 
-    .line 469
+    .line 553
     goto :goto_5
 
-    .line 481
+    .line 565
     :cond_a
     invoke-virtual {v6}, Ljava/lang/String;->length()I
 
@@ -2347,7 +2800,7 @@
 
     if-lez v2, :cond_8
 
-    .line 482
+    .line 566
     invoke-static {v6}, Lcom/keymouse/tool/CursorCfg;->slotOfWinName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v2
@@ -2356,7 +2809,7 @@
 
     goto/16 :goto_4
 
-    .line 485
+    .line 569
     :cond_b
     return-void
 
@@ -2388,17 +2841,17 @@
     .end annotation
 
     .prologue
-    .line 488
+    .line 572
     if-eqz p2, :cond_0
 
     if-nez p3, :cond_1
 
-    .line 500
+    .line 584
     :cond_0
     :goto_0
     return-void
 
-    .line 491
+    .line 575
     :cond_1
     invoke-virtual {p3}, Ljava/lang/String;->trim()Ljava/lang/String;
 
@@ -2416,24 +2869,24 @@
 
     move-result-object v0
 
-    .line 492
+    .line 576
     invoke-interface {p1, v0}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 493
+    .line 577
     if-eqz v0, :cond_0
 
-    .line 497
+    .line 581
     invoke-interface {p0, p2}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
 
     move-result v1
 
     if-nez v1, :cond_0
 
-    .line 498
+    .line 582
     invoke-interface {p0, p2, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     goto :goto_0
@@ -2448,12 +2901,12 @@
     .end annotation
 
     .prologue
-    .line 559
+    .line 643
     new-instance v0, Ljava/io/FileInputStream;
 
     invoke-direct {v0, p0}, Ljava/io/FileInputStream;-><init>(Ljava/io/File;)V
 
-    .line 561
+    .line 645
     :try_start_0
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->readStream(Ljava/io/InputStream;)[B
     :try_end_0
@@ -2461,19 +2914,19 @@
 
     move-result-object v1
 
-    .line 563
+    .line 647
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 561
+    .line 645
     return-object v1
 
-    .line 563
+    .line 647
     :catchall_0
     move-exception v1
 
     invoke-virtual {v0}, Ljava/io/InputStream;->close()V
 
-    .line 564
+    .line 648
     throw v1
 .end method
 
@@ -2486,17 +2939,17 @@
     .end annotation
 
     .prologue
-    .line 568
+    .line 652
     new-instance v0, Ljava/io/ByteArrayOutputStream;
 
     invoke-direct {v0}, Ljava/io/ByteArrayOutputStream;-><init>()V
 
-    .line 569
+    .line 653
     const/16 v1, 0x2000
 
     new-array v1, v1, [B
 
-    .line 571
+    .line 655
     :goto_0
     invoke-virtual {p0, v1}, Ljava/io/InputStream;->read([B)I
 
@@ -2504,14 +2957,14 @@
 
     if-lez v2, :cond_0
 
-    .line 572
+    .line 656
     const/4 v3, 0x0
 
     invoke-virtual {v0, v1, v3, v2}, Ljava/io/ByteArrayOutputStream;->write([BII)V
 
     goto :goto_0
 
-    .line 574
+    .line 658
     :cond_0
     invoke-virtual {v0}, Ljava/io/ByteArrayOutputStream;->toByteArray()[B
 
@@ -2672,14 +3125,14 @@
     .prologue
     const/4 v0, 0x0
 
-    .line 290
+    .line 374
     :try_start_0
     const-string v1, "S=com.keymouse.tool/com.keymouse.tool.CursorA11yService; C=$(settings get secure enabled_accessibility_services); [ \"$C\" = null ] && C=\"\"; N=$(echo \":$C:\" | sed \"s#:$S:#:#g\" | sed \'s#^:*##; s#:*$##\'); "
 
-    .line 293
+    .line 377
     if-eqz p0, :cond_0
 
-    .line 294
+    .line 378
     new-instance v2, Ljava/lang/StringBuilder;
 
     invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
@@ -2698,7 +3151,7 @@
 
     move-result-object v1
 
-    .line 301
+    .line 385
     :goto_0
     invoke-static {}, Ljava/lang/Runtime;->getRuntime()Ljava/lang/Runtime;
 
@@ -2728,14 +3181,14 @@
 
     move-result-object v1
 
-    .line 302
+    .line 386
     invoke-virtual {v1}, Ljava/lang/Process;->getOutputStream()Ljava/io/OutputStream;
 
     move-result-object v2
 
     invoke-virtual {v2}, Ljava/io/OutputStream;->close()V
 
-    .line 303
+    .line 387
     invoke-virtual {v1}, Ljava/lang/Process;->getInputStream()Ljava/io/InputStream;
 
     move-result-object v2
@@ -2744,10 +3197,10 @@
 
     move-result-object v2
 
-    .line 304
+    .line 388
     invoke-virtual {v1}, Ljava/lang/Process;->waitFor()I
 
-    .line 305
+    .line 389
     new-instance v1, Ljava/lang/String;
 
     invoke-direct {v1, v2}, Ljava/lang/String;-><init>([B)V
@@ -2758,11 +3211,11 @@
 
     move-result v0
 
-    .line 307
+    .line 391
     :goto_1
     return v0
 
-    .line 298
+    .line 382
     :cond_0
     new-instance v2, Ljava/lang/StringBuilder;
 
@@ -2786,7 +3239,7 @@
 
     goto :goto_0
 
-    .line 306
+    .line 390
     :catch_0
     move-exception v1
 
@@ -2797,7 +3250,7 @@
     .locals 1
 
     .prologue
-    .line 414
+    .line 498
     const-string v0, "Arrow"
 
     invoke-virtual {p0, v0}, Ljava/lang/String;->equalsIgnoreCase(Ljava/lang/String;)Z
@@ -2806,14 +3259,14 @@
 
     if-eqz v0, :cond_0
 
-    .line 415
+    .line 499
     const-string v0, "arrow"
 
-    .line 429
+    .line 513
     :goto_0
     return-object v0
 
-    .line 417
+    .line 501
     :cond_0
     const-string v0, "Hand"
 
@@ -2823,12 +3276,12 @@
 
     if-eqz v0, :cond_1
 
-    .line 418
+    .line 502
     const-string v0, "hand"
 
     goto :goto_0
 
-    .line 420
+    .line 504
     :cond_1
     const-string v0, "IBeam"
 
@@ -2838,12 +3291,12 @@
 
     if-eqz v0, :cond_2
 
-    .line 421
+    .line 505
     const-string v0, "ibeam"
 
     goto :goto_0
 
-    .line 423
+    .line 507
     :cond_2
     const-string v0, "Grab"
 
@@ -2853,12 +3306,12 @@
 
     if-eqz v0, :cond_3
 
-    .line 424
+    .line 508
     const-string v0, "grab"
 
     goto :goto_0
 
-    .line 426
+    .line 510
     :cond_3
     const-string v0, "SizeAll"
 
@@ -2868,12 +3321,12 @@
 
     if-eqz v0, :cond_4
 
-    .line 427
+    .line 511
     const-string v0, "_move"
 
     goto :goto_0
 
-    .line 429
+    .line 513
     :cond_4
     const/4 v0, 0x0
 
@@ -2897,12 +3350,12 @@
     .prologue
     const/4 v1, 0x0
 
-    .line 539
+    .line 623
     new-instance v3, Ljava/util/ArrayList;
 
     invoke-direct {v3}, Ljava/util/ArrayList;-><init>()V
 
-    .line 540
+    .line 624
     new-instance v4, Ljava/lang/StringBuilder;
 
     invoke-direct {v4}, Ljava/lang/StringBuilder;-><init>()V
@@ -2911,7 +3364,7 @@
 
     move v2, v1
 
-    .line 542
+    .line 626
     :goto_0
     invoke-virtual {p0}, Ljava/lang/String;->length()I
 
@@ -2919,26 +3372,26 @@
 
     if-ge v0, v5, :cond_3
 
-    .line 543
+    .line 627
     invoke-virtual {p0, v0}, Ljava/lang/String;->charAt(I)C
 
     move-result v5
 
-    .line 544
+    .line 628
     const/16 v6, 0x22
 
     if-ne v5, v6, :cond_1
 
-    .line 545
+    .line 629
     if-nez v2, :cond_0
 
     const/4 v2, 0x1
 
-    .line 546
+    .line 630
     :goto_1
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
-    .line 542
+    .line 626
     :goto_2
     add-int/lit8 v0, v0, 0x1
 
@@ -2947,10 +3400,10 @@
     :cond_0
     move v2, v1
 
-    .line 545
+    .line 629
     goto :goto_1
 
-    .line 547
+    .line 631
     :cond_1
     const/16 v6, 0x2c
 
@@ -2958,25 +3411,25 @@
 
     if-nez v2, :cond_2
 
-    .line 548
+    .line 632
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v5
 
     invoke-virtual {v3, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 549
+    .line 633
     invoke-virtual {v4, v1}, Ljava/lang/StringBuilder;->setLength(I)V
 
     goto :goto_2
 
-    .line 551
+    .line 635
     :cond_2
     invoke-virtual {v4, v5}, Ljava/lang/StringBuilder;->append(C)Ljava/lang/StringBuilder;
 
     goto :goto_2
 
-    .line 554
+    .line 638
     :cond_3
     invoke-virtual {v4}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
@@ -2984,8 +3437,30 @@
 
     invoke-virtual {v3, v0}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
-    .line 555
+    .line 639
     return-object v3
+.end method
+
+.method static themeDir(Landroid/content/Context;Ljava/lang/String;)Ljava/io/File;
+    .locals 4
+
+    .prologue
+    .line 168
+    new-instance v0, Ljava/io/File;
+
+    new-instance v1, Ljava/io/File;
+
+    invoke-static {p0}, Lcom/keymouse/tool/CursorCfg;->lib(Landroid/content/Context;)Ljava/io/File;
+
+    move-result-object v2
+
+    const-string v3, "_themes"
+
+    invoke-direct {v1, v2, v3}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    invoke-direct {v0, v1, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
+
+    return-object v0
 .end method
 
 .method static themeFromFolder(Ljava/io/File;Ljava/lang/String;)Ljava/util/Map;
@@ -3007,36 +3482,36 @@
     .prologue
     const/4 v3, 0x0
 
-    .line 315
+    .line 399
     new-instance v1, Ljava/util/HashMap;
 
     invoke-direct {v1}, Ljava/util/HashMap;-><init>()V
 
-    .line 316
+    .line 400
     new-instance v4, Ljava/io/File;
 
     invoke-direct {v4, p0, p1}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 318
+    .line 402
     new-instance v0, Ljava/io/File;
 
     const-string v2, "theme.cfg"
 
     invoke-direct {v0, v4, v2}, Ljava/io/File;-><init>(Ljava/io/File;Ljava/lang/String;)V
 
-    .line 319
+    .line 403
     invoke-virtual {v0}, Ljava/io/File;->isFile()Z
 
     move-result v2
 
     if-eqz v2, :cond_2
 
-    .line 320
+    .line 404
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->parse(Ljava/io/File;)Ljava/util/Map;
 
     move-result-object v5
 
-    .line 321
+    .line 405
     sget-object v6, Lcom/keymouse/tool/CursorCfg;->SLOTS:[Ljava/lang/String;
 
     array-length v7, v6
@@ -3048,14 +3523,14 @@
 
     aget-object v8, v6, v2
 
-    .line 322
+    .line 406
     invoke-interface {v5, v8}, Ljava/util/Map;->get(Ljava/lang/Object;)Ljava/lang/Object;
 
     move-result-object v0
 
     check-cast v0, Ljava/lang/String;
 
-    .line 323
+    .line 407
     if-eqz v0, :cond_0
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -3074,7 +3549,7 @@
 
     if-eqz v9, :cond_0
 
-    .line 324
+    .line 408
     new-instance v9, Ljava/lang/StringBuilder;
 
     invoke-direct {v9}, Ljava/lang/StringBuilder;-><init>()V
@@ -3099,7 +3574,7 @@
 
     invoke-interface {v1, v8, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 321
+    .line 405
     :cond_0
     add-int/lit8 v0, v2, 0x1
 
@@ -3107,7 +3582,7 @@
 
     goto :goto_0
 
-    .line 327
+    .line 411
     :cond_1
     invoke-interface {v1}, Ljava/util/Map;->isEmpty()Z
 
@@ -3117,30 +3592,30 @@
 
     move-object v0, v1
 
-    .line 369
+    .line 453
     :goto_1
     return-object v0
 
-    .line 331
+    .line 415
     :cond_2
     new-instance v2, Ljava/util/ArrayList;
 
     invoke-direct {v2}, Ljava/util/ArrayList;-><init>()V
 
-    .line 332
+    .line 416
     invoke-static {p0, v4, v2, v3}, Lcom/keymouse/tool/CursorCfg;->walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
 
-    .line 333
+    .line 417
     sget-object v0, Ljava/lang/String;->CASE_INSENSITIVE_ORDER:Ljava/util/Comparator;
 
     invoke-static {v2, v0}, Ljava/util/Collections;->sort(Ljava/util/List;Ljava/util/Comparator;)V
 
-    .line 334
+    .line 418
     new-instance v5, Ljava/util/HashMap;
 
     invoke-direct {v5}, Ljava/util/HashMap;-><init>()V
 
-    .line 335
+    .line 419
     invoke-virtual {v2}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v6
@@ -3158,7 +3633,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 336
+    .line 420
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->baseName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v7
@@ -3171,16 +3646,16 @@
 
     goto :goto_2
 
-    .line 339
+    .line 423
     :cond_3
     new-instance v0, Ljava/util/ArrayList;
 
     invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
 
-    .line 340
+    .line 424
     invoke-static {v4, v0, v3}, Lcom/keymouse/tool/CursorCfg;->findInf(Ljava/io/File;Ljava/util/ArrayList;I)V
 
-    .line 341
+    .line 425
     invoke-virtual {v0}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v3
@@ -3198,7 +3673,7 @@
 
     check-cast v0, Ljava/io/File;
 
-    .line 343
+    .line 427
     :try_start_0
     invoke-static {v0, v5, v1}, Lcom/keymouse/tool/CursorCfg;->parseInf(Ljava/io/File;Ljava/util/Map;Ljava/util/Map;)V
     :try_end_0
@@ -3206,13 +3681,13 @@
 
     goto :goto_3
 
-    .line 344
+    .line 428
     :catch_0
     move-exception v0
 
     goto :goto_3
 
-    .line 349
+    .line 433
     :cond_4
     invoke-virtual {v2}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
@@ -3232,7 +3707,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 350
+    .line 434
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->baseName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v4
@@ -3245,7 +3720,7 @@
 
     move-result-object v4
 
-    .line 351
+    .line 435
     if-eqz v4, :cond_5
 
     invoke-interface {v1, v4}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
@@ -3254,12 +3729,12 @@
 
     if-nez v5, :cond_5
 
-    .line 352
+    .line 436
     invoke-interface {v1, v4, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
     goto :goto_4
 
-    .line 356
+    .line 440
     :cond_6
     const-string v0, "_move"
 
@@ -3269,7 +3744,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 357
+    .line 441
     const-string v3, "grab"
 
     invoke-interface {v1, v3}, Ljava/util/Map;->containsKey(Ljava/lang/Object;)Z
@@ -3280,12 +3755,12 @@
 
     if-eqz v0, :cond_7
 
-    .line 358
+    .line 442
     const-string v3, "grab"
 
     invoke-interface {v1, v3, v0}, Ljava/util/Map;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 360
+    .line 444
     :cond_7
     const-string v0, "grab"
 
@@ -3295,7 +3770,7 @@
 
     if-nez v0, :cond_a
 
-    .line 361
+    .line 445
     invoke-virtual {v2}, Ljava/util/ArrayList;->iterator()Ljava/util/Iterator;
 
     move-result-object v2
@@ -3313,7 +3788,7 @@
 
     check-cast v0, Ljava/lang/String;
 
-    .line 362
+    .line 446
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->baseName(Ljava/lang/String;)Ljava/lang/String;
 
     move-result-object v3
@@ -3322,7 +3797,7 @@
 
     move-result-object v3
 
-    .line 363
+    .line 447
     const-string v4, "move"
 
     invoke-virtual {v3, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
@@ -3347,7 +3822,7 @@
 
     if-eqz v3, :cond_8
 
-    .line 364
+    .line 448
     :cond_9
     const-string v2, "grab"
 
@@ -3356,8 +3831,34 @@
     :cond_a
     move-object v0, v1
 
-    .line 369
+    .line 453
     goto/16 :goto_1
+.end method
+
+.method static themeName(Landroid/content/Context;[Ljava/lang/String;)Ljava/lang/String;
+    .locals 4
+
+    .prologue
+    const/4 v1, 0x2
+
+    .line 144
+    aget-object v0, p1, v1
+
+    aget-object v1, p1, v1
+
+    const/4 v2, 0x3
+
+    aget-object v2, p1, v2
+
+    const/4 v3, 0x1
+
+    aget-object v3, p1, v3
+
+    invoke-static {p0, v0, v1, v2, v3}, Lcom/keymouse/tool/KmCfg;->L(Landroid/content/Context;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v0
+
+    return-object v0
 .end method
 
 .method private static unquote(Ljava/lang/String;)Ljava/lang/String;
@@ -3366,12 +3867,12 @@
     .prologue
     const/16 v3, 0x22
 
-    .line 531
+    .line 615
     invoke-virtual {p0}, Ljava/lang/String;->trim()Ljava/lang/String;
 
     move-result-object v0
 
-    .line 532
+    .line 616
     invoke-virtual {v0}, Ljava/lang/String;->length()I
 
     move-result v1
@@ -3400,7 +3901,7 @@
 
     if-ne v1, v3, :cond_0
 
-    .line 533
+    .line 617
     const/4 v1, 0x1
 
     invoke-virtual {v0}, Ljava/lang/String;->length()I
@@ -3413,13 +3914,13 @@
 
     move-result-object v0
 
-    .line 535
+    .line 619
     :cond_0
     return-object v0
 .end method
 
 .method private static walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
-    .locals 5
+    .locals 6
     .annotation system Ldalvik/annotation/Signature;
         value = {
             "(",
@@ -3433,23 +3934,23 @@
     .end annotation
 
     .prologue
-    .line 216
+    .line 297
     invoke-virtual {p1}, Ljava/io/File;->listFiles()[Ljava/io/File;
 
     move-result-object v1
 
-    .line 217
+    .line 298
     if-eqz v1, :cond_0
 
     const/4 v0, 0x4
 
     if-le p3, v0, :cond_1
 
-    .line 228
+    .line 312
     :cond_0
     return-void
 
-    .line 220
+    .line 301
     :cond_1
     array-length v2, v1
 
@@ -3460,27 +3961,45 @@
 
     aget-object v3, v1, v0
 
-    .line 221
+    .line 302
     invoke-virtual {v3}, Ljava/io/File;->isDirectory()Z
+
+    move-result v4
+
+    if-eqz v4, :cond_4
+
+    .line 303
+    if-nez p3, :cond_3
+
+    invoke-virtual {v3}, Ljava/io/File;->getName()Ljava/lang/String;
+
+    move-result-object v4
+
+    const-string v5, "_"
+
+    invoke-virtual {v4, v5}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 
     move-result v4
 
     if-eqz v4, :cond_3
 
-    .line 222
-    add-int/lit8 v4, p3, 0x1
-
-    invoke-static {p0, v3, p2, v4}, Lcom/keymouse/tool/CursorCfg;->walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
-
-    .line 220
+    .line 301
     :cond_2
     :goto_1
     add-int/lit8 v0, v0, 0x1
 
     goto :goto_0
 
-    .line 223
+    .line 306
     :cond_3
+    add-int/lit8 v4, p3, 0x1
+
+    invoke-static {p0, v3, p2, v4}, Lcom/keymouse/tool/CursorCfg;->walk(Ljava/io/File;Ljava/io/File;Ljava/util/ArrayList;I)V
+
+    goto :goto_1
+
+    .line 307
+    :cond_4
     invoke-virtual {v3}, Ljava/io/File;->getName()Ljava/lang/String;
 
     move-result-object v4
@@ -3491,7 +4010,7 @@
 
     if-eqz v4, :cond_2
 
-    .line 224
+    .line 308
     invoke-virtual {v3}, Ljava/io/File;->getPath()Ljava/lang/String;
 
     move-result-object v3
@@ -3510,7 +4029,7 @@
 
     move-result-object v3
 
-    .line 225
+    .line 309
     invoke-virtual {p2, v3}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
 
     goto :goto_1

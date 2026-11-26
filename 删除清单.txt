@@ -1,0 +1,16 @@
+# 这些旧文件请在仓库里删除(不删也能构建，只是多余)
+assets/cursor_default/STMC/01_Pointer.cur
+assets/cursor_default/STMC/01_Pointer_White.cur
+assets/cursor_default/STMC/02_Help.cur
+assets/cursor_default/STMC/05_Cross.cur
+assets/cursor_default/STMC/06_Beam.cur
+assets/cursor_default/STMC/06_Beam_White.cur
+assets/cursor_default/STMC/07_Pen.cur
+assets/cursor_default/STMC/08_NotAllowed.cur
+assets/cursor_default/STMC/13_Hand.cur
+assets/cursor_default/STMC/13_Move.cur
+assets/cursor_default/STMC/15_Finger.cur
+assets/cursor_default/STMC/15_Finger_White.cur
+assets/cursor_default/STMC/theme.cfg
+smali/com/keymouse/tool/CursorActivity$13$1.smali
+smali/com/keymouse/tool/CursorActivity$14$1.smali

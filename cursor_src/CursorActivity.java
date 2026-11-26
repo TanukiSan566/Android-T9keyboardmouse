@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -38,6 +39,9 @@ public class CursorActivity extends Activity {
     private LinearLayout mThemes;
     private LinearLayout mSlots;
     private Switch mSmartSw;
+    private Switch mOnSw;
+    private LinearLayout mBuiltin;
+    private final ArrayList<Object[]> mThemeRows = new ArrayList<Object[]>();   // {id, 行, 按钮}
     private boolean mBuilding = true;
 
     private String S(String zh, String ja, String en) {
@@ -98,6 +102,7 @@ public class CursorActivity extends Activity {
 
         // 总开关
         Switch on = new Switch(this);
+        mOnSw = on;
         on.setTextSize(16f);
         on.setText(S("启用自定义鼠标", "カスタムポインタを使う", "Use custom pointer"));
         on.setChecked(CursorCfg.geti(mCfg, "on", 1) != 0);
@@ -192,6 +197,26 @@ public class CursorActivity extends Activity {
                 "決定キーをこの時間より長く押し続けると(テキスト上以外)「つかむ」に切り替わります。",
                 "Holding the centre key longer than this (not over text) switches to the grab pointer.")));
 
+        // 内置主题(assets/cursor_themes): 点一下整套套用
+        mBox.addView(title(S("内置主题", "内蔵テーマ", "Built-in themes")));
+        mBox.addView(hint(S("点\"使用\"就整套换成这个主题的 箭头 / 手指 / 文字 / 抓取 四个指针。包含 STMC(原神、孤独摇滚、沉默的魔女等，含左手版)、Bibata、macOS 风格。套用后还可以在最下面单独改某个状态。",
+                "「使用」を押すと 矢印/指/テキスト/つかむ の4つがまとめて切り替わります。STMC(原神・ぼっち・ざ・ろっく!・サイレント・ウィッチ等、左手用あり)、Bibata、macOS風を内蔵。適用後も下で状態ごとに変更できます。",
+                "Tap \"Use\" to switch the arrow / hand / I-beam / grab pointers at once. Includes STMC (Genshin, Bocchi the Rock, Silent Witch…, with left-handed versions), Bibata and macOS style. You can still change single states below afterwards.")));
+        Button rst = new Button(this);
+        rst.setText(S("恢复默认指针(STMC 标准)", "既定のポインタに戻す(STMC スタンダード)", "Restore default pointers (STMC Standard)"));
+        rst.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                CursorCfg.applyDefaultCfg(CursorActivity.this, true);
+                mCfg = CursorCfg.load(CursorActivity.this);
+                Toast.makeText(CursorActivity.this, S("已恢复默认指针", "戻しました", "Restored"), Toast.LENGTH_SHORT).show();
+                afterThemeChanged();
+            }
+        });
+        mBox.addView(rst);
+        mBuiltin = new LinearLayout(this);
+        mBuiltin.setOrientation(LinearLayout.VERTICAL);
+        mBox.addView(mBuiltin);
+
         // 指针库
         mBox.addView(title(S("指针库", "ポインタライブラリ", "Pointer library")));
         mBox.addView(hint(S("把 .cur / .ani / .png 文件，或整套 Windows 鼠标主题文件夹(含 .inf 更好)，放到手机存储根目录的 keymousecursor 文件夹里，再点下面的按钮导入。",
@@ -209,19 +234,7 @@ public class CursorActivity extends Activity {
         mLibInfo.setTextSize(13f);
         mBox.addView(mLibInfo);
 
-        Button rst = new Button(this);
-        rst.setText(S("恢复默认指针(STMC)", "既定のポインタに戻す(STMC)", "Restore default pointers (STMC)"));
-        rst.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                CursorCfg.installDefaultFiles(CursorActivity.this);
-                CursorCfg.applyDefaultCfg(CursorActivity.this, true);
-                Toast.makeText(CursorActivity.this, S("已恢复默认指针", "戻しました", "Restored"), Toast.LENGTH_SHORT).show();
-                recreateSoon();
-            }
-        });
-        mBox.addView(rst);
-
-        mBox.addView(title(S("套用整套主题", "テーマを丸ごと適用", "Apply a whole theme")));
+        mBox.addView(title(S("我导入的主题文件夹", "取り込んだテーマフォルダ", "My imported theme folders")));
         mThemes = new LinearLayout(this);
         mThemes.setOrientation(LinearLayout.VERTICAL);
         mBox.addView(mThemes);
@@ -255,6 +268,7 @@ public class CursorActivity extends Activity {
         mLibInfo.setText(S("库里现有 ", "ライブラリ: ", "Library: ") + files.size()
                 + S(" 个指针文件，", " 個のファイル、", " files, ") + themes.size() + S(" 套主题文件夹", " 個のテーマフォルダ", " theme folders"));
         rebuildThemes(themes);
+        rebuildBuiltin();
         rebuildSlots();
         refreshA11yStatus();
     }
@@ -287,6 +301,7 @@ public class CursorActivity extends Activity {
 
     private void applyTheme(String t) {
         Map<String, String> m = CursorCfg.themeFromFolder(CursorCfg.lib(this), t);
+        put("theme", null);
         int n = 0;
         for (String slot : CursorCfg.SLOTS) {
             String p = m.get(slot);
@@ -302,6 +317,140 @@ public class CursorActivity extends Activity {
         Toast.makeText(this, S("已套用 \"", "適用しました \"", "Applied \"") + t + "\" (" + n + "/4)", Toast.LENGTH_SHORT).show();
         // 开关显示同步
         recreateSoon();
+    }
+
+    // ------------------------------------------------------------ 内置主题列表
+
+    private String groupOf(String id) {
+        if (id.startsWith("stmc-")) {
+            return S("STMC · Sam Toki (原神 / 孤独摇滚 / 沉默的魔女 …)", "STMC · Sam Toki (原神 / ぼっち・ざ・ろっく! / サイレント・ウィッチ …)", "STMC · Sam Toki (Genshin / Bocchi the Rock / Silent Witch …)");
+        }
+        if (id.startsWith("bibata-")) {
+            return S("Bibata (圆角 / 尖角 × 琥珀 / 黑 / 白)", "Bibata (丸/尖 × アンバー/黒/白)", "Bibata (rounded / sharp × amber / black / white)");
+        }
+        return S("macOS 风格 (Capitaine)", "macOS風 (Capitaine)", "macOS style (Capitaine)");
+    }
+
+    private void rebuildBuiltin() {
+        mBuiltin.removeAllViews();
+        mThemeRows.clear();
+        final ArrayList<String[]> list = CursorCfg.builtinThemes(this);
+        if (list.isEmpty()) {
+            mBuiltin.addView(hint(S("(没有找到内置主题)", "(内蔵テーマが見つかりません)", "(no built-in themes found)")));
+            return;
+        }
+        String lastGroup = null;
+        final ArrayList<ImageView[]> thumbs = new ArrayList<ImageView[]>();
+        for (final String[] t : list) {
+            String g = groupOf(t[0]);
+            if (!g.equals(lastGroup)) {
+                lastGroup = g;
+                TextView gh = new TextView(this);
+                gh.setTextSize(13f);
+                gh.setAlpha(0.8f);
+                gh.setPadding(0, dp(14), 0, dp(2));
+                gh.setText(g);
+                mBuiltin.addView(gh);
+            }
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.VERTICAL);
+            row.setPadding(dp(6), dp(6), dp(6), dp(6));
+            LinearLayout top = new LinearLayout(this);
+            top.setOrientation(LinearLayout.HORIZONTAL);
+            top.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView[] ivs = new ImageView[4];
+            for (int i = 0; i < 4; i++) {
+                ImageView iv = new ImageView(this);
+                iv.setBackgroundColor(0xFFB8C0CC);
+                iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                iv.setPadding(dp(2), dp(2), dp(2), dp(2));
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(34), dp(34));
+                lp.rightMargin = dp(4);
+                top.addView(iv, lp);
+                ivs[i] = iv;
+            }
+            thumbs.add(ivs);
+            // 320 像素宽的小屏: 名字单独占一行，下面一行放 4 个预览 + 按钮，名字再长也不会被挤成竖条
+            TextView nm = new TextView(this);
+            nm.setTextSize(14f);
+            nm.setPadding(dp(2), 0, dp(2), dp(4));
+            nm.setText(CursorCfg.themeName(this, t));
+            row.addView(nm);
+            top.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+            Button use = new Button(this);
+            use.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    applyBuiltin(t);
+                }
+            });
+            top.addView(use);
+            row.addView(top);
+            mBuiltin.addView(row);
+            mThemeRows.add(new Object[] { t[0], row, use });
+        }
+        refreshThemeRows();
+        // 复制全部内置主题 + 解码预览图放在后台，不卡界面
+        final ArrayList<String[]> fl = list;
+        new Thread(new Runnable() {
+            public void run() {
+                CursorCfg.installAllThemes(CursorActivity.this);
+                for (int k = 0; k < fl.size(); k++) {
+                    final ImageView[] ivs = thumbs.get(k);
+                    for (int i = 0; i < 4; i++) {
+                        String slot = CursorCfg.SLOTS[i];
+                        File f = new File(CursorCfg.themeDir(CursorActivity.this, fl.get(k)[0]), slot + ".cur");
+                        CurLoader.Set cs = CurLoader.load(f, CursorCfg.defHotspot(slot));
+                        if (cs == null) {
+                            continue;
+                        }
+                        final Bitmap bm = cs.frames[cs.frameAt(0)];
+                        final ImageView iv = ivs[i];
+                        mH.post(new Runnable() {
+                            public void run() {
+                                iv.setImageBitmap(bm);
+                            }
+                        });
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /** 当前正在用的内置主题高亮，按钮显示\"使用中\"。 */
+    private void refreshThemeRows() {
+        String cur = CursorCfg.currentThemeId(mCfg);
+        for (Object[] r : mThemeRows) {
+            boolean on = r[0].equals(cur);
+            LinearLayout row = (LinearLayout) r[1];
+            Button b = (Button) r[2];
+            GradientDrawable bg = new GradientDrawable();
+            bg.setCornerRadius(dp(8));
+            bg.setColor(on ? 0x331B8A3A : 0x00000000);
+            if (on) {
+                bg.setStroke(dp(1), 0xFF1B8A3A);
+            }
+            row.setBackground(bg);
+            b.setText(on ? S("使用中", "使用中", "In use") : S("使用", "使う", "Use"));
+        }
+    }
+
+    private void applyBuiltin(String[] t) {
+        if (!CursorCfg.applyBuiltin(this, t[0])) {
+            Toast.makeText(this, S("套用失败(主题文件复制出错)", "適用に失敗しました", "Failed to apply (copy error)"), Toast.LENGTH_LONG).show();
+            return;
+        }
+        mCfg = CursorCfg.load(this);
+        Toast.makeText(this, S("已套用 \"", "適用しました \"", "Applied \"") + CursorCfg.themeName(this, t) + "\"", Toast.LENGTH_SHORT).show();
+        afterThemeChanged();
+    }
+
+    /** 套用主题后只刷新界面各处，不重建整个页面，滚动位置不丢。 */
+    private void afterThemeChanged() {
+        mBuilding = true;
+        mOnSw.setChecked(CursorCfg.geti(mCfg, "on", 1) != 0);
+        mBuilding = false;
+        refreshThemeRows();
+        rebuildSlots();
     }
 
     private void recreateSoon() {
@@ -339,15 +488,17 @@ public class CursorActivity extends Activity {
                 fn.setText(S("未设置", "未設定", "Not set"));
                 fn.setAlpha(0.6f);
             } else {
-                fn.setText(rel);
+                String[] bt = CursorCfg.builtinOfPath(this, rel);
+                String shown = bt != null ? CursorCfg.themeName(this, bt) : rel;
+                fn.setText(shown);
                 CurLoader.Set s = CurLoader.load(new File(CursorCfg.lib(this), rel), hsOf(slot));
                 if (s != null) {
                     Bitmap f0 = s.frames[s.frameAt(0)];
                     iv.setImageBitmap(f0);
-                    fn.setText(rel + "\n" + f0.getWidth() + "×" + f0.getHeight()
+                    fn.setText(shown + "\n" + f0.getWidth() + "×" + f0.getHeight()
                             + (s.animated() ? S("  动画 ", "  アニメ ", "  anim ") + s.seq.length + S(" 步", " ステップ", " steps") : ""));
                 } else {
-                    fn.setText(rel + "\n" + S("(读取失败)", "(読み込み失敗)", "(failed to read)"));
+                    fn.setText(shown + "\n" + S("(读取失败)", "(読み込み失敗)", "(failed to read)"));
                 }
             }
             row.addView(fn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -368,7 +519,9 @@ public class CursorActivity extends Activity {
             clr.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     put(slot, null);
+                    put("theme", null);
                     rebuildSlots();
+                    refreshThemeRows();
                 }
             });
             btns.addView(clr, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
@@ -405,6 +558,7 @@ public class CursorActivity extends Activity {
         new AlertDialog.Builder(this).setTitle(slotName(slot)).setItems(arr, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface d, int which) {
                 put(slot, arr[which]);
+                put("theme", null);
                 put("on", "1");
                 recreateSoon();
             }

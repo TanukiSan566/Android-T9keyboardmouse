@@ -315,10 +315,38 @@ static char g_mir_name[300] = "";      /* 本次启动对应的 txt 完整路径
 static char g_mir_stamp[32] = "";      /* 启动时刻 YYYYMMDD-HHMMSS，启动时定下，之后不变 */
 static bool g_mir_cleaned = false;
 
+/* ---- 日志时间用手机设置的时区 ----
+ * 守护进程是 su 起的，环境里没有 TZ，musl 的 localtime_r 一律当 UTC；而 App 进程(Java)写的 [hit] 行用的是
+ * 手机时区，两边的时间差了几个小时(手机在 UTC+8 就差 8 小时)，同一份日志里前后对不上。
+ * 这里用系统的 `date +%z`(bionic 会读 persist.sys.timezone)取到偏移，自己加上去。 */
+static long g_tz_off = 0;                /* 本地时间 - UTC，秒 */
+static long g_tz_next_ms = 0;            /* 下次重新取偏移的时刻(单调时钟 ms) */
+
+static void km_localtime(time_t t, struct tm *out) {
+    time_t u = t + (time_t)g_tz_off;
+    gmtime_r(&u, out);
+}
+
+static void tz_refresh(void) {
+    FILE *fp = popen("date +%z 2>/dev/null", "r");
+    if (!fp) return;
+    char b[32] = "";
+    if (fgets(b, sizeof(b), fp) && (b[0] == '+' || b[0] == '-')
+        && b[1] >= '0' && b[1] <= '9' && b[2] >= '0' && b[2] <= '9'
+        && b[3] >= '0' && b[3] <= '5' && b[4] >= '0' && b[4] <= '9') {
+        long off = ((b[1] - '0') * 10 + (b[2] - '0')) * 3600L + ((b[3] - '0') * 10 + (b[4] - '0')) * 60L;
+        g_tz_off = b[0] == '-' ? -off : off;
+    }
+    pclose(fp);
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    g_tz_next_ms = (long)ts.tv_sec * 1000L + ts.tv_nsec / 1000000L + 30L * 60L * 1000L;   /* 半小时后再看一次(换时区/夏令时) */
+}
+
 static void log_mirror_begin(void) {
     time_t t = time(NULL);
     struct tm tmv;
-    localtime_r(&t, &tmv);
+    km_localtime(t, &tmv);
     snprintf(g_mir_stamp, sizeof(g_mir_stamp), "%04d%02d%02d-%02d%02d%02d",
              tmv.tm_year + 1900, tmv.tm_mon + 1, tmv.tm_mday, tmv.tm_hour, tmv.tm_min, tmv.tm_sec);
 }
@@ -441,7 +469,7 @@ static void logmsg(const char *fmt, ...) {
     if (!g_log) return;
     time_t t = time(NULL);
     struct tm tmv;
-    localtime_r(&t, &tmv);
+    km_localtime(t, &tmv);
     fprintf(g_log, "[%02d:%02d:%02d] %s\n", tmv.tm_hour, tmv.tm_min, tmv.tm_sec, line);
     fflush(g_log);
     log_mirror_poll();
@@ -4903,6 +4931,7 @@ int main(int argc, char **argv) {
         g_log = fopen(g_cfg.logfile, "a");
         if (g_log) {
             { struct stat ms0; g_mir_off = stat(g_cfg.logfile, &ms0) == 0 ? (long)ms0.st_size : 0; }   /* 只同步本次启动之后的日志 */
+            tz_refresh();                                         /* 先取手机时区，日志文件名/时间戳都用本地时间 */
             log_mirror_begin();                                   /* 本次启动 = 一个新 txt，文件名用启动时刻 */
             /* 守护进程以 root 身份运行(su 启动)，daemonize() 里设置的
              * umask(027) 会让这里新建的日志文件变成 root:root 0640 之类
@@ -5057,6 +5086,8 @@ int main(int argc, char **argv) {
            g_cfg.manual_rot_file[0] ? g_cfg.manual_rot_file : "(none)",
            g_cfg.auto_ime_suspend ? "on" : "off", g_cfg.ime_poll_ms, g_cfg.ime_hide_confirm_ms,
            g_cfg.force_soft_kbd_when_off ? "on" : "off", g_panel_w, g_panel_h);
+    logmsg("日志时间使用手机时区: UTC%+ld:%02ld (和 App 写的 [hit] 行同一时区)", g_tz_off / 3600,
+           (g_tz_off < 0 ? -g_tz_off : g_tz_off) % 3600 / 60);
 
     /* 开机/守护进程刚启动、鼠标模式默认是关闭状态时也要保证这个设置是
      * 打开的，不用非得等到用户手动 disable 一次才第一次生效。 */
@@ -5179,6 +5210,11 @@ int main(int argc, char **argv) {
 
         /* 日志持续记录: 助手进程([dot]/[torch])自己往 keymouse.log 写，守护进程不一定有 logmsg 可借，
          * 所以主循环每秒至少醒一次，把新增的内容同步进本次的 txt。 */
+        if (g_cfg.logfile[0] && tnow >= g_tz_next_ms) {
+            long old_tz = g_tz_off;
+            tz_refresh();
+            if (g_tz_off != old_tz) logmsg("日志时区变化: UTC%+ld:%02ld", g_tz_off / 3600, (g_tz_off < 0 ? -g_tz_off : g_tz_off) % 3600 / 60);
+        }
         log_mirror_poll();
         if (g_cfg.logfile[0] && (timeout < 0 || timeout > 1000)) timeout = 1000;
 

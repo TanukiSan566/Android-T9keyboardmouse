@@ -26,7 +26,7 @@
     .locals 0
 
     .prologue
-    .line 104
+    .line 109
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$1;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -40,7 +40,7 @@
     .locals 3
 
     .prologue
-    .line 106
+    .line 111
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$1;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$000(Lcom/keymouse/tool/CursorActivity;)Z
@@ -49,7 +49,7 @@
 
     if-nez v0, :cond_0
 
-    .line 107
+    .line 112
     iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$1;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     const-string v2, "on"
@@ -61,11 +61,11 @@
     :goto_0
     invoke-static {v1, v2, v0}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 109
+    .line 114
     :cond_0
     return-void
 
-    .line 107
+    .line 112
     :cond_1
     const-string v0, "0"
 

@@ -35,7 +35,7 @@
     .end annotation
 
     .prologue
-    .line 127
+    .line 132
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$2;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$2;->val$sizeLbl:Landroid/widget/TextView;
@@ -53,7 +53,7 @@
     .locals 3
 
     .prologue
-    .line 129
+    .line 134
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$2;->val$sizeLbl:Landroid/widget/TextView;
 
     new-instance v1, Ljava/lang/StringBuilder;
@@ -90,10 +90,10 @@
 
     invoke-virtual {v0, v1}, Landroid/widget/TextView;->setText(Ljava/lang/CharSequence;)V
 
-    .line 130
+    .line 135
     if-eqz p3, :cond_0
 
-    .line 131
+    .line 136
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$2;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     const-string v1, "size"
@@ -106,7 +106,7 @@
 
     invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
 
-    .line 133
+    .line 138
     :cond_0
     return-void
 .end method
@@ -115,7 +115,7 @@
     .locals 0
 
     .prologue
-    .line 136
+    .line 141
     return-void
 .end method
 
@@ -123,6 +123,6 @@
     .locals 0
 
     .prologue
-    .line 139
+    .line 144
     return-void
 .end method

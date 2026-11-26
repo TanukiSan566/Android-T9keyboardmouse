@@ -1,0 +1,33 @@
+stmc-1-1|STMC 标准|STMC Standard|STMC スタンダード
+stmc-1-2|STMC 标准 · 白|STMC Standard (White)|STMC スタンダード(白)
+stmc-1-3|STMC 标准 · 经典(Windows 式)|STMC Standard (Classic)|STMC スタンダード(クラシック)
+stmc-1-7|STMC 标准 · 左手|STMC Standard (Left-handed)|STMC スタンダード(左手用)
+stmc-2-1|STMC 45 度|STMC 45-Degree|STMC 45度
+stmc-2-2|STMC 45 度 · 白|STMC 45-Degree (White)|STMC 45度(白)
+stmc-2-7|STMC 45 度 · 左手|STMC 45-Degree (Left-handed)|STMC 45度(左手用)
+stmc-3-1|原神|Genshin|原神
+stmc-3-2|原神 · 火元素|Genshin (Pyro)|原神(炎元素)
+stmc-3-7|原神 · 左手|Genshin (Left-handed)|原神(左手用)
+stmc-4-1|原神 · 纳西妲|Genshin Nahida|原神 ナヒーダ
+stmc-4-7|原神 · 纳西妲 · 左手|Genshin Nahida (Left-handed)|原神 ナヒーダ(左手用)
+stmc-5-1|孤独摇滚 · 呆毛|Bocchi the Rock · Ahoge|ぼっち・ざ・ろっく! アホ毛
+stmc-5-2|孤独摇滚 · 呆毛(虹夏)|Bocchi the Rock · Nijika|ぼっち・ざ・ろっく! 虹夏
+stmc-5-7|孤独摇滚 · 呆毛 · 左手|Bocchi the Rock · Ahoge (Left-handed)|ぼっち・ざ・ろっく! アホ毛(左手用)
+stmc-6-1|原神 · 芙宁娜|Genshin Furina|原神 フリーナ
+stmc-6-7|原神 · 芙宁娜 · 左手|Genshin Furina (Left-handed)|原神 フリーナ(左手用)
+stmc-7-1|沉默的魔女|Silent Witch|サイレント・ウィッチ
+stmc-7-7|沉默的魔女 · 左手|Silent Witch (Left-handed)|サイレント・ウィッチ(左手用)
+bibata-modern-amber|Bibata 圆角 · 琥珀|Bibata Modern Amber|Bibata モダン(丸) アンバー
+bibata-modern-amber-right|Bibata 圆角 · 琥珀 · 镜像(左手用)|Bibata Modern Amber (Mirrored, left-handed)|Bibata モダン(丸) アンバー(反転・左手用)
+bibata-modern-classic|Bibata 圆角 · 经典黑|Bibata Modern Classic|Bibata モダン(丸) クラシック(黒)
+bibata-modern-classic-right|Bibata 圆角 · 经典黑 · 镜像(左手用)|Bibata Modern Classic (Mirrored, left-handed)|Bibata モダン(丸) クラシック(黒)(反転・左手用)
+bibata-modern-ice|Bibata 圆角 · 冰白|Bibata Modern Ice|Bibata モダン(丸) アイス(白)
+bibata-modern-ice-right|Bibata 圆角 · 冰白 · 镜像(左手用)|Bibata Modern Ice (Mirrored, left-handed)|Bibata モダン(丸) アイス(白)(反転・左手用)
+bibata-original-amber|Bibata 尖角 · 琥珀|Bibata Original Amber|Bibata オリジナル(尖) アンバー
+bibata-original-amber-right|Bibata 尖角 · 琥珀 · 镜像(左手用)|Bibata Original Amber (Mirrored, left-handed)|Bibata オリジナル(尖) アンバー(反転・左手用)
+bibata-original-classic|Bibata 尖角 · 经典黑|Bibata Original Classic|Bibata オリジナル(尖) クラシック(黒)
+bibata-original-classic-right|Bibata 尖角 · 经典黑 · 镜像(左手用)|Bibata Original Classic (Mirrored, left-handed)|Bibata オリジナル(尖) クラシック(黒)(反転・左手用)
+bibata-original-ice|Bibata 尖角 · 冰白|Bibata Original Ice|Bibata オリジナル(尖) アイス(白)
+bibata-original-ice-right|Bibata 尖角 · 冰白 · 镜像(左手用)|Bibata Original Ice (Mirrored, left-handed)|Bibata オリジナル(尖) アイス(白)(反転・左手用)
+capitaine-dark|macOS 风格 · 黑|macOS style (Capitaine) · Black|macOS風(Capitaine)・黒
+capitaine-light|macOS 风格 · 白|macOS style (Capitaine) · White|macOS風(Capitaine)・白

@@ -33,7 +33,7 @@
     .end annotation
 
     .prologue
-    .line 377
+    .line 511
     iput-object p1, p0, Lcom/keymouse/tool/CursorActivity$11;->this$0:Lcom/keymouse/tool/CursorActivity;
 
     iput-object p2, p0, Lcom/keymouse/tool/CursorActivity$11;->val$slot:Ljava/lang/String;
@@ -46,55 +46,16 @@
 
 # virtual methods
 .method public onClick(Landroid/view/View;)V
-    .locals 4
+    .locals 2
 
     .prologue
-    .line 379
+    .line 513
     iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$11;->this$0:Lcom/keymouse/tool/CursorActivity;
 
-    new-instance v1, Ljava/lang/StringBuilder;
+    iget-object v1, p0, Lcom/keymouse/tool/CursorActivity$11;->val$slot:Ljava/lang/String;
 
-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+    invoke-static {v0, v1}, Lcom/keymouse/tool/CursorActivity;->access$1000(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)V
 
-    const-string v2, "hs_"
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/keymouse/tool/CursorActivity$11;->val$slot:Ljava/lang/String;
-
-    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    move-result-object v1
-
-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v1
-
-    iget-object v2, p0, Lcom/keymouse/tool/CursorActivity$11;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    iget-object v3, p0, Lcom/keymouse/tool/CursorActivity$11;->val$slot:Ljava/lang/String;
-
-    invoke-static {v2, v3}, Lcom/keymouse/tool/CursorActivity;->access$900(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;)I
-
-    move-result v2
-
-    add-int/lit8 v2, v2, 0x1
-
-    rem-int/lit8 v2, v2, 0x3
-
-    invoke-static {v2}, Ljava/lang/String;->valueOf(I)Ljava/lang/String;
-
-    move-result-object v2
-
-    invoke-static {v0, v1, v2}, Lcom/keymouse/tool/CursorActivity;->access$100(Lcom/keymouse/tool/CursorActivity;Ljava/lang/String;Ljava/lang/String;)V
-
-    .line 380
-    iget-object v0, p0, Lcom/keymouse/tool/CursorActivity$11;->this$0:Lcom/keymouse/tool/CursorActivity;
-
-    invoke-static {v0}, Lcom/keymouse/tool/CursorActivity;->access$800(Lcom/keymouse/tool/CursorActivity;)V
-
-    .line 381
+    .line 514
     return-void
 .end method

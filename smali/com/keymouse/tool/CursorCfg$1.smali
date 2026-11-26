@@ -22,7 +22,7 @@
     .locals 0
 
     .prologue
-    .line 197
+    .line 278
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
     return-void
@@ -34,11 +34,11 @@
     .locals 1
 
     .prologue
-    .line 199
+    .line 280
     const/4 v0, 0x1
 
     invoke-static {v0}, Lcom/keymouse/tool/CursorCfg;->setA11y(Z)Z
 
-    .line 200
+    .line 281
     return-void
 .end method
