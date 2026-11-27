@@ -2093,6 +2093,61 @@
 
 
 # virtual methods
+# v75: 回到界面时，如果总开关是"开"但守护进程不在运行(重启手机/重装/更新后常见)，后台自动拉起。
+# 守护进程在运行时什么都不做，不会打断鼠标模式。
+.method protected onResume()V
+    .locals 5
+
+    invoke-super {p0}, Landroid/app/Activity;->onResume()V
+
+    iget-object v0, p0, Lcom/keymouse/tool/MainActivity;->mPrefs:Landroid/content/SharedPreferences;
+
+    if-eqz v0, :cond_end
+
+    const-string v1, "enabled"
+
+    const/4 v2, 0x0
+
+    invoke-interface {v0, v1, v2}, Landroid/content/SharedPreferences;->getBoolean(Ljava/lang/String;Z)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_end
+
+    iget-object v1, p0, Lcom/keymouse/tool/MainActivity;->mSeekMove:Landroid/widget/SeekBar;
+
+    if-eqz v1, :cond_end
+
+    iget-object v2, p0, Lcom/keymouse/tool/MainActivity;->mSeekScroll:Landroid/widget/SeekBar;
+
+    if-eqz v2, :cond_end
+
+    invoke-virtual {v1}, Landroid/widget/SeekBar;->getProgress()I
+
+    move-result v1
+
+    invoke-virtual {v2}, Landroid/widget/SeekBar;->getProgress()I
+
+    move-result v2
+
+    const/4 v3, 0x1
+
+    add-int/2addr v1, v3
+
+    add-int/2addr v2, v3
+
+    new-instance v4, Lcom/keymouse/tool/Daemon;
+
+    const/4 v0, 0x2
+
+    invoke-direct {v4, p0, v1, v2, v0}, Lcom/keymouse/tool/Daemon;-><init>(Landroid/content/Context;III)V
+
+    invoke-virtual {v4}, Ljava/lang/Thread;->start()V
+
+    :cond_end
+    return-void
+.end method
+
 .method protected onActivityResult(IILandroid/content/Intent;)V
     .locals 0
 

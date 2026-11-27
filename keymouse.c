@@ -4524,9 +4524,105 @@ static void deb_out(int code, int value, bool from_kbd) {
     handle_key_event_clean(&e, from_kbd);
 }
 
+/* ---- v75: 电源+音量下 组合截屏(守护进程自己做) ------------------------------------
+ * 背景: 守护进程独占(grab)主键盘后，音量键只能由我们转发给系统，系统自带的"电源+音量下"
+ * 截屏组合键依赖两个键在系统里的时序/来源，转发后实测不可靠(日志里鼠标开/关(全局防抖抓着键盘)
+ * 都截不出来)。所以这里自己识别这个组合: 两个键一起按住 CHORD_SHOT_HOLD_MS 毫秒就用 root 截一张
+ * (和"按键映射 -> 截屏(root)"同一个 do_screenshot)。
+ * 为了不让音量面板被截进图里、也不让系统再重复截一次:
+ *   - 电源已经按着时，音量下直接吞掉(不转发)；
+ *   - 音量下先到时，延后 CHORD_VD_WAIT_MS 毫秒再转发，等电源键；电源在这段时间内到了就吞掉。
+ * 只在\"键盘被我们抓着\"(鼠标模式开 / 全局防抖在运行)时才介入；键盘没被抓时系统自己能收到按键，
+ * 一律不管。想关掉这个功能: 在 files 目录建一个空文件 keymouse_no_chord。 */
+#define CHORD_SHOT_HOLD_MS 350
+#define CHORD_VD_WAIT_MS   80
+static bool g_ch_pwr = false;            /* 电源键按着 */
+static bool g_ch_vold = false;           /* 音量下按着(主键盘上) */
+static long g_ch_since = 0;              /* 两键凑齐的时刻，0=没凑齐 */
+static bool g_ch_fired = false;          /* 这一次组合已经截过 */
+static bool g_vd_pending = false;        /* 音量下按下事件被延后，等电源键 */
+static long g_vd_deadline = 0;
+static bool g_vd_swallow = false;        /* 这一次音量下被组合截屏吞掉，松开也要吞 */
+
+static bool chord_disabled(void) {
+    static long checked_at = 0;
+    static bool off = false;
+    long t = now_ms();
+    if (checked_at == 0 || t - checked_at > 3000) {
+        checked_at = t;
+        off = false;
+        if (g_cfg.logfile[0]) {
+            char path[320];
+            snprintf(path, sizeof(path), "%s", g_cfg.logfile);
+            char *sl = strrchr(path, '/');
+            if (sl) { snprintf(sl + 1, sizeof(path) - (size_t)(sl + 1 - path), "keymouse_no_chord"); off = (access(path, F_OK) == 0); }
+        }
+    }
+    return off;
+}
+
+static bool chord_grabbed(void) { return (g_enabled || g_deb_global_active) && !chord_disabled(); }
+
+static void chord_track(const struct input_event *ev, bool from_kbd_fd) {
+    if (ev->type != EV_KEY || ev->value == 2) return;
+    bool dn = ev->value != 0;
+    if (ev->code == KEY_POWER) {
+        g_ch_pwr = dn;
+        if (dn && g_vd_pending) { g_vd_pending = false; g_vd_swallow = true; }   /* 电源在等待期内到了: 音量下转为被吞 */
+    } else if (ev->code == KEY_VOLUMEDOWN && from_kbd_fd) {
+        g_ch_vold = dn;
+    } else {
+        return;
+    }
+    if (g_ch_pwr && g_ch_vold) { if (g_ch_since == 0) g_ch_since = now_ms(); }
+    else { g_ch_since = 0; g_ch_fired = false; }
+}
+
+/* 音量下事件(主键盘上、被我们抓取时)先过这里。返回 true=已被吞掉/延后，调用者不要转发 */
+static bool chord_vd_filter(int value) {
+    if (!chord_grabbed()) return false;
+    long t = now_ms();
+    if (value == 1) {
+        if (g_ch_pwr) { g_vd_swallow = true; g_vd_pending = false; return true; }
+        g_vd_pending = true; g_vd_deadline = t + CHORD_VD_WAIT_MS;
+        return true;
+    }
+    if (value == 2) return g_vd_swallow || g_vd_pending;
+    if (g_vd_swallow) { g_vd_swallow = false; return true; }
+    if (g_vd_pending) {
+        g_vd_pending = false;
+        if (g_pass_fd >= 0) { emit(g_pass_fd, EV_KEY, KEY_VOLUMEDOWN, 1); emit(g_pass_fd, EV_SYN, SYN_REPORT, 0); }
+    }
+    return false;
+}
+
+static void chord_poll(long tnow, int *timeout_ms) {
+    if (!chord_grabbed()) {
+        /* 键盘不再被抓: 清掉残留状态(延后的按下补发已经没意义，系统会自己收到按键) */
+        g_vd_pending = false; g_vd_swallow = false;
+        return;
+    }
+    if (g_vd_pending) {
+        long remain = g_vd_deadline - tnow;
+        if (remain <= 0) {
+            g_vd_pending = false;
+            if (g_pass_fd >= 0 && g_ch_vold) { emit(g_pass_fd, EV_KEY, KEY_VOLUMEDOWN, 1); emit(g_pass_fd, EV_SYN, SYN_REPORT, 0); }
+        } else if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = (int)remain;
+    }
+    if (g_ch_since > 0 && !g_ch_fired) {
+        long remain = g_ch_since + CHORD_SHOT_HOLD_MS - tnow;
+        if (remain <= 0) {
+            g_ch_fired = true;
+            logmsg("电源+音量下 同时按住 %dms: 截屏(root screencap)", CHORD_SHOT_HOLD_MS);
+            do_screenshot();
+        } else if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = (int)remain;
+    }
+}
+
 static void handle_key_event(struct input_event *ev, bool from_kbd_fd) {
     if (ev->type != EV_KEY) return;
     int code = ev->code;
+    chord_track(ev, from_kbd_fd);
     if (learn_capture(ev, from_kbd_fd)) return;
     /* 音量+/音量-: 不进防抖、不进映射、不进鼠标功能，主键盘上被我们抓取时立即原样转发给系统，
      * 这样"电源+音量下"截屏这类系统组合键不会被我们延迟/吞掉。(被设成开关键的例外，仍走开关键逻辑) */
@@ -4535,6 +4631,7 @@ static void handle_key_event(struct input_event *ev, bool from_kbd_fd) {
             logmsg("[键诊断] 键码=%d %s 来自=%s 鼠标=%s t=%ldms (音量键直通)", code, ev->value ? "按下" : "松开",
                    from_kbd_fd ? "主键盘(已抓取)" : "功能键设备(未抓取)", g_enabled ? "开" : "关", now_ms());
         bool grabbed = g_enabled || g_deb_global_active;
+        if (from_kbd_fd && grabbed && g_pass_fd >= 0 && code == KEY_VOLUMEDOWN && chord_vd_filter(ev->value)) return;
         if (from_kbd_fd && grabbed && g_pass_fd >= 0 && (ev->value != 2 || g_enabled)) {
             emit(g_pass_fd, EV_KEY, code, ev->value);
             emit(g_pass_fd, EV_SYN, SYN_REPORT, 0);
@@ -5217,6 +5314,7 @@ int main(int argc, char **argv) {
         }
 
         deb_poll(tnow, &timeout);
+        chord_poll(tnow, &timeout);
         deb_update_global(tnow, &timeout);
         {
             static long s_deb_log_at = 0, s_deb_last = 0;
