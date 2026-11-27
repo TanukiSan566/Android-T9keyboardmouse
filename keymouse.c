@@ -1314,7 +1314,10 @@ static void enable_mouse_mode(bool notify) {
     set_grab(g_kbd_fd, 1);
     /* 这里才真正创建"未占用按键透传"虚拟键盘设备——只有抓住了主键盘、
      * 需要靠它把返回键/菜单键等转发回去的时候才需要它存在。 */
-    if (pass_ensure(g_deb_global_active ? 2 : 1) != 0) {
+    /* 实验(v73): 透传设备改成优先用"克隆真键盘"(同名/同厂商/同产品，系统会套用和真键盘一样的
+     * 按键布局)，失败才退回通用透传设备。目的: 让转发出去的音量键和原生音量键在系统眼里一样，
+     * 排查"keymouse 运行时电源+音量-系统截屏失效"。 */
+    if (pass_ensure(2) != 0 && pass_ensure(1) != 0) {
         logmsg("警告: 创建透传键盘设备失败，返回键/菜单键等未映射按键在鼠标模式下可能不会生效");
     }
     held_up = held_down = held_left = held_right = false;
