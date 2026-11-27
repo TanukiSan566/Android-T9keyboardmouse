@@ -419,7 +419,7 @@ public final class PosDot {
                 nextTo = 1f;
                 nextDur = 110;
             } else {
-                segTo = state == 2 ? 0.4f : 0.5f;
+                segTo = state == 2 ? 0.8f : 0.85f;   // 按下缩放: 原 0.5/0.4 太小
                 segDur = state == 2 ? 140 : 70;
                 nextTo = -1f;
             }

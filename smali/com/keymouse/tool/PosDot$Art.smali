@@ -1197,7 +1197,7 @@
     :cond_2
     if-ne p1, v4, :cond_3
 
-    const v0, 0x3ecccccd    # 0.4f
+    const v0, 0x3f4ccccd    # 0.8f (拖动时的缩放，原 0.4)
 
     :goto_2
     iput v0, p0, Lcom/keymouse/tool/PosDot$Art;->segTo:F
@@ -1219,7 +1219,7 @@
 
     .line 422
     :cond_3
-    const/high16 v0, 0x3f000000    # 0.5f
+    const v0, 0x3f59999a    # 0.85f (按下不动时的缩放，原 0.5)
 
     goto :goto_2
 

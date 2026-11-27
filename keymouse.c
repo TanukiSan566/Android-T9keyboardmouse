@@ -3129,6 +3129,10 @@ typedef struct {
 static km_map_t g_km_map[KM_MAX];
 static int  g_km_n = 0;
 static bool g_kdn[0x300];                 /* 各实体键当前是否按着(由 hold_key_event 维护) */
+/* 音量+/音量-/电源: 系统自己的组合键(音量下+电源=截屏、电源+音量上=静音/菜单等)要用它们。
+ * 这三个键永远不参与 keymouse 的任何映射(按键映射/开关键学习/中间键学习/防抖)，
+ * 也不会被计入 g_kdn，鼠标模式下主键盘上的音量键只做"立即原样转发"。 */
+#define KM_SYSKEY(c) ((c) == KEY_VOLUMEUP || (c) == KEY_VOLUMEDOWN || (c) == KEY_POWER)
 static void wake_hold(long ms);          /* 定义在后面 */
 static bool g_torch_on = false;
 static char g_torch_node[200] = "";
@@ -3167,6 +3171,7 @@ static bool km_map_enabled(const km_map_t *m) {
 static bool km_code_down(int c) {
     if (c == KM_STAR)
         return g_kdn[55] || g_kdn[227] || g_kdn[0x20a] || (g_cfg.star_code > 0 && g_cfg.star_code < 0x300 && g_kdn[g_cfg.star_code]);
+    if (KM_SYSKEY(c)) return false;          /* 旧配置里残留的音量/电源键映射一律失效 */
     return c > 0 && c < 0x300 && g_kdn[c];
 }
 
@@ -4109,6 +4114,7 @@ static bool is_known_key(int c) {
 }
 
 static void hold_key_event(const struct input_event *ev) {
+    if (KM_SYSKEY(ev->code)) return;         /* 音量/电源: 不记录、不参与任何映射 */
     /* 把"不认识的键"的键码写进日志(数字/方向/确定/返回/菜单/F1 不记)，
      * 这样如果 * 键的键码不在我们认的范围里，看一眼日志就知道该填多少。 */
     if (ev->value == 1 && !is_known_key(ev->code))
@@ -4272,7 +4278,7 @@ static void chord_center_cleanup(void) {
  * 中间键可以当组合里的一员，但不能单独当开关键。 */
 static bool tk_key_bad(int c) {
     return c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT ||
-           c == KEY_BACK || c == KEY_MENU || c == KEY_POWER ||
+           c == KEY_BACK || c == KEY_MENU || KM_SYSKEY(c) ||
            c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT ||
            c == KEY_ENTER;
 }
@@ -4280,7 +4286,7 @@ static bool tk_key_bad(int c) {
 /* 按键映射学习(slot 4)能用的键: 除了开关键组合、电源键、中间键(鼠标模式里它是左键)之外都行，
  * 包括 菜单/返回/方向键/数字键——数字键 2/4/6/8 在鼠标模式里另有翻页功能，用在组合里会一起触发。 */
 static bool map_key_bad(int c) {
-    return tk_slot(c) >= 0 || c == KEY_POWER || c == KC_CONFIRM || is_confirm_alias(c);
+    return tk_slot(c) >= 0 || KM_SYSKEY(c) || c == KC_CONFIRM || is_confirm_alias(c);
 }
 
 static void toggle_learn_finalize(void) {
@@ -4384,7 +4390,7 @@ static bool learn_capture(struct input_event *ev, bool from_kbd_fd) {
 
     bool bad = c == KC_UP || c == KC_DOWN || c == KC_LEFT || c == KC_RIGHT ||
                tk_slot(c) >= 0 ||
-               c == KEY_BACK || c == KEY_MENU || c == KEY_POWER ||
+               c == KEY_BACK || c == KEY_MENU || KM_SYSKEY(c) ||
                c == KEY_1 || c == KEY_3 ||
                c == KC_SCROLL_UP || c == KC_SCROLL_DOWN || c == KC_HSCROLL_LEFT || c == KC_HSCROLL_RIGHT;
     if (!from_kbd_fd) {
@@ -4522,6 +4528,19 @@ static void handle_key_event(struct input_event *ev, bool from_kbd_fd) {
     if (ev->type != EV_KEY) return;
     int code = ev->code;
     if (learn_capture(ev, from_kbd_fd)) return;
+    /* 音量+/音量-: 不进防抖、不进映射、不进鼠标功能，主键盘上被我们抓取时立即原样转发给系统，
+     * 这样"电源+音量下"截屏这类系统组合键不会被我们延迟/吞掉。(被设成开关键的例外，仍走开关键逻辑) */
+    if ((code == KEY_VOLUMEUP || code == KEY_VOLUMEDOWN) && tk_slot(code) < 0) {
+        if (ev->value != 2)
+            logmsg("[键诊断] 键码=%d %s 来自=%s 鼠标=%s t=%ldms (音量键直通)", code, ev->value ? "按下" : "松开",
+                   from_kbd_fd ? "主键盘(已抓取)" : "功能键设备(未抓取)", g_enabled ? "开" : "关", now_ms());
+        bool grabbed = g_enabled || g_deb_global_active;
+        if (from_kbd_fd && grabbed && g_pass_fd >= 0 && (ev->value != 2 || g_enabled)) {
+            emit(g_pass_fd, EV_KEY, code, ev->value);
+            emit(g_pass_fd, EV_SYN, SYN_REPORT, 0);
+        }
+        return;
+    }
     /* 中间键别名: 鼠标模式开着时，主键盘上的 Enter/KPEnter/OK 当作中间键(鼠标左键)。
      * 按下时才决定是否映射(g_enabled)，松开跟随按下时的决定，避免中途切换模式造成卡键。 */
     if (from_kbd_fd && is_confirm_alias(code)) {
