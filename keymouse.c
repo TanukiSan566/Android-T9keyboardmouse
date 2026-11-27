@@ -4527,14 +4527,14 @@ static void deb_out(int code, int value, bool from_kbd) {
 /* ---- v75: 电源+音量下 组合截屏(守护进程自己做) ------------------------------------
  * 背景: 守护进程独占(grab)主键盘后，音量键只能由我们转发给系统，系统自带的"电源+音量下"
  * 截屏组合键依赖两个键在系统里的时序/来源，转发后实测不可靠(日志里鼠标开/关(全局防抖抓着键盘)
- * 都截不出来)。所以这里自己识别这个组合: 两个键一起按住 CHORD_SHOT_HOLD_MS 毫秒就用 root 截一张
- * (和"按键映射 -> 截屏(root)"同一个 do_screenshot)。
+ * 都截不出来)。所以这里自己识别这个组合: 两个键一凑齐就立即触发系统截屏
+ * (用系统自带截屏 input keyevent 120，不是 app 自己截)。
  * 为了不让音量面板被截进图里、也不让系统再重复截一次:
  *   - 电源已经按着时，音量下直接吞掉(不转发)；
  *   - 音量下先到时，延后 CHORD_VD_WAIT_MS 毫秒再转发，等电源键；电源在这段时间内到了就吞掉。
  * 只在\"键盘被我们抓着\"(鼠标模式开 / 全局防抖在运行)时才介入；键盘没被抓时系统自己能收到按键，
  * 一律不管。想关掉这个功能: 在 files 目录建一个空文件 keymouse_no_chord。 */
-#define CHORD_SHOT_HOLD_MS 350
+#define CHORD_SHOT_HOLD_MS 0      /* 0 = 两键一凑齐就立即截屏 */
 #define CHORD_VD_WAIT_MS   80
 static bool g_ch_pwr = false;            /* 电源键按着 */
 static bool g_ch_vold = false;           /* 音量下按着(主键盘上) */
@@ -4613,8 +4613,10 @@ static void chord_poll(long tnow, int *timeout_ms) {
         long remain = g_ch_since + CHORD_SHOT_HOLD_MS - tnow;
         if (remain <= 0) {
             g_ch_fired = true;
-            logmsg("电源+音量下 同时按住 %dms: 截屏(root screencap)", CHORD_SHOT_HOLD_MS);
-            do_screenshot();
+            /* 走系统自带截屏(SYSRQ 键): 系统自己的动画/预览/保存位置，实测这台机器 input keyevent 120 可用 */
+            logmsg("电源+音量下 同时按下: 触发系统截屏 (input keyevent 120)");
+            int rc = system("input keyevent 120 >/dev/null 2>&1 &");
+            (void)rc;
         } else if (*timeout_ms < 0 || remain < *timeout_ms) *timeout_ms = (int)remain;
     }
 }
